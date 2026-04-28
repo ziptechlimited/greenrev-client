@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Wrench, Shield, Clock } from "lucide-react";
+import Link from "next/link";
 
 export default function ExpertCare() {
   return (
@@ -102,13 +103,15 @@ export default function ExpertCare() {
               ))}
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-10 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-accent transition-all"
-            >
-              Book Specialized Service
-            </motion.button>
+            <Link href="/experts">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-10 py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-accent transition-all"
+              >
+                Book Specialized Service
+              </motion.button>
+            </Link>
           </div>
         </div>
       </div>

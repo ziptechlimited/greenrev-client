@@ -72,22 +72,26 @@ export default function ServicesGrid() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10"
+            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10 cursor-pointer"
           >
-            <Image 
-              src="/images/home/expert.png" 
-              alt="Expert Care" 
-              fill 
-              className="object-cover transition-transform duration-1000 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
-            
-            <div className="absolute bottom-12 left-12 right-12 space-y-4">
-              <h3 className="text-white text-sm font-bold uppercase tracking-[0.3em]">EXPERT CARE</h3>
-              <p className="text-white/80 text-sm font-light leading-relaxed">
-                Access our elite network of certified mechanics and specialized service centers.
-              </p>
-            </div>
+            <Link href="/experts">
+              <Image 
+                src="/images/home/expert.png" 
+                alt="Expert Care" 
+                fill 
+                className="object-cover transition-transform duration-1000 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
+              
+              <div className="absolute bottom-12 left-12 right-12 space-y-4">
+                <h3 className="text-white text-sm font-bold uppercase tracking-[0.3em] flex items-center gap-2 group-hover:text-accent transition-colors">
+                  EXPERT CARE <ArrowUpRight className="w-4 h-4" />
+                </h3>
+                <p className="text-white/80 text-sm font-light leading-relaxed">
+                  Access our elite network of certified mechanics and specialized service centers.
+                </p>
+              </div>
+            </Link>
           </motion.div>
 
         </div>

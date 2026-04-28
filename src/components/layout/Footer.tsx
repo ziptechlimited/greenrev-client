@@ -179,9 +179,7 @@ export default function Footer() {
         -------------------------------------------
       */}
       <div className="relative z-10 w-full max-w-[90rem] mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-white/40 tracking-[0.25em] uppercase">
-        <p>
-          © {new Date().getFullYear()} GreenRev Motors. All rights reserved.
-        </p>
+        <p>© {new Date().getFullYear()} GreenRev Motors. All rights reserved.</p>
         <p className="mt-6 md:mt-0 flex items-center gap-2">
           Designed for Excellence{" "}
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />

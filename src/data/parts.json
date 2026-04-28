@@ -15,8 +15,8 @@
     "category": "Exhaust",
     "price": 8200,
     "description": "Full titanium construction with wireless valve control for adjustable acoustic profile.",
-    "image": "/images/parts/exhaust.png",
-    "brand": "Akrapovič x Sarkin Mota",
+    "image": "/images/home/parts.png",
+    "brand": "Akrapovič x GreenRev",
     "specs": ["Grade 5 Titanium", "-12kg weight reduction", "Blue Heat Finish"]
   },
   {
@@ -25,7 +25,7 @@
     "category": "Wheels",
     "price": 12000,
     "description": "Ultra-lightweight aerospace grade forged aluminum. Set of 4.",
-    "image": "/images/parts/wheels.png",
+    "image": "/images/home/parts.png",
     "brand": "HRE Performance",
     "specs": ["Forged 6061-T6", "Satin Black Finish", "Center-lock compatible"]
   },
@@ -35,7 +35,7 @@
     "category": "Braking",
     "price": 15500,
     "description": "Unmatched thermal resistance and stopping power for track dominance.",
-    "image": "/images/parts/brakes.png",
+    "image": "/images/home/parts.png",
     "brand": "Brembo Racing",
     "specs": ["400mm Discs", "6-Piston Calipers", "Zero Fade Technology"]
   },
@@ -45,7 +45,7 @@
     "category": "Interior",
     "price": 2800,
     "description": "Hand-stitched Italian Alcantara with carbon fiber inserts and LED shift lights.",
-    "image": "/images/parts/steering.png",
+    "image": "/images/home/parts.png",
     "brand": "Aureum Interiors",
     "specs": ["Integrated Shift LEDs", "Carbon Fiber Trim", "Custom Stitching"]
   },
@@ -55,7 +55,7 @@
     "category": "Engine",
     "price": 9500,
     "description": "Twin-scroll ball bearing turbochargers for instant spool and massive top-end power.",
-    "image": "/images/parts/turbo.png",
+    "image": "/images/home/parts.png",
     "brand": "Garrett Performance",
     "specs": ["Twin-Scroll", "Billet Compressor Wheel", "Up to 900hp support"]
   }

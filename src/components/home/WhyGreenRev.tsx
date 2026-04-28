@@ -7,26 +7,26 @@ const CARDS = [
   {
     id: 1,
     title: "Precision",
-    description: "Every vehicle in our catalog undergoes a rigorous 300-point telemetry and mechanical inspection. If it doesn't exceed factory standards, it doesn't earn our badge. We deal in absolute perfection, ensuring your investment performs exactly as intended.",
+    description: "Every machine at GreenRev undergoes a rigorous 300-point performance and telemetry audit. We deal in absolute technical mastery, ensuring every vehicle in our collection delivers peak efficiency and surgical handling on every curve.",
   },
   {
     id: 2,
     title: "Exclusivity",
-    description: "Access to limited-production hypercars and bespoke modifications. Our global network secures the unobtainable for our select clientele. We do not mass-market; we act as discrete conduits between automotive masterpieces and those worthy of them.",
+    description: "Access to the world's most elusive performance machines and bespoke modifications. Our global network secures limited-run masterpieces for a select clientele that demands nothing less than the extraordinary and the unobtainable.",
   },
   {
     id: 3,
-    title: "Provenance",
-    description: "We don't just verify history; we guarantee it. Fully documented ownership lineage, service records, and factory build sheets accompany every machine. We ensure the legacy of your vehicle is as impeccable as its performance.",
+    title: "Innovation",
+    description: "We are the architects of the next automotive renaissance. From advanced aerodynamics to high-performance component integration, we don't just follow industry trends—we set the pace for the future of the road.",
   },
   {
     id: 4,
-    title: "Discretion",
-    description: "Our transactions are conducted with absolute privacy. We manage global acquisitions, discrete transportation, and anonymous negotiations for our highest-profile clients. Your privacy is our paramount operational directive.",
+    title: "Performance",
+    description: "Speed is our primary directive. We recalibrate the boundaries of what is possible, delivering instant torque and unprecedented power. Every machine we touch is optimized for dominance and engineered for the ultimate drive.",
   }
 ];
 
-export default function WhySarkinMota() {
+export default function WhyGreenRev() {
   const targetRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({
@@ -39,22 +39,16 @@ export default function WhySarkinMota() {
     restDelta: 0.001
   });
 
-  // Map vertical scroll (0 to 1) to horizontal translation (0% to -X%)
+  // Map vertical scroll (0 to 1) to horizontal translation (0% to -400vw)
   const x = useTransform(smoothProgress, [0, 1], ["0vw", "-400vw"]);
 
   return (
-    // The main container needs sufficient height to allow for scrolling.
-    // 500vh gives us plenty of scroll depth to move through the 5 horizontal panels.
     <section ref={targetRef} className="relative h-[500vh] bg-black">
       
-      {/* 
-        This is the "sticky" container that locks to the viewport. 
-        It holds our horizontal track. 
-      */}
       <div className="sticky top-0 flex h-screen items-center overflow-hidden bg-black">
         
         {/* Subtle Background Parallax / Noise */}
-        <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-screen bg-[radial-gradient(circle_at_50%_50%,_rgba(255,255,255,0.05)_0%,_transparent_60%)]" />
+        <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-screen bg-[radial-gradient(circle_at_50%_50%,_rgba(163,230,53,0.05)_0%,_transparent_60%)]" />
 
         <motion.div style={{ x }} className="flex gap-0">
           
@@ -62,10 +56,10 @@ export default function WhySarkinMota() {
           <div className="h-screen w-screen shrink-0 flex flex-col items-center justify-center p-8 md:p-24 relative overflow-hidden group">
              <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 blur-3xl rounded-full scale-150 pointer-events-none" />
              <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col gap-8">
-               <span className="text-accent text-sm md:text-base tracking-[0.4em] uppercase font-semibold">The Philosophy</span>
+               <span className="text-accent text-sm md:text-base tracking-[0.4em] uppercase font-semibold">The GreenRev Philosophy</span>
                <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-white leading-[0.9] tracking-tighter">
                  We don't sell cars. <br />
-                 <span className="text-white/20 inline-block mt-4 md:mt-6 transition-colors duration-700 hover:text-white/60">We curate power.</span>
+                 <span className="text-white/20 inline-block mt-4 md:mt-6 transition-colors duration-700 hover:text-white/60">We curate the revolution.</span>
                </h2>
              </div>
              {/* Indicator to keep scrolling */}
@@ -97,7 +91,7 @@ export default function WhySarkinMota() {
                 <h3 className="text-5xl md:text-7xl lg:text-8xl font-display text-white tracking-tight leading-none">
                   {card.title}.
                 </h3>
-  <p className="text-lg md:text-2xl text-neutral-400 font-light leading-relaxed md:w-[130%] pl-0 md:pl-8 border-l border-transparent md:border-white/10 mt-4 md:mt-8">
+                <p className="text-lg md:text-2xl text-neutral-400 font-light leading-relaxed md:w-[130%] pl-0 md:pl-8 border-l border-transparent md:border-white/10 mt-4 md:mt-8">
                   {card.description}
                 </p>
               </div>

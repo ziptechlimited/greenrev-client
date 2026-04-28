@@ -1,5 +1,5 @@
 import HeroScroll from "@/components/home/HeroScroll";
-import WhySarkinMota from "@/components/home/WhySarkinMota";
+import WhyGreenRev from "@/components/home/WhyGreenRev";
 import ServicesGrid from "@/components/home/ServicesGrid";
 import CompareDecide from "@/components/home/CompareDecide";
 import RelinquishMachine from "@/components/home/RelinquishMachine";
@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-accent selection:text-black">
       <HeroScroll />
-      <WhySarkinMota />
+      <WhyGreenRev />
       
       {/* Grouped High-Fidelity Sections */}
       <ServicesGrid />

@@ -24,6 +24,7 @@ function TopBar({ currentPath }: { currentPath: string }) {
     { name: "Home", href: "/" },
     { name: "Showroom", href: "/shop" },
     { name: "Parts", href: "/parts" },
+    { name: "Experts", href: "/experts" },
     { name: "About", href: "/about" },
     { name: "Compare", href: "/compare" },
   ];
