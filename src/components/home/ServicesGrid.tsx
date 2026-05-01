@@ -8,8 +8,11 @@ import { ArrowUpRight } from "lucide-react";
 
 export default function ServicesGrid() {
   return (
-    <section className="py-20 px-6 md:px-12 bg-black">
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-auto lg:h-[800px]">
+    <section className="py-20 px-6 md:px-12 bg-black relative overflow-hidden">
+      {/* Ambient Background Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[800px] bg-[#C8A27A]/40 rounded-full blur-[140px] pointer-events-none z-0" />
+
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-auto lg:h-[800px] relative z-10">
         
         {/* The Showroom - Large Card */}
         <motion.div 
@@ -28,7 +31,7 @@ export default function ServicesGrid() {
           
           <div className="absolute bottom-12 left-12 right-12 space-y-6">
             <h2 className="text-6xl font-display text-white tracking-tight">The Showroom</h2>
-            <p className="text-white/60 text-lg max-w-md font-light leading-relaxed">
+            <p className="text-white/60 text-xl max-w-md font-light leading-relaxed">
               A curated collection of world-class machines, meticulously selected for the discerning collector.
             </p>
             <Link 
@@ -60,7 +63,7 @@ export default function ServicesGrid() {
             
             <div className="absolute top-12 left-12 right-12 space-y-4">
               <h3 className="text-accent text-sm font-bold uppercase tracking-[0.3em]">PARTS & PERFORMANCE</h3>
-              <p className="text-white/80 text-sm font-light leading-relaxed">
+              <p className="text-white/80 text-lg font-light leading-relaxed">
                 Enhance your machine with highest-grade components and bespoke accessories.
               </p>
             </div>
@@ -87,7 +90,7 @@ export default function ServicesGrid() {
                 <h3 className="text-white text-sm font-bold uppercase tracking-[0.3em] flex items-center gap-2 group-hover:text-accent transition-colors">
                   EXPERT CARE <ArrowUpRight className="w-4 h-4" />
                 </h3>
-                <p className="text-white/80 text-sm font-light leading-relaxed">
+                <p className="text-white/80 text-lg font-light leading-relaxed">
                   Access our elite network of certified mechanics and specialized service centers.
                 </p>
               </div>

@@ -16,7 +16,7 @@ import { ArrowUpRight } from "lucide-react";
 const CARDS = [
   {
     id: "compare",
-    title: "Compare\n& Decide.",
+    title: "Compare \nand Decide.",
     description:
       "Utilize our advanced side-by-side analysis tool to evaluate performance metrics, aerodynamics, and bespoke options.",
     cta: "Launch Comparison",
@@ -32,6 +32,15 @@ const CARDS = [
     href: "/sell",
     image: "/images/home/relinquish.png",
   },
+  {
+    id: "sourcing",
+    title: "Private\nSourcing.",
+    description:
+      "Leverage our global network to find the exact configuration and provenance you desire, handled with utmost discretion.",
+    cta: "Request Sourcing",
+    href: "/sourcing",
+    image: "/images/home/relinquish.png",
+  },
 ];
 
 // ─── Per-card scroll phases ─────────────────────────────────────────────────
@@ -40,7 +49,8 @@ const CARDS = [
 //          starts shrinking when the NEXT card begins entering (i*0.40 + 0.20)
 // Card N-1 (last): never shrinks.
 function getPhase(i: number, total: number) {
-  const step = 0.45;
+  // Calculate step dynamically so that the last card finishes entering around 0.95
+  const step = total > 1 ? 0.67 / (total - 1) : 0;
   const enterStart  = i * step;
   const enterEnd    = enterStart + 0.28;
   // second card starts entering when first card is 50% through its entry
@@ -345,7 +355,7 @@ export default function StackedCards() {
             left: "50%",
             top: "50%",
             transform: "translate(-50%, -50%)",
-            width: "min(65vw, 900px)",
+            width: "min(50vw, 900px)",
             height: "min(88vh, 940px)",
           }}
         >
