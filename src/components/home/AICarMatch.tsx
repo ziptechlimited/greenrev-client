@@ -294,7 +294,7 @@ export default function AICarMatch() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.01),rgba(0,255,0,0.01),rgba(0,0,255,0.01))] bg-[length:100%_4px,3px_100%] pointer-events-none opacity-20" />
       </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-[1600px] mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row gap-20 items-stretch">
           {/* Left Side: Technical Briefing */}
           <div className="lg:w-1/3 flex flex-col justify-center">

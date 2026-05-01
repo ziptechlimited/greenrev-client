@@ -28,7 +28,7 @@ export default function InventorySection() {
     <section ref={containerRef} className="py-32 px-6 md:px-12 bg-background min-h-screen relative z-30">
       <motion.div 
         style={{ y: headerY, opacity: headerOpacity }}
-        className="max-w-7xl mx-auto mb-20 md:mb-32 flex flex-col md:flex-row md:items-end justify-between gap-8"
+        className="max-w-[1600px] mx-auto mb-20 md:mb-32 flex flex-col md:flex-row md:items-end justify-between gap-8"
       >
         <div>
           <h2 className="text-accent text-sm tracking-[0.3em] uppercase mb-4">Our Collection</h2>
@@ -39,7 +39,7 @@ export default function InventorySection() {
         </p>
       </motion.div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
         {inventoryData.slice(0, 3).map((car) => (
           <InventoryCard key={car.id} car={car} />
         ))}

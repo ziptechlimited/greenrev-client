@@ -14,7 +14,7 @@ export default function PartsAndPerformance() {
         <div className="absolute bottom-[10%] left-[5%] w-[30vw] h-[30vw] bg-accent/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 md:gap-24 relative z-10">
+      <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16 md:gap-24 relative z-10">
         {/* Image Content */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}

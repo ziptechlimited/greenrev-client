@@ -61,7 +61,7 @@ export default function GlobalPresence() {
       {/* Text & Scroller Section (Sequential Top) */}
       <motion.div 
         style={{ opacity: textOpacity }}
-        className="relative z-20 w-full max-w-7xl mx-auto px-6 min-h-[30vh] flex flex-col items-center justify-center"
+        className="relative z-20 w-full max-w-[1600px] mx-auto px-6 min-h-[30vh] flex flex-col items-center justify-center"
       >
         <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-32 w-full">
           

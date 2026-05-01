@@ -1,8 +1,7 @@
 import HeroScroll from "@/components/home/HeroScroll";
 import WhyGreenRev from "@/components/home/WhyGreenRev";
 import ServicesGrid from "@/components/home/ServicesGrid";
-import CompareDecide from "@/components/home/CompareDecide";
-import RelinquishMachine from "@/components/home/RelinquishMachine";
+import StackedCards from "@/components/home/StackedCards";
 import Testimonials from "@/components/home/Testimonials";
 import GlobalPresence from "@/components/home/GlobalPresence";
 import Footer from "@/components/layout/Footer";
@@ -16,8 +15,7 @@ export default function Home() {
       
       {/* Grouped High-Fidelity Sections */}
       <ServicesGrid />
-      <CompareDecide />
-      <RelinquishMachine />
+      <StackedCards />
       
       <CarMorph />
       <Testimonials />

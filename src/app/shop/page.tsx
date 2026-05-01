@@ -35,7 +35,7 @@ export default function ShopPage() {
 
   return (
     <main className="min-h-screen bg-background pt-32 pb-20 px-6 md:px-12">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
@@ -163,7 +163,7 @@ export default function ShopPage() {
           {/* Main Content */}
           <div className="flex-grow">
             {filteredCars.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-12">
                 <AnimatePresence mode="popLayout">
                   {filteredCars.map((car) => (
                     <motion.div

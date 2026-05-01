@@ -9,14 +9,14 @@ import { ArrowUpRight } from "lucide-react";
 export default function ServicesGrid() {
   return (
     <section className="py-20 px-6 md:px-12 bg-black">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[800px]">
+      <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6 h-auto lg:h-[800px]">
         
         {/* The Showroom - Large Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="lg:col-span-2 relative group overflow-hidden rounded-[32px] border border-white/10"
+          className="lg:col-span-3 relative group overflow-hidden rounded-[32px] border border-white/10"
         >
           <Image 
             src="/images/home/showroom.png" 

@@ -119,7 +119,7 @@ export default function AboutPage() {
       {/* 2. THE PHILOSOPHY SECTION (Sticky Scroll) */}
       <section className="relative z-20 bg-background pt-32 h-[300vh]">
         <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden px-6">
-          <div className="max-w-[1400px] mx-auto w-full">
+          <div className="max-w-[1600px] mx-auto w-full">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
               <div className="relative z-10 space-y-8 lg:col-span-5 pl-4 lg:pl-0">
                 <motion.h2
@@ -174,7 +174,7 @@ export default function AboutPage() {
         {/* Glow behind the pillars */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-accent/5 blur-[150px] rounded-full pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto relative z-10">
+        <div className="max-w-[1600px] mx-auto relative z-10">
           <div className="text-center mb-24">
             <span className="text-accent text-[10px] tracking-[0.3em] uppercase mb-4 block font-bold">
               The GreenRev Motors Difference

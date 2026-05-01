@@ -34,7 +34,7 @@ export default function Testimonials() {
   
   return (
     <section ref={containerRef} className="py-32 bg-white overflow-hidden border-t border-black/5">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-20">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 mb-20">
         <h2 className="text-accent text-xs md:text-sm tracking-[0.3em] uppercase mb-4 font-semibold">The Inner Circle</h2>
         <h3 className="text-4xl md:text-6xl font-display text-black tracking-tight leading-tight">Client <br className="hidden md:block" />Testimonials.</h3>
       </div>

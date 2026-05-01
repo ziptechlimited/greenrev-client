@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function RelinquishMachine() {
   return (
     <section className="py-20 px-6 md:px-12 bg-black">
-      <div className="max-w-7xl mx-auto relative h-[600px] rounded-[40px] overflow-hidden border border-white/10 group">
+      <div className="max-w-[1600px] mx-auto relative h-[600px] rounded-[40px] overflow-hidden border border-white/10 group">
         {/* Background Image */}
         <Image 
           src="/images/home/relinquish.png" 

@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function ExpertCare() {
   return (
     <section className="py-32 px-6 md:px-12 bg-[#050505] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-[1600px] mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row-reverse items-center gap-16 md:gap-24">
           {/* Image Content */}
           <motion.div 

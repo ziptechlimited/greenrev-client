@@ -70,7 +70,7 @@ export default function Footer() {
         TOP REGION: Architectural Grid Layout
         -------------------------------------------
       */}
-      <div className="relative z-10 w-full max-w-[90rem] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 mb-32">
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 mb-32">
         {/* Brand & Mission Statement */}
         <div className="lg:col-span-5 space-y-8 pr-8">
           <div className="flex flex-col gap-2">
@@ -168,7 +168,7 @@ export default function Footer() {
         style={{ y: bgY }}
         className="absolute inset-x-0 bottom-0 flex items-end justify-center pointer-events-none opacity-[0.02] overflow-hidden leading-none z-0 mix-blend-screen"
       >
-        <span className="text-[28vw] font-display font-black whitespace-nowrap translate-y-[28%] select-none">
+        <span className="text-[20vw] font-display font-black whitespace-nowrap translate-y-[28%] select-none">
           GREENREV MOTORS
         </span>
       </motion.div>
@@ -178,8 +178,8 @@ export default function Footer() {
         BOTTOM REGION: Minimalist Copyright Bar
         -------------------------------------------
       */}
-      <div className="relative z-10 w-full max-w-[90rem] mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-white/40 tracking-[0.25em] uppercase">
-        <p>© {new Date().getFullYear()} GreenRev Motors. All rights reserved.</p>
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-white/40 tracking-[0.25em] uppercase">
+        <p>© {new Date().getFullYear()} 2026 GreenRev Motors. All rights reserved.</p>
         <p className="mt-6 md:mt-0 flex items-center gap-2">
           Designed for Excellence{" "}
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />

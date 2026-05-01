@@ -52,7 +52,7 @@ export default function CarDetailsPage() {
 
   return (
     <main className="min-h-screen bg-background pt-32 pb-20 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
