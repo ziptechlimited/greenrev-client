@@ -97,7 +97,10 @@ export default function CartSidebar() {
                               {item.name}
                             </h4>
                             <p className="text-subtle text-[10px] tracking-widest uppercase mt-1">
-                              {item.year} - {item.specs.horsepower} HP / {item.specs.topSpeed}
+                              {item.type === 'vehicle' 
+                                ? `${item.originalData.year} - ${item.originalData.specs.horsepower} HP / ${item.originalData.specs.topSpeed}`
+                                : `${item.vendor || 'Premium Part'}`
+                              }
                             </p>
                           </div>
                           <button 
@@ -110,9 +113,8 @@ export default function CartSidebar() {
                         </div>
 
                         <div className="flex justify-between items-end mt-4">
-                           {/* Decorative quantity text since cars are unique */}
                            <div className="text-white/40 text-[10px] tracking-widest">
-                             QTY: 1
+                             QTY: {item.quantity}
                            </div>
                            <div className="text-accent text-sm font-display tracking-wider">
                              {item.price}

@@ -21,7 +21,7 @@ const CARDS = [
       "Utilize our advanced side-by-side analysis tool to evaluate performance metrics, aerodynamics, and bespoke options.",
     cta: "Launch Comparison",
     href: "/compare",
-    image: "/images/home/comparison.png",
+    image: "/images/home/compare.jpeg",
   },
   {
     id: "relinquish",
@@ -39,7 +39,7 @@ const CARDS = [
       "Leverage our global network to find the exact configuration and provenance you desire, handled with utmost discretion.",
     cta: "Request Sourcing",
     href: "/sourcing",
-    image: "/images/home/relinquish.png",
+    image: "/images/home/comparison.png",
   },
 ];
 

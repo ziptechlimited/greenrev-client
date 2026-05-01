@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Handbag, Menu, X } from "lucide-react";
+import { Handbag, Menu, X, User as UserIcon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
 import Image from "next/image";
@@ -46,6 +46,18 @@ export default function Navbar() {
       setIsHidden(false);
     }
   });
+
+  // Hide navbar on auth and dashboard routes
+  const isDashboardOrAuth = 
+    pathname.startsWith("/vendor") || 
+    pathname.startsWith("/mechanic") || 
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
+
+  if (isDashboardOrAuth) {
+    return null;
+  }
 
   return (
     <>
@@ -90,8 +102,15 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right side: Shopping Cart & Mobile Menu Toggle */}
+          {/* Right side: Shopping Cart & Auth & Mobile Menu Toggle */}
           <div className="flex flex-1 justify-end items-center gap-3">
+            <Link
+              href="/login"
+              className="relative p-3 md:p-3.5 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+            >
+              <UserIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
+            </Link>
+            
             <CartButton />
 
             {/* Mobile Menu Toggle */}

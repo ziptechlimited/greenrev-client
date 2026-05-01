@@ -6,8 +6,10 @@ import { Search, Filter, SlidersHorizontal, X, ArrowUpRight, ShoppingCart } from
 import partsData from "@/data/parts.json";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
 
 export default function PartsPage() {
+  const { addToCart } = useCart();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -171,6 +173,16 @@ export default function PartsPage() {
                         </div>
 
                         <button 
+                          onClick={() => addToCart({
+                            id: part.id,
+                            name: part.name,
+                            price: `$${part.price.toLocaleString()}`,
+                            image: part.image,
+                            type: 'part',
+                            quantity: 1,
+                            vendor: part.brand,
+                            originalData: part
+                          })}
                           className="w-full py-4 mt-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-bold text-white uppercase tracking-widest hover:bg-accent hover:text-black hover:border-accent transition-all duration-300 flex items-center justify-center gap-2"
                         >
                           <ShoppingCart className="w-3.5 h-3.5" />

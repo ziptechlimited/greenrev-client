@@ -6,6 +6,7 @@ import CartSidebar from "@/components/layout/CartSidebar";
 import { cn } from "@/lib/utils";
 import { CartProvider } from "@/context/CartContext";
 import { CompareProvider } from "@/context/CompareContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "GreenRev Motors | Elevated Automotive Experience",
@@ -20,15 +21,17 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={cn("bg-background text-foreground antialiased selection:bg-accent selection:text-black")}>
-        <CompareProvider>
-          <CartProvider>
-            <SmoothScroll>
-              <Navbar />
-              {children}
-            </SmoothScroll>
-            <CartSidebar />
-          </CartProvider>
-        </CompareProvider>
+        <AuthProvider>
+          <CompareProvider>
+            <CartProvider>
+              <SmoothScroll>
+                <Navbar />
+                {children}
+              </SmoothScroll>
+              <CartSidebar />
+            </CartProvider>
+          </CompareProvider>
+        </AuthProvider>
       </body>
     </html>
   );

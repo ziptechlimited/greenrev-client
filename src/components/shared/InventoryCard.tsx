@@ -32,7 +32,16 @@ export default function InventoryCard({ car }: { car: CarEntry }) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(car);
+    addToCart({
+      id: car.id,
+      name: car.name,
+      price: car.price,
+      image: carImage,
+      type: 'vehicle',
+      quantity: 1,
+      vendor: car.history?.owners > 0 ? "Pre-owned Dealer" : "GreenRev Certified",
+      originalData: car
+    });
   };
 
   const handleAddToCompare = (e: React.MouseEvent) => {
