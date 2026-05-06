@@ -172,7 +172,7 @@ export default function ShopPage() {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
                     >
                       <InventoryCard car={car} />
                     </motion.div>
@@ -213,7 +213,7 @@ export default function ShopPage() {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
               className="fixed right-0 top-0 bottom-0 w-[80%] max-w-sm bg-background border-l border-white/10 z-[101] p-8 lg:hidden"
             >
               <div className="flex justify-between items-center mb-10">

@@ -48,9 +48,9 @@ export default function Navbar() {
   });
 
   // Hide navbar on auth and dashboard routes
-  const isDashboardOrAuth = 
-    pathname.startsWith("/vendor") || 
-    pathname.startsWith("/mechanic") || 
+  const isDashboardOrAuth =
+    pathname.startsWith("/vendor") ||
+    pathname.startsWith("/mechanic") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register");
@@ -67,7 +67,7 @@ export default function Navbar() {
           hidden: { y: "-100%", opacity: 0 },
         }}
         animate={isHidden ? "hidden" : "visible"}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} // smooth awwwards-style ease
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }} // smooth awwwards-style ease
         className="fixed top-0 inset-x-0 z-[100] pointer-events-none"
       >
         <div className="w-full p-4 md:p-8 flex justify-between items-center pointer-events-auto">
@@ -78,7 +78,7 @@ export default function Navbar() {
               className="w-10 h-10 md:w-12 md:h-12 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center shadow-xl overflow-hidden p-2 hover:bg-white/10 transition-colors"
             >
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="GreenRev Motors Logo"
                 width={48}
                 height={48}
@@ -95,9 +95,7 @@ export default function Navbar() {
                   pathname === tab.href ||
                   (tab.href !== "/" && pathname.startsWith(tab.href));
 
-                return (
-                  <NavItem key={tab.name} tab={tab} isActive={isActive} />
-                );
+                return <NavItem key={tab.name} tab={tab} isActive={isActive} />;
               })}
             </div>
           </div>
@@ -110,7 +108,7 @@ export default function Navbar() {
             >
               <UserIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
             </Link>
-            
+
             <CartButton />
 
             {/* Mobile Menu Toggle */}
@@ -139,7 +137,7 @@ function NavItem({
   tab,
   isActive,
 }: {
-  tab: typeof tabs[number];
+  tab: (typeof tabs)[number];
   isActive: boolean;
 }) {
   const { compareItems } = useCompare();
@@ -154,7 +152,7 @@ function NavItem({
         "px-5 py-2 rounded-xl text-sm font-medium transition-all duration-300 relative group",
         isActive
           ? "text-accent"
-          : "text-white/60 hover:text-white hover:bg-white/5"
+          : "text-white/60 hover:text-white hover:bg-white/5",
       )}
     >
       <span className="relative z-10">{tab.name}</span>
@@ -223,7 +221,7 @@ function MobileMenu({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
           className="fixed inset-0 z-[200] flex flex-col bg-black/95 backdrop-blur-3xl p-6"
         >
           {/* Header */}
@@ -266,7 +264,7 @@ function MobileMenu({
                   transition={{
                     delay: i * 0.05,
                     duration: 0.5,
-                    ease: [0.16, 1, 0.3, 1],
+                    ease: [0.16, 1, 0.3, 1] as const,
                   }}
                 >
                   <Link
@@ -274,7 +272,9 @@ function MobileMenu({
                     onClick={onClose}
                     className={cn(
                       "text-4xl sm:text-5xl font-display font-light tracking-tight transition-colors flex items-center",
-                      isActive ? "text-accent" : "text-white/70 hover:text-white"
+                      isActive
+                        ? "text-accent"
+                        : "text-white/70 hover:text-white",
                     )}
                   >
                     {tab.name}

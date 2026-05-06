@@ -145,7 +145,7 @@ export default function Footer() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
           viewport={{ once: true, margin: "-100px" }}
           className="group cursor-pointer relative flex flex-col items-center justify-center"
         >

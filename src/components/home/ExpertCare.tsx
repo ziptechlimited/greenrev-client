@@ -16,7 +16,7 @@ export default function ExpertCare() {
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
             className="lg:w-1/2 relative"
           >
             <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[40px] border border-white/10 group">

@@ -80,7 +80,7 @@ export default function AboutPage() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
           >
             <span className="text-accent text-[10px] sm:text-xs tracking-[0.4em] uppercase mb-6 block font-bold drop-shadow-md">
               The Standard of Excellence
@@ -126,7 +126,7 @@ export default function AboutPage() {
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
                   className="text-4xl md:text-6xl font-display leading-tight"
                 >
                   A Legacy of <br />
@@ -211,7 +211,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
           className="max-w-3xl mx-auto space-y-10"
         >
           <h2 className="text-5xl md:text-7xl font-display">
@@ -252,7 +252,7 @@ function PillarCard({
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] as const }}
       className="bg-white/[0.02] border border-white/5 p-12 rounded-[40px] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-500 group"
     >
       <div className="w-16 h-16 rounded-full bg-black/40 border border-white/10 flex items-center justify-center mb-8 text-accent group-hover:scale-110 group-hover:bg-accent/10 transition-all duration-500">

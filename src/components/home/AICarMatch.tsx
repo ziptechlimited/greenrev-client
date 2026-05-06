@@ -302,7 +302,7 @@ export default function AICarMatch() {
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
               className="space-y-8"
             >
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-accent/5 border border-accent/20 rounded-full text-accent text-[10px] uppercase font-bold tracking-[0.2em] backdrop-blur-sm">
@@ -361,7 +361,7 @@ export default function AICarMatch() {
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
               className={cn(
                 "relative group z-10 transition-all duration-700 ease-[0.16, 1, 0.3, 1]",
                 isExpanded ? "h-[850px]" : "h-[700px]"
@@ -466,7 +466,7 @@ export default function AICarMatch() {
                           layout
                           initial={{ opacity: 0, y: 30, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
                           className={cn(
                             "flex gap-8 group/msg",
                             m.role === "user" ? "ml-auto flex-row-reverse max-w-[80%]" : "mr-auto max-w-[90%]"

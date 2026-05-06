@@ -67,7 +67,7 @@ export default function ExpertsPage() {
             <motion.div 
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
                 className="inline-flex items-center gap-3 px-6 py-2 bg-accent/5 border border-accent/20 rounded-full text-accent text-[10px] uppercase font-bold tracking-[0.3em]"
             >
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />

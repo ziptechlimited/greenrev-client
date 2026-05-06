@@ -96,7 +96,7 @@ export default function GlobalPresence() {
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -50, opacity: 0 }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
                   className="flex flex-col items-center gap-8"
                 >
                   {/* Previous City (Dimmed) */}

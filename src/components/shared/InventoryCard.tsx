@@ -39,7 +39,7 @@ export default function InventoryCard({ car }: { car: CarEntry }) {
       image: carImage,
       type: 'vehicle',
       quantity: 1,
-      vendor: car.history?.owners > 0 ? "Pre-owned Dealer" : "GreenRev Certified",
+      vendor: "GreenRev Certified",
       originalData: car
     });
   };
@@ -138,4 +138,3 @@ export default function InventoryCard({ car }: { car: CarEntry }) {
     </Link>
   );
 }
-

@@ -16,7 +16,7 @@ export default function ComparePage() {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
         className="max-w-xl"
       >
         <div className="w-24 h-24 rounded-full border border-white/10 bg-black/40 backdrop-blur-md flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
@@ -129,7 +129,7 @@ function CompareColumn({ car, onRemove, index, compareWith }: { car: CarEntry, o
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] as const }}
       className="w-full lg:w-1/2 flex flex-col"
     >
       {/* Header / Image */}
@@ -273,7 +273,7 @@ function SpecBar({
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] as const, delay: 0.2 }}
           className={cn(
             "h-full rounded-full relative",
             isWinner && !isDraw ? "bg-accent shadow-[0_0_10px_rgba(199,164,61,0.5)]" : "bg-white/30"
