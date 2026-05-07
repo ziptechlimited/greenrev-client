@@ -5,21 +5,34 @@ import { motion } from "framer-motion";
 import { ArrowLeft, User, Mail, Lock, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { AuthError, useAuth } from "@/context/AuthContext";
 
 export default function MechanicSignupPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { register, googleAuthUrl } = useAuth();
   const [formData, setFormData] = useState({ name: "", garage: "", email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    login(formData.email, "mechanic");
-    setIsSubmitting(false);
-    router.push("/mechanic/dashboard");
+    setErrorMessage(null);
+    try {
+      await register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: "mechanic",
+        garageName: formData.garage,
+      });
+      router.push("/login");
+    } catch (err) {
+      const message = err instanceof AuthError ? err.message : err instanceof Error ? err.message : "Signup failed";
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,7 +73,7 @@ export default function MechanicSignupPage() {
                 <input 
                   required
                   type="text" 
-                  placeholder="Garage / Shop Name (Optional)"
+                  placeholder="Garage / Shop Name"
                   value={formData.garage}
                   onChange={(e) => setFormData({ ...formData, garage: e.target.value })}
                   className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/10"
@@ -100,6 +113,19 @@ export default function MechanicSignupPage() {
             >
               {isSubmitting ? "Registering..." : "Apply as Expert"}
             </button>
+
+            {errorMessage && (
+              <div className="text-[11px] text-red-200 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                {errorMessage}
+              </div>
+            )}
+
+            <a
+              href={googleAuthUrl({ role: "mechanic", returnTo: "/mechanic/dashboard" })}
+              className="w-full py-4 border border-white/10 rounded-full font-bold uppercase tracking-widest text-xs text-white/80 hover:text-white hover:bg-white/5 transition-all text-center block"
+            >
+              Register with Google
+            </a>
           </form>
         </motion.div>
       </div>

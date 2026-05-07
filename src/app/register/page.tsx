@@ -5,21 +5,42 @@ import { motion } from "framer-motion";
 import { ArrowLeft, User, Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { AuthError, useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { register, googleAuthUrl } = useAuth();
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [doneMessage, setDoneMessage] = useState<string | null>(null);
+
+  const passwordScore = (() => {
+    const p = formData.password;
+    if (!p) return 0;
+    let score = 0;
+    if (p.length >= 12) score += 1;
+    if (/[a-z]/.test(p) && /[A-Z]/.test(p)) score += 1;
+    if (/\d/.test(p)) score += 1;
+    if (/[^A-Za-z\d]/.test(p)) score += 1;
+    return score;
+  })();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    login(formData.email, "customer");
-    setIsSubmitting(false);
-    router.push("/shop");
+    setErrorMessage(null);
+    setDoneMessage(null);
+    try {
+      await register({ ...formData, role: "customer" });
+      setDoneMessage("Account created. Please verify your email before logging in.");
+      router.push("/login");
+    } catch (err) {
+      const message = err instanceof AuthError ? err.message : err instanceof Error ? err.message : "Signup failed";
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -81,12 +102,49 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold text-white/30">
+                <span>Password Strength</span>
+                <span>{passwordScore}/4</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-1 rounded-full ${passwordScore > i ? "bg-accent" : "bg-white/10"}`}
+                  />
+                ))}
+              </div>
+              <p className="text-[11px] text-subtle">
+                Use 12+ chars with upper/lowercase, number, and symbol.
+              </p>
+            </div>
+
+            {errorMessage && (
+              <div className="text-[11px] text-red-200 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                {errorMessage}
+              </div>
+            )}
+
+            {doneMessage && (
+              <div className="text-[11px] text-emerald-200 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                {doneMessage}
+              </div>
+            )}
+
             <button
               disabled={isSubmitting}
               className="w-full py-4 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-accent transition-all disabled:opacity-50 disabled:bg-white"
             >
               {isSubmitting ? "Creating Profile..." : "Create Profile"}
             </button>
+
+            <a
+              href={googleAuthUrl({ role: "customer", returnTo: "/shop" })}
+              className="w-full py-4 border border-white/10 rounded-full font-bold uppercase tracking-widest text-xs text-white/80 hover:text-white hover:bg-white/5 transition-all text-center block"
+            >
+              Sign up with Google
+            </a>
           </form>
         </motion.div>
       </div>

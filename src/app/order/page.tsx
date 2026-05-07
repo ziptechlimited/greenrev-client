@@ -3,18 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  Check,
-  ChevronRight,
-  MapPin,
-  Truck,
-  ShieldCheck,
-  Mail,
-  Phone,
-  User,
-  Package,
-} from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, MapPin, Truck, ShieldCheck, Mail, Phone, User, Package } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import inventory from "@/data/inventory.json";
@@ -25,7 +14,7 @@ function OrderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { cartItems, cartTotal, clearCart } = useCart();
-
+  
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -33,7 +22,7 @@ function OrderContent() {
     phone: "",
     address: "",
     city: "",
-    notes: "",
+    notes: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -43,7 +32,7 @@ function OrderContent() {
   useEffect(() => {
     const carId = searchParams.get("id");
     if (carId) {
-      const car = inventory.find((c) => c.id === carId);
+      const car = inventory.find(c => c.id === carId);
       if (car) {
         setActiveCar(car as unknown as CarEntry);
       }
@@ -55,23 +44,21 @@ function OrderContent() {
     }
   }, [searchParams, cartItems]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  const nextStep = () => setStep(prev => Math.min(prev + 1, 3));
+  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+    
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     setIsSubmitting(false);
     setIsSuccess(true);
     clearCart();
@@ -80,7 +67,7 @@ function OrderContent() {
   if (isSuccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full text-center space-y-8"
@@ -89,16 +76,12 @@ function OrderContent() {
             <Check className="w-12 h-12 text-accent" />
           </div>
           <div className="space-y-4">
-            <h1 className="text-4xl font-display text-white">
-              Request Received
-            </h1>
+            <h1 className="text-4xl font-display text-white">Request Received</h1>
             <p className="text-subtle">
-              Your acquisition request has been formally logged. A Sarkin Mota
-              concierge will contact you within the next 24 hours to finalize
-              the logistics.
+              Your acquisition request has been formally logged. A Sarkin Mota concierge will contact you within the next 24 hours to finalize the logistics.
             </p>
           </div>
-          <Link
+          <Link 
             href="/shop"
             className="inline-block px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-xs rounded-full hover:scale-105 transition-transform"
           >
@@ -109,12 +92,13 @@ function OrderContent() {
     );
   }
 
-  const itemsToOrder = searchParams.get("id")
-    ? ([activeCar].filter(Boolean) as CarEntry[])
+  const itemsToOrder = searchParams.get("id") 
+    ? [activeCar].filter(Boolean) as CarEntry[]
     : cartItems;
 
-  const totalDisplay =
-    searchParams.get("id") && activeCar ? activeCar.price : cartTotal;
+  const totalDisplay = searchParams.get("id") && activeCar 
+    ? activeCar.price 
+    : cartTotal;
 
   return (
     <div className="min-h-screen bg-background text-white flex flex-col lg:flex-row">
@@ -130,19 +114,15 @@ function OrderContent() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
               className="absolute inset-0"
             >
-              <div
+              <div 
                 className="absolute inset-0 bg-cover bg-center filter brightness-50 grayscale-[0.2]"
                 style={{ backgroundImage: `url(${activeCar.image})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-
+              
               <div className="absolute bottom-12 left-12 right-12 space-y-4">
-                <span className="text-accent text-xs tracking-[0.3em] uppercase font-bold drop-shadow-md">
-                  Selected Machine
-                </span>
-                <h2 className="text-5xl md:text-7xl font-display drop-shadow-2xl">
-                  {activeCar.name}
-                </h2>
+                <span className="text-accent text-xs tracking-[0.3em] uppercase font-bold drop-shadow-md">Selected Machine</span>
+                <h2 className="text-5xl md:text-7xl font-display drop-shadow-2xl">{activeCar.name}</h2>
                 <div className="flex gap-8 text-subtle text-sm tracking-widest uppercase">
                   <span>{activeCar.year}</span>
                   <span>{activeCar.specs.horsepower} HP</span>
@@ -159,9 +139,7 @@ function OrderContent() {
             <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white/5 transition-colors">
               <ArrowLeft className="w-4 h-4" />
             </div>
-            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-subtle group-hover:text-white transition-colors">
-              Back to Showroom
-            </span>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-subtle group-hover:text-white transition-colors">Back to Showroom</span>
           </Link>
         </div>
       </div>
@@ -173,14 +151,10 @@ function OrderContent() {
           <div className="flex items-center gap-6">
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold transition-all duration-500",
-                    step >= s
-                      ? "bg-accent border-accent text-black"
-                      : "border-white/10 text-subtle",
-                  )}
-                >
+                <div className={cn(
+                  "w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold transition-all duration-500",
+                  step >= s ? "bg-accent border-accent text-black" : "border-white/10 text-subtle"
+                )}>
                   {step > s ? <Check className="w-4 h-4" /> : s}
                 </div>
                 {s < 3 && <div className="w-8 h-px bg-white/10" />}
@@ -189,12 +163,8 @@ function OrderContent() {
           </div>
 
           <div className="space-y-4 tracking-tight">
-            <h1 className="text-4xl md:text-6xl font-display">
-              Acquisition Request
-            </h1>
-            <p className="text-subtle font-light text-lg italic">
-              The journey of a thousand miles begins with a single form.
-            </p>
+            <h1 className="text-4xl md:text-6xl font-display">Acquisition Request</h1>
+            <p className="text-subtle font-light text-lg italic">The journey of a thousand miles begins with a single form.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-12">
@@ -208,14 +178,12 @@ function OrderContent() {
                   className="space-y-8"
                 >
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">
-                      Identity
-                    </label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Identity</label>
                     <div className="group relative">
                       <User className="absolute left-0 top-4 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                      <input
+                      <input 
                         required
-                        type="text"
+                        type="text" 
                         name="name"
                         placeholder="Legal Full Name"
                         value={formData.name}
@@ -227,9 +195,9 @@ function OrderContent() {
                   <div className="space-y-1">
                     <div className="group relative">
                       <Mail className="absolute left-0 top-4 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                      <input
+                      <input 
                         required
-                        type="email"
+                        type="email" 
                         name="email"
                         placeholder="Electronic Mail Address"
                         value={formData.email}
@@ -241,9 +209,9 @@ function OrderContent() {
                   <div className="space-y-1">
                     <div className="group relative">
                       <Phone className="absolute left-0 top-4 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                      <input
+                      <input 
                         required
-                        type="tel"
+                        type="tel" 
                         name="phone"
                         placeholder="Telephonic Contact"
                         value={formData.phone}
@@ -264,14 +232,12 @@ function OrderContent() {
                   className="space-y-8"
                 >
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">
-                      Logistics
-                    </label>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Logistics</label>
                     <div className="group relative">
                       <MapPin className="absolute left-0 top-4 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                      <input
+                      <input 
                         required
-                        type="text"
+                        type="text" 
                         name="address"
                         placeholder="Delivery Destination Address"
                         value={formData.address}
@@ -283,9 +249,9 @@ function OrderContent() {
                   <div className="space-y-1">
                     <div className="group relative">
                       <Truck className="absolute left-0 top-4 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                      <input
+                      <input 
                         required
-                        type="text"
+                        type="text" 
                         name="city"
                         placeholder="City / State"
                         value={formData.city}
@@ -295,7 +261,7 @@ function OrderContent() {
                     </div>
                   </div>
                   <div className="group relative">
-                    <textarea
+                    <textarea 
                       name="notes"
                       placeholder="Special Requirements or Acquisition Notes..."
                       value={formData.notes}
@@ -318,73 +284,45 @@ function OrderContent() {
                   <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-8 space-y-6">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">
-                          Client Summary
-                        </label>
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Client Summary</label>
                         <p className="text-xl font-display">{formData.name}</p>
                         <p className="text-sm text-subtle">{formData.email}</p>
                         <p className="text-sm text-subtle">{formData.phone}</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setStep(1)}
-                        className="text-[10px] uppercase text-accent border-b border-accent/20"
-                      >
-                        Edit
-                      </button>
+                      <button type="button" onClick={() => setStep(1)} className="text-[10px] uppercase text-accent border-b border-accent/20">Edit</button>
                     </div>
-
+                    
                     <div className="w-full h-px bg-white/5" />
 
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">
-                          Delivery Protocol
-                        </label>
-                        <p className="text-sm leading-relaxed max-w-[200px]">
-                          {formData.address}, {formData.city}
-                        </p>
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Delivery Protocol</label>
+                        <p className="text-sm leading-relaxed max-w-[200px]">{formData.address}, {formData.city}</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setStep(2)}
-                        className="text-[10px] uppercase text-accent border-b border-accent/20"
-                      >
-                        Edit
-                      </button>
+                      <button type="button" onClick={() => setStep(2)} className="text-[10px] uppercase text-accent border-b border-accent/20">Edit</button>
                     </div>
 
                     <div className="w-full h-px bg-white/5" />
 
                     <div className="space-y-4">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">
-                        Acquisition Value
-                      </label>
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Acquisition Value</label>
                       <div className="flex justify-between items-end">
                         <div className="space-y-2">
-                          {itemsToOrder.map((item) => (
-                            <div
-                              key={item.id}
-                              className="text-sm text-subtle flex items-center gap-2"
-                            >
+                          {itemsToOrder.map(item => (
+                            <div key={item.id} className="text-sm text-subtle flex items-center gap-2">
                               <Package className="w-3 h-3 opacity-30" />
                               {item.name}
                             </div>
                           ))}
                         </div>
-                        <p className="text-3xl font-display text-accent">
-                          {totalDisplay}
-                        </p>
+                        <p className="text-3xl font-display text-accent">{totalDisplay}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4 bg-accent/5 p-4 rounded-xl border border-accent/10">
                     <ShieldCheck className="w-5 h-5 text-accent" />
-                    <p className="text-[11px] text-accent/80 leading-relaxed font-medium">
-                      Sarkin Mota Secure Escrow Protection is active for this
-                      acquisition request.
-                    </p>
+                    <p className="text-[11px] text-accent/80 leading-relaxed font-medium">Sarkin Mota Secure Escrow Protection is active for this acquisition request.</p>
                   </div>
                 </motion.div>
               )}
@@ -419,16 +357,10 @@ function OrderContent() {
                   {isSubmitting ? (
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 1,
-                        ease: "linear",
-                      }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                       className="w-4 h-4 border-2 border-black border-t-transparent rounded-full"
                     />
-                  ) : (
-                    "Formalize Request"
-                  )}
+                  ) : "Formalize Request"}
                 </button>
               )}
             </div>
@@ -441,13 +373,7 @@ function OrderContent() {
 
 export default function OrderPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" /></div>}>
       <OrderContent />
     </Suspense>
   );

@@ -26,8 +26,8 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
   const router = useRouter();
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/login");
   };
 
@@ -76,7 +76,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         </div>
 
         <div className="px-8 py-4 border-b border-white/5 mb-4">
-          <p className="text-white text-sm font-medium">{user.name}</p>
+          <p className="text-white text-sm font-medium">{user.name ?? "Account"}</p>
           <p className="text-white/40 text-xs">{user.email}</p>
         </div>
 

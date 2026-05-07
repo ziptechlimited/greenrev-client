@@ -1,36 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, Lock, Mail, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth, UserRole } from "@/context/AuthContext";
+import { AuthError, useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, googleAuthUrl, resendVerification } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("customer");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [verificationHint, setVerificationHint] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    login(email, role);
-    setIsSubmitting(false);
-
-    // Redirect based on role
-    if (role === "admin") router.push("/admin/dashboard");
-    else if (role === "vendor") router.push("/vendor/dashboard");
-    else if (role === "mechanic") router.push("/mechanic/dashboard");
-    else router.push("/shop");
+    setErrorMessage(null);
+    setVerificationHint(false);
+    try {
+      const user = await login(email, password);
+      if (user.role === "admin") router.push("/admin/dashboard");
+      else if (user.role === "vendor") router.push("/vendor/dashboard");
+      else if (user.role === "mechanic") router.push("/mechanic/dashboard");
+      else router.push("/shop");
+    } catch (err) {
+      if (err instanceof AuthError && err.code === "EMAIL_NOT_VERIFIED") {
+        setVerificationHint(true);
+      }
+      const message = err instanceof Error ? err.message : "Login failed";
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const containerVariants = {
@@ -134,32 +140,6 @@ export default function LoginPage() {
               <p className="text-subtle text-sm">Sign in to your GreenRev account.</p>
             </motion.div>
 
-            {/* Role Selector */}
-            <motion.div variants={itemVariants} className="space-y-4">
-              <label className="text-[10px] uppercase font-bold tracking-widest text-white/30">Select Identity</label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
-                {(["customer", "vendor", "mechanic", "admin"] as UserRole[]).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
-                    className={`relative py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-500 overflow-hidden ${
-                      role === r ? "text-black" : "text-subtle hover:text-white"
-                    }`}
-                  >
-                    {role === r && (
-                      <motion.div 
-                        layoutId="active-role"
-                        className="absolute inset-0 bg-white z-0"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    )}
-                    <span className="relative z-10">{r}</span>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-
             <motion.form variants={itemVariants} onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-6">
                 <div className="group relative">
@@ -187,6 +167,34 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {errorMessage && (
+                <div className="text-[11px] text-red-200 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+                  {errorMessage}
+                </div>
+              )}
+
+              {verificationHint && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsSubmitting(true);
+                    setErrorMessage(null);
+                    try {
+                      await resendVerification(email);
+                      setErrorMessage("Verification email sent. Check your inbox.");
+                    } catch (e) {
+                      const message = e instanceof Error ? e.message : "Failed to resend verification email";
+                      setErrorMessage(message);
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  }}
+                  className="w-full py-4 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5 transition-all"
+                >
+                  Resend Verification Email
+                </button>
+              )}
+
               <button
                 disabled={isSubmitting}
                 className="group relative w-full py-6 bg-white text-black rounded-full font-bold uppercase tracking-widest text-[10px] hover:bg-accent transition-all duration-500 disabled:opacity-50 disabled:bg-white overflow-hidden"
@@ -196,6 +204,15 @@ export default function LoginPage() {
                   {!isSubmitting && <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />}
                 </div>
               </button>
+
+              <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold text-white/30">
+                <Link href="/forgot-password" className="hover:text-white transition-colors">
+                  Forgot Password
+                </Link>
+                <a href={googleAuthUrl({ returnTo: "/shop" })} className="hover:text-white transition-colors">
+                  Continue with Google
+                </a>
+              </div>
             </motion.form>
 
             <motion.div variants={itemVariants} className="pt-8 space-y-8">
