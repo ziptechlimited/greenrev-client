@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useScroll, useTransform, motion, useSpring } from "framer-motion";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
-import HeroHUD from "./HeroHUD";
+
 
 const FRAME_COUNT = 219;
 
@@ -62,6 +62,11 @@ export default function HeroScroll() {
   const textOpacity = useTransform(springProgress, [0, 0.75, 0.95, 1], [0, 0, 1, 1]);
   const textY = useTransform(springProgress, [0, 0.75, 0.95, 1], [50, 50, 0, 0]);
   const overlayOpacity = useTransform(springProgress, [0, 0.5, 1], [0.3, 0.5, 0.8]);
+
+  // Intro text transforms
+  const introOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const introY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
+  const introScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
 
   // Preload all image elements
   useEffect(() => {
@@ -152,13 +157,23 @@ export default function HeroScroll() {
 
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
 
-        <HeroHUD scrollYProgress={springProgress} />
+        {/* Intro Text */}
+        <motion.div
+          className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none px-6 text-center"
+          style={{ opacity: introOpacity, y: introY, scale: introScale }}
+        >
+          <h1 className="text-6xl md:text-9xl font-display uppercase tracking-[0.3em] text-white">
+            GreenRev <span className="text-accent">Motors</span>
+          </h1>
+          <div className="mt-4 w-24 h-[1px] bg-accent/50" />
+        </motion.div>
 
         <motion.div
           className="absolute inset-0 bg-black z-10 pointer-events-none"
           style={{ opacity: overlayOpacity }}
         />
 
+        {/* End Text */}
         <motion.div
           className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none px-6 text-center"
           style={{ opacity: textOpacity, y: textY }}
