@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Check, ChevronRight, MapPin, Truck, ShieldCheck, Mail, Phone, User, Package } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import inventory from "@/data/inventory.json";
+import { getProduct } from "@/lib/apiProduct";
+import { transformProductToCarEntry } from "@/lib/transformProduct";
 import { CarEntry } from "@/components/shared/InventoryCard";
 import { cn } from "@/lib/utils";
 
@@ -32,10 +33,17 @@ function OrderContent() {
   useEffect(() => {
     const carId = searchParams.get("id");
     if (carId) {
-      const car = inventory.find(c => c.id === carId);
-      if (car) {
-        setActiveCar(car as unknown as CarEntry);
+      async function fetchCar() {
+        try {
+          const product = await getProduct(carId!);
+          if (product && product.category === "vehicle") {
+            setActiveCar(transformProductToCarEntry(product));
+          }
+        } catch (error) {
+          console.error("Failed to fetch car for order:", error);
+        }
       }
+      fetchCar();
     } else if (cartItems.length > 0) {
       const firstVehicle = cartItems.find((item) => item.type === "vehicle");
       if (firstVehicle?.originalData) {

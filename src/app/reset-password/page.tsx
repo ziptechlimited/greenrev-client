@@ -34,7 +34,7 @@ function ResetPasswordInner() {
     const p = newPassword;
     if (!p) return 0;
     let score = 0;
-    if (p.length >= 12) score += 1;
+    if (p.length >= 8) score += 1;
     if (/[a-z]/.test(p) && /[A-Z]/.test(p)) score += 1;
     if (/\d/.test(p)) score += 1;
     if (/[^A-Za-z\d]/.test(p)) score += 1;

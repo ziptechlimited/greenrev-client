@@ -1,6 +1,6 @@
-import inventoryData from '@/data/inventory.json';
-
 export const maxDuration = 30;
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5050";
 
 export async function POST(req: Request) {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -13,7 +13,20 @@ export async function POST(req: Request) {
   }
 
   const { messages } = await req.json();
-  const inventoryContext = JSON.stringify(inventoryData, null, 2);
+
+  // Fetch live inventory from database
+  let inventoryContext = "No inventory available currently.";
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data.products) {
+        inventoryContext = JSON.stringify(data.data.products, null, 2);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch inventory for chat context:", error);
+  }
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',

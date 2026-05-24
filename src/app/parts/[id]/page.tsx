@@ -1,33 +1,95 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, Info, Wrench, ShieldCheck, Check } from "lucide-react";
+import {
+  ArrowLeft,
+  ShoppingCart,
+  Info,
+  Wrench,
+  ShieldCheck,
+  Check,
+  Loader2,
+} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import partsData from "@/data/parts.json";
 import { useCart } from "@/context/CartContext";
+import { getProduct, getAllProducts } from "@/lib/apiProduct";
+import { transformProductToPartEntry, PartEntry } from "@/lib/transformProduct";
 
-export default function PartDetailPage({ params }: { params: { id: string } }) {
+function PartDetailsContent() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
   const { addToCart } = useCart();
-  const [part, setPart] = useState<typeof partsData[0] | null>(null);
+  const [part, setPart] = useState<PartEntry | null>(null);
+  const [relatedParts, setRelatedParts] = useState<PartEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAdded, setIsAdded] = useState(false);
 
   useEffect(() => {
-    const foundPart = partsData.find((p) => p.id === params.id);
-    if (foundPart) {
-      setPart(foundPart);
+    async function fetchPartAndRelated() {
+      setIsLoading(true);
+      try {
+        const dynamicProduct = await getProduct(id);
+        if (dynamicProduct) {
+          if (dynamicProduct.category === "part") {
+            const partEntry = transformProductToPartEntry(dynamicProduct);
+            setPart(partEntry);
+
+            // Fetch related parts
+            const allParts = await getAllProducts("part");
+            const related = allParts
+              .filter(
+                (p) =>
+                  p.make === dynamicProduct.make &&
+                  (p._id?.toString() || p.id) !== id,
+              )
+              .map(transformProductToPartEntry);
+
+            setRelatedParts(related.slice(0, 3));
+          } else if (dynamicProduct.category === "vehicle") {
+            router.replace(`/shop/${id}`);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch part details:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [params.id]);
+
+    if (id) {
+      fetchPartAndRelated();
+    }
+  }, [id, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-white">
+        <Loader2 className="w-12 h-12 text-accent animate-spin mb-4" />
+        <p className="text-subtle font-display tracking-widest uppercase text-xs">
+          Accessing Component Data...
+        </p>
+      </div>
+    );
+  }
 
   if (!part) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-4xl font-display text-white mb-4">Component Not Found</h1>
-        <p className="text-subtle mb-8">The requested performance part could not be located.</p>
-        <Link href="/parts" className="px-8 py-4 border border-white/20 text-white rounded-full uppercase tracking-widest text-[10px] font-bold hover:bg-white hover:text-black transition-colors">
+        <h1 className="text-4xl font-display text-white mb-4">
+          Component Not Found
+        </h1>
+        <p className="text-subtle mb-8">
+          The requested performance part could not be located.
+        </p>
+        <Link
+          href="/parts"
+          className="px-8 py-4 border border-white/20 text-white rounded-full uppercase tracking-widest text-[10px] font-bold hover:bg-white hover:text-black transition-colors"
+        >
           Return to Boutique
         </Link>
       </div>
@@ -40,21 +102,22 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
       name: part.name,
       price: `$${part.price.toLocaleString()}`,
       image: part.image,
-      type: 'part',
+      type: "part",
       quantity: 1,
       vendor: part.brand,
-      originalData: part
+      originalData: part,
     });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
-  const relatedParts = partsData.filter(p => p.category === part.category && p.id !== part.id).slice(0, 3);
-
   return (
     <main className="min-h-screen bg-background pt-32 pb-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
-        <Link href="/parts" className="inline-flex items-center gap-2 text-subtle hover:text-white transition-colors mb-12 text-[10px] font-bold tracking-[0.2em] uppercase">
+        <Link
+          href="/parts"
+          className="inline-flex items-center gap-2 text-subtle hover:text-white transition-colors mb-12 text-[10px] font-bold tracking-[0.2em] uppercase"
+        >
           <ArrowLeft className="w-4 h-4" />
           Back to Boutique
         </Link>
@@ -62,13 +125,13 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
           {/* Left Column: Media */}
           <div className="lg:w-1/2">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="relative aspect-square w-full rounded-3xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center p-8 group"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
-              <Image 
+              <Image
                 src={part.image}
                 alt={part.name}
                 fill
@@ -82,15 +145,21 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
 
           {/* Right Column: Details */}
           <div className="lg:w-1/2 flex flex-col justify-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="space-y-8"
             >
               <div>
-                <p className="text-accent text-xs font-bold uppercase tracking-[0.2em] mb-3">{part.brand}</p>
-                <h1 className="text-5xl md:text-6xl font-display text-white mb-6">{part.name}</h1>
-                <p className="text-3xl font-display text-accent">${part.price.toLocaleString()}</p>
+                <p className="text-accent text-xs font-bold uppercase tracking-[0.2em] mb-3">
+                  {part.brand}
+                </p>
+                <h1 className="text-5xl md:text-6xl font-display text-white mb-6">
+                  {part.name}
+                </h1>
+                <p className="text-3xl font-display text-accent">
+                  ${part.price.toLocaleString()}
+                </p>
               </div>
 
               <div className="w-full h-px bg-white/10" />
@@ -107,7 +176,10 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
                 </h3>
                 <ul className="space-y-3">
                   {part.specs.map((spec, i) => (
-                    <li key={i} className="flex items-center gap-3 text-white/80 text-sm">
+                    <li
+                      key={i}
+                      className="flex items-center gap-3 text-white/80 text-sm"
+                    >
                       <div className="w-1.5 h-1.5 rounded-full bg-accent" />
                       {spec}
                     </li>
@@ -127,13 +199,15 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
                 <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-2">
                   <Info className="w-5 h-5 text-accent" />
                   <p className="text-xs text-white/60">Compatibility</p>
-                  <p className="text-sm text-white font-bold">Universal Fit / Spec</p>
+                  <p className="text-sm text-white font-bold">
+                    Universal Fit / Spec
+                  </p>
                 </div>
               </div>
 
               {/* Add to Cart */}
               <div className="pt-6">
-                <button 
+                <button
                   onClick={handleAddToCart}
                   disabled={isAdded}
                   className="w-full py-5 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-full hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:bg-accent disabled:text-black shadow-[0_0_30px_rgba(255,255,255,0.1)]"
@@ -158,23 +232,33 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
         {/* Related Parts */}
         {relatedParts.length > 0 && (
           <div className="mt-32 border-t border-white/5 pt-16">
-            <h2 className="text-2xl font-display text-white mb-12 text-center">Similar Upgrades</h2>
+            <h2 className="text-4xl font-display text-white mb-12">
+              Related Components.
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedParts.map(related => (
-                <Link key={related.id} href={`/parts/${related.id}`} className="group relative bg-white/[0.02] border border-white/10 rounded-[32px] overflow-hidden hover:border-accent/30 transition-all duration-500 block">
-                  <div className="relative aspect-video overflow-hidden bg-white/5 p-8 flex items-center justify-center">
-                    <Image 
-                      src={related.image}
-                      alt={related.name}
+              {relatedParts.map((rp) => (
+                <Link
+                  key={rp.id}
+                  href={`/parts/${rp.id}`}
+                  className="group bg-white/[0.02] border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all"
+                >
+                  <div className="relative aspect-square mb-6 rounded-2xl overflow-hidden bg-white/5">
+                    <Image
+                      src={rp.image}
+                      alt={rp.name}
                       fill
-                      className="object-contain p-8 transition-transform duration-700 group-hover:scale-110"
+                      className="object-contain p-8 group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>
-                  <div className="p-6">
-                    <p className="text-accent text-[10px] font-bold uppercase tracking-widest mb-1">{related.brand}</p>
-                    <h3 className="text-lg font-display text-white">{related.name}</h3>
-                    <p className="text-white/60 mt-2">${related.price.toLocaleString()}</p>
-                  </div>
+                  <p className="text-accent text-[8px] font-bold uppercase tracking-widest mb-1">
+                    {rp.brand}
+                  </p>
+                  <h3 className="text-lg font-display text-white group-hover:text-accent transition-colors">
+                    {rp.name}
+                  </h3>
+                  <p className="text-white/40 text-sm mt-2">
+                    ${rp.price.toLocaleString()}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -182,5 +266,22 @@ export default function PartDetailPage({ params }: { params: { id: string } }) {
         )}
       </div>
     </main>
+  );
+}
+
+export default function PartDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center text-white">
+          <Loader2 className="w-12 h-12 text-accent animate-spin mb-4" />
+          <p className="text-subtle font-display tracking-widest uppercase text-xs">
+            Loading Component...
+          </p>
+        </div>
+      }
+    >
+      <PartDetailsContent />
+    </Suspense>
   );
 }

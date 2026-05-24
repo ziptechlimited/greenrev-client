@@ -1,13 +1,14 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { LayoutDashboard, Package, PlusCircle, User, Settings } from "lucide-react";
+import { LayoutDashboard, Package, PlusCircle, User, Settings, ShoppingCart } from "lucide-react";
 
 const VENDOR_NAV = [
   { name: "Overview", href: "/vendor/dashboard", icon: LayoutDashboard },
   { name: "My Products", href: "/vendor/products", icon: Package },
   { name: "Add Product", href: "/vendor/products/add", icon: PlusCircle },
   { name: "Profile", href: "/vendor/profile", icon: User },
+  { name: "Requests", href: "/vendor/requests", icon: ShoppingCart },
   { name: "Settings", href: "/vendor/settings", icon: Settings },
 ];
 

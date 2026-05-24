@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   motion,
   AnimatePresence,
@@ -9,10 +9,11 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Handbag, Menu, X, User as UserIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Handbag, Menu, X, User as UserIcon, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 const tabs = [
@@ -29,6 +30,7 @@ export default function Navbar() {
   const [isHidden, setIsHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
+  const { user, logout, isLoading } = useAuth();
 
   // Scroll visibility logic: Hide on scroll down, show on scroll up
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -102,12 +104,16 @@ export default function Navbar() {
 
           {/* Right side: Shopping Cart & Auth & Mobile Menu Toggle */}
           <div className="flex flex-1 justify-end items-center gap-3">
-            <Link
-              href="/login"
-              className="relative p-3 md:p-3.5 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
-            >
-              <UserIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
-            </Link>
+            {!isLoading && user ? (
+              <UserDropdown user={user} logout={logout} />
+            ) : (
+              <Link
+                href="/login"
+                className="relative p-3 md:p-3.5 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+              >
+                <UserIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
+              </Link>
+            )}
 
             <CartButton />
 
@@ -127,6 +133,9 @@ export default function Navbar() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         pathname={pathname}
+        user={user}
+        logout={logout}
+        isLoading={isLoading}
       />
     </>
   );
@@ -202,17 +211,214 @@ function CartButton() {
   );
 }
 
+// ─── User Dropdown ─────────────────────────────────────────────────────────────
+function UserDropdown({
+  user,
+  logout,
+}: {
+  user: any;
+  logout: () => Promise<void>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setIsOpen(false);
+    router.push("/");
+  };
+
+  const initial = user.name
+    ? user.name.charAt(0).toUpperCase()
+    : user.email.charAt(0).toUpperCase();
+
+  const dashboardHref =
+    user.role === "admin"
+      ? "/admin/dashboard"
+      : user.role === "vendor"
+      ? "/vendor/dashboard"
+      : user.role === "mechanic"
+      ? "/mechanic/dashboard"
+      : user.role === "customer"
+      ? "/acquisitions"
+      : null;
+
+  const roleLabels: Record<string, { label: string; style: string }> = {
+    admin: {
+      label: "Admin",
+      style: "bg-red-500/10 text-red-400 border border-red-500/20",
+    },
+    vendor: {
+      label: "Vendor",
+      style: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+    },
+    mechanic: {
+      label: "Expert",
+      style: "bg-green-500/10 text-green-400 border border-green-500/20",
+    },
+    customer: {
+      label: "Client",
+      style: "bg-accent/10 text-accent border border-accent/20",
+    },
+  };
+
+  const roleInfo = roleLabels[user.role as string] || {
+    label: user.role || "User",
+    style: "bg-white/10 text-white/70 border border-white/20",
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 p-1 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+      >
+        <div className="w-8 h-8 md:w-9 md:h-9 bg-accent/20 text-accent border border-accent/20 rounded-lg md:rounded-xl flex items-center justify-center font-bold text-sm tracking-tighter">
+          {initial}
+        </div>
+        <ChevronDown
+          className={cn(
+            "w-4 h-4 text-white/60 group-hover:text-white transition-all mr-2",
+            isOpen && "rotate-180"
+          )}
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 top-full mt-3 w-64 bg-[#0a0a0a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[110] flex flex-col p-2"
+          >
+            {/* Header info */}
+            <div className="px-4 py-3 border-b border-white/5 mb-1.5">
+              <p className="text-white text-sm font-medium truncate">
+                {user.name || "GreenRev User"}
+              </p>
+              <p className="text-white/40 text-xs truncate mb-2">{user.email}</p>
+              <span
+                className={cn(
+                  "inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md",
+                  roleInfo.style
+                )}
+              >
+                {roleInfo.label}
+              </span>
+            </div>
+
+            {/* Dashboard Link */}
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+              >
+                <LayoutDashboard className="w-4 h-4 text-accent" />
+                <span>{user.role === "customer" ? "My Requests" : "Dashboard"}</span>
+              </Link>
+            ) : (
+              <Link
+                href="/shop"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+              >
+                <LayoutDashboard className="w-4 h-4 text-accent" />
+                <span>Browse Boutique</span>
+              </Link>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:text-red-400 hover:bg-red-400/10 transition-all text-sm font-medium w-full text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ─── Mobile Menu ───────────────────────────────────────────────────────────────
 function MobileMenu({
   isOpen,
   onClose,
   pathname,
+  user,
+  logout,
+  isLoading,
 }: {
   isOpen: boolean;
   onClose: () => void;
   pathname: string;
+  user: any;
+  logout: () => Promise<void>;
+  isLoading: boolean;
 }) {
   const { compareItems } = useCompare();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    onClose();
+    router.push("/");
+  };
+
+  const dashboardHref =
+    user?.role === "admin"
+      ? "/admin/dashboard"
+      : user?.role === "vendor"
+      ? "/vendor/dashboard"
+      : user?.role === "mechanic"
+      ? "/mechanic/dashboard"
+      : user?.role === "customer"
+      ? "/acquisitions"
+      : null;
+
+  const roleLabels: Record<string, { label: string; style: string }> = {
+    admin: {
+      label: "Admin",
+      style: "bg-red-500/10 text-red-400 border border-red-500/20",
+    },
+    vendor: {
+      label: "Vendor",
+      style: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+    },
+    mechanic: {
+      label: "Expert",
+      style: "bg-green-500/10 text-green-400 border border-green-500/20",
+    },
+    customer: {
+      label: "Client",
+      style: "bg-accent/10 text-accent border border-accent/20",
+    },
+  };
+
+  const roleInfo = user?.role
+    ? roleLabels[user.role as string] || {
+        label: user.role,
+        style: "bg-white/10 text-white/70 border border-white/20",
+      }
+    : null;
 
   return (
     <AnimatePresence>
@@ -288,6 +494,64 @@ function MobileMenu({
               );
             })}
           </div>
+
+          {/* User Session Controls in Mobile Menu */}
+          {!isLoading && (
+            <div className="w-full max-w-sm mx-auto flex flex-col gap-4 mb-8">
+              {user ? (
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 flex flex-col gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="truncate pr-4">
+                      <p className="text-white font-medium text-sm truncate">{user.name || "GreenRev User"}</p>
+                      <p className="text-white/40 text-xs truncate">{user.email}</p>
+                    </div>
+                    {roleInfo && (
+                      <span className={cn("px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md flex-shrink-0", roleInfo.style)}>
+                        {roleInfo.label}
+                      </span>
+                    )}
+                  </div>
+                  <div className="h-px bg-white/5" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {dashboardHref ? (
+                      <Link
+                        href={dashboardHref}
+                        onClick={onClose}
+                        className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white transition-all"
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5 text-accent" />
+                        {user?.role === "customer" ? "My Requests" : "Dashboard"}
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/shop"
+                        onClick={onClose}
+                        className="flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white transition-all"
+                      >
+                        Boutique
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center justify-center gap-2 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-400 transition-all"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={onClose}
+                  className="w-full py-4 bg-white hover:bg-accent text-black rounded-full font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  Enter Portal
+                </Link>
+              )}
+            </div>
+          )}
 
           {/* Footer of Mobile Menu */}
           <motion.div

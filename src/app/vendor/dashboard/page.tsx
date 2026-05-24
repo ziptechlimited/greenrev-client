@@ -1,23 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Package, PlusCircle, User, Settings, TrendingUp, DollarSign } from "lucide-react";
+import { LayoutDashboard, Package, PlusCircle, User, Settings, TrendingUp, ShoppingCart, CheckCircle } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-
-const VENDOR_NAV = [
-  { name: "Overview", href: "/vendor/dashboard", icon: LayoutDashboard },
-  { name: "My Products", href: "/vendor/products", icon: Package },
-  { name: "Add Product", href: "/vendor/products/add", icon: PlusCircle },
-  { name: "Profile", href: "/vendor/profile", icon: User },
-  { name: "Settings", href: "/vendor/settings", icon: Settings },
-];
+import { getVendorRequestCount, getVendorRequests } from "@/lib/apiAcquisition";
 
 export default function VendorDashboardPage() {
+  const [pendingCount, setPendingCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [totalRequests, setTotalRequests] = useState(0);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [count, requests] = await Promise.all([
+          getVendorRequestCount(),
+          getVendorRequests(),
+        ]);
+        setPendingCount(count);
+        setTotalRequests(requests.length);
+        setCompletedCount(requests.filter((r) => r.status === "completed").length);
+      } catch (_) {
+        // silently handle – user may not be authenticated yet
+      }
+    }
+    loadData();
+  }, []);
+
+  const VENDOR_NAV = [
+    { name: "Overview", href: "/vendor/dashboard", icon: LayoutDashboard },
+    { name: "My Products", href: "/vendor/products", icon: Package },
+    { name: "Add Product", href: "/vendor/products/add", icon: PlusCircle },
+    { name: "Profile", href: "/vendor/profile", icon: User },
+    { name: "Requests", href: "/vendor/requests", icon: ShoppingCart, badge: pendingCount },
+    { name: "Settings", href: "/vendor/settings", icon: Settings },
+  ];
+
   const stats = [
-    { label: "Total Sales", value: "$124K", trend: "+8.2%", positive: true },
-    { label: "Active Listings", value: "24", trend: "0", positive: true },
-    { label: "Pending Orders", value: "12", trend: "-2", positive: false },
-    { label: "Profile Views", value: "1,240", trend: "+15%", positive: true },
+    { label: "Pending Requests", value: String(pendingCount), trend: "awaiting response", positive: true },
+    { label: "Total Requests", value: String(totalRequests), trend: "all time", positive: true },
+    { label: "Completed", value: String(completedCount), trend: "transactions", positive: true },
+    { label: "Active Listings", value: "—", trend: "products", positive: true },
   ];
 
   return (
@@ -25,7 +49,7 @@ export default function VendorDashboardPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Vendor Overview</h1>
-          <p className="text-subtle text-sm">Manage your inventory, track sales, and monitor performance.</p>
+          <p className="text-subtle text-sm">Manage your inventory, track requests, and monitor performance.</p>
         </header>
 
         {/* Quick Stats */}
@@ -41,33 +65,71 @@ export default function VendorDashboardPage() {
               <p className="text-subtle text-xs font-bold uppercase tracking-widest mb-4">{stat.label}</p>
               <div className="flex items-end justify-between">
                 <span className="text-3xl font-display text-white">{stat.value}</span>
-                <span className={`text-xs font-medium ${stat.positive ? "text-accent" : "text-white/40"}`}>
-                  {stat.trend}
-                </span>
+                <span className="text-xs font-medium text-white/40">{stat.trend}</span>
               </div>
             </motion.div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px]">
-             <h2 className="text-white font-medium flex items-center gap-2 mb-6">
-              <TrendingUp className="w-4 h-4 text-accent" />
-              Sales Performance
+          {/* Pending requests CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[200px] flex flex-col"
+          >
+            <h2 className="text-white font-medium flex items-center gap-2 mb-4">
+              <ShoppingCart className="w-4 h-4 text-accent" />
+              Incoming Requests
+            </h2>
+            {pendingCount > 0 ? (
+              <div className="flex-1 flex flex-col items-start justify-center gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-accent font-bold text-lg">
+                    {pendingCount}
+                  </span>
+                  <div>
+                    <p className="text-white text-sm font-medium">New pending {pendingCount === 1 ? "request" : "requests"}</p>
+                    <p className="text-subtle text-xs">Customers are waiting to hear from you</p>
+                  </div>
+                </div>
+                <a
+                  href="/vendor/requests"
+                  className="px-5 py-2.5 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors"
+                >
+                  View Requests →
+                </a>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-subtle text-sm">No pending requests right now.</p>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Completed transactions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[200px]"
+          >
+            <h2 className="text-white font-medium flex items-center gap-2 mb-6">
+              <CheckCircle className="w-4 h-4 text-accent" />
+              Completed Transactions
             </h2>
             <div className="h-full flex items-center justify-center">
-                <p className="text-subtle text-sm">Sales Chart Rendering Pending</p>
+              {completedCount > 0 ? (
+                <div className="text-center">
+                  <p className="text-5xl font-display text-white mb-2">{completedCount}</p>
+                  <p className="text-subtle text-xs uppercase tracking-widest">Successful deals</p>
+                </div>
+              ) : (
+                <p className="text-subtle text-sm">No completed transactions yet.</p>
+              )}
             </div>
-          </div>
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px]">
-             <h2 className="text-white font-medium flex items-center gap-2 mb-6">
-              <DollarSign className="w-4 h-4 text-accent" />
-              Recent Orders
-            </h2>
-            <div className="h-full flex items-center justify-center">
-                <p className="text-subtle text-sm">No recent orders to display.</p>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </DashboardLayout>

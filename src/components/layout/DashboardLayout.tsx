@@ -11,6 +11,7 @@ interface NavItem {
   name: string;
   href: string;
   icon: LucideIcon;
+  badge?: number;
 }
 
 interface DashboardLayoutProps {
@@ -94,7 +95,12 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
                 }`}
               >
                 <item.icon className={`w-5 h-5 ${isActive ? "text-accent" : ""}`} />
-                <span className="text-sm">{item.name}</span>
+                <span className="text-sm flex-1">{item.name}</span>
+                {item.badge != null && item.badge > 0 && (
+                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-accent text-black text-[10px] font-bold flex items-center justify-center">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -112,9 +118,9 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* Mobile Header */}
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#050505]">
+        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#050505] sticky top-0 z-30">
           <div>
             <span className="text-lg font-display text-white">GreenRev</span>
             <span className="text-accent text-[8px] font-bold uppercase tracking-widest ml-2">{title}</span>
@@ -124,8 +130,8 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
           </button>
         </header>
 
-        {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-10 lg:p-12">
+        {/* Content Area */}
+        <main className="flex-1 p-6 md:p-10 lg:p-12">
           <div className="max-w-6xl mx-auto">
             {children}
           </div>

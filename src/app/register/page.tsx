@@ -19,7 +19,7 @@ export default function RegisterPage() {
     const p = formData.password;
     if (!p) return 0;
     let score = 0;
-    if (p.length >= 12) score += 1;
+    if (p.length >= 8) score += 1;
     if (/[a-z]/.test(p) && /[A-Z]/.test(p)) score += 1;
     if (/\d/.test(p)) score += 1;
     if (/[^A-Za-z\d]/.test(p)) score += 1;
@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <p className="text-[11px] text-subtle">
-                Use 12+ chars with upper/lowercase, number, and symbol.
+                Use 8+ chars with upper/lowercase, number, and symbol.
               </p>
             </div>
 

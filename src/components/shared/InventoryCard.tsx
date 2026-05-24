@@ -4,13 +4,31 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ShoppingCart, Scale } from "lucide-react";
 import Link from "next/link";
-import inventoryData from "@/data/inventory.json";
 import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-export type CarEntry = typeof inventoryData[0];
+export type CarEntry = {
+  id: string;
+  name: string;
+  make: string;
+  year: number;
+  mileage: string;
+  price: string;
+  color: {
+    name: string;
+    hex: string;
+  };
+  image: string;
+  specs: {
+    "0_100": number;
+    horsepower: number;
+    torque: string;
+    transmission: string;
+    topSpeed: string;
+  };
+};
 
 export default function InventoryCard({ car }: { car: CarEntry }) {
   const cardRef = useRef<HTMLDivElement>(null);

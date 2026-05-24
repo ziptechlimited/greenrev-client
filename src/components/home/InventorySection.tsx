@@ -1,15 +1,33 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import inventoryData from "@/data/inventory.json";
 import InventoryCard from "@/components/shared/InventoryCard";
+import { getAllProducts } from "@/lib/apiProduct";
+import { transformProductToCarEntry } from "@/lib/transformProduct";
+import type { CarEntry } from "@/components/shared/InventoryCard";
 
 export default function InventorySection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [vehicles, setVehicles] = useState<CarEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
+  useEffect(() => {
+    async function fetchVehicles() {
+      try {
+        const products = await getAllProducts("vehicle");
+        setVehicles(products.map(transformProductToCarEntry).slice(0, 3));
+      } catch (error) {
+        console.error("Failed to fetch vehicles for home section:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchVehicles();
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
@@ -39,11 +57,18 @@ export default function InventorySection() {
         </p>
       </motion.div>
 
-      <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-        {inventoryData.slice(0, 3).map((car) => (
-          <InventoryCard key={car.id} car={car} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-white">
+          <Loader2 className="w-8 h-8 text-accent animate-spin mb-4" />
+          <p className="text-[10px] uppercase tracking-widest text-subtle">Loading Curated Machines...</p>
+        </div>
+      ) : (
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+          {vehicles.map((car) => (
+            <InventoryCard key={car.id} car={car} />
+          ))}
+        </div>
+      )}
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
