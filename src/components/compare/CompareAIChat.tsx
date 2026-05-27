@@ -66,20 +66,23 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !isMinimized) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-  }, [messages]);
+  }, [messages, isMinimized]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
+
+    if (isMinimized) setIsMinimized(false);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -171,8 +174,18 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
   };
 
   return (
-    <div className="w-full h-[500px] flex flex-col bg-black/90 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-      <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/60">
+    <motion.div 
+      initial={false}
+      animate={{ height: isMinimized ? 80 : undefined }}
+      className={cn(
+        "w-full flex flex-col bg-black/90 backdrop-blur-3xl border border-white/10 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.8)] transition-all duration-300",
+        !isMinimized && "h-[500px] md:h-[600px]"
+      )}
+    >
+      <div 
+        className="p-4 border-b border-white/5 flex items-center justify-between bg-black/60 cursor-pointer hover:bg-black/80 transition-colors"
+        onClick={() => setIsMinimized(!isMinimized)}
+      >
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center">
             <Bot className="w-6 h-6 text-accent" />
@@ -182,12 +195,31 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
             <p className="text-[10px] text-white/40 uppercase tracking-widest">AI Expert Advice</p>
           </div>
         </div>
-        <button
-          onClick={() => setMessages([])}
-          className="p-3 hover:bg-white/5 rounded-xl text-white/40 hover:text-white transition-colors"
-        >
-          <Trash2 className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMessages([]);
+            }}
+            className="p-3 hover:bg-white/5 rounded-xl text-white/40 hover:text-white transition-colors"
+            title="Clear Chat"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+          <button
+            className="p-3 hover:bg-white/5 rounded-xl text-white/40 hover:text-white transition-colors"
+            title={isMinimized ? "Maximize" : "Minimize"}
+          >
+            <motion.div
+              animate={{ rotate: isMinimized ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </motion.div>
+          </button>
+        </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar min-h-0">
@@ -260,6 +292,6 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
           </button>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 }
