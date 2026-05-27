@@ -7,6 +7,7 @@ import { X, ArrowRight, Gauge, Zap, Layers, Navigation } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
+import CompareAIChat from "@/components/compare/CompareAIChat";
 
 export default function ComparePage() {
   const { compareItems, removeFromCompare } = useCompare();
@@ -102,6 +103,18 @@ export default function ComparePage() {
               )}
             </AnimatePresence>
           </div>
+        )}
+
+        {/* AI Compare Concierge Section */}
+        {compareItems.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="fixed bottom-6 right-6 w-[450px] z-[100] shadow-2xl"
+          >
+            <CompareAIChat compareItems={compareItems} />
+          </motion.div>
         )}
       </div>
     </main>

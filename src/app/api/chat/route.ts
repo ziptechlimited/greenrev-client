@@ -12,20 +12,40 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages } = await req.json();
+  const { messages, compareData } = await req.json();
 
-  // Fetch live inventory from database
-  let inventoryContext = "No inventory available currently.";
-  try {
-    const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.data.products) {
-        inventoryContext = JSON.stringify(data.data.products, null, 2);
+  let systemPromptContext = "";
+
+  if (compareData && Array.isArray(compareData) && compareData.length > 0) {
+    // Highly optimal: use exact car details passed from the client context
+    systemPromptContext = `The user is currently comparing these specific vehicles:\n${JSON.stringify(compareData, null, 2)}\n\nGuidelines for comparison:
+1. Provide a detailed side-by-side comparison.
+2. Highlight which car wins in terms of horsepower, acceleration, and value.
+3. Keep the conversational nature and give professional automotive advice.
+4. If asked which is better, provide a definitive recommendation based on their intended use.`;
+  } else {
+    // Fetch live inventory from database
+    let inventoryContext = "No inventory available currently.";
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data.products) {
+          inventoryContext = JSON.stringify(data.data.products, null, 2);
+        }
       }
+    } catch (error) {
+      console.error("Failed to fetch inventory for chat context:", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch inventory for chat context:", error);
+    
+    systemPromptContext = `Our exclusive inventory: ${inventoryContext}\n\nGuidelines:
+1. Be sophisticated, professional, and helpful.
+2. Recommend cars based on user budget (₦) and specs.
+3. Compare cars side-by-side if asked.
+4. If unavailable, suggest the closest match.
+5. Use markdown for readability (bolding, lists).
+6. State Horsepower, 0-100 time, and Price when recommending.
+Always use exact car names.`;
   }
 
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -42,16 +62,7 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content: `You are the Sarkin Mota AI Concierge, a world-class automotive expert. 
-Our exclusive inventory: ${inventoryContext}
-
-Guidelines:
-1. Be sophisticated, professional, and helpful.
-2. Recommend cars based on user budget (₦) and specs.
-3. Compare cars side-by-side if asked.
-4. If unavailable, suggest the closest match.
-5. Use markdown for readability (bolding, lists).
-6. State Horsepower, 0-100 time, and Price when recommending.
-Always use exact car names.`
+${systemPromptContext}`
         },
         ...messages
       ],

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { LayoutDashboard, User, MapPin, Calendar, Settings, Star, Clock } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { mockAppointments, mockReviews } from "@/data/mechanicMockData";
 
 const MECHANIC_NAV = [
   { name: "Overview", href: "/mechanic/dashboard", icon: LayoutDashboard },
@@ -50,24 +51,70 @@ export default function MechanicDashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px]">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px] flex flex-col"
+          >
              <h2 className="text-white font-medium flex items-center gap-2 mb-6">
               <Calendar className="w-4 h-4 text-accent" />
               Upcoming Schedule
             </h2>
-            <div className="h-full flex items-center justify-center">
-                <p className="text-subtle text-sm">No upcoming appointments scheduled.</p>
-            </div>
-          </div>
-          <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px]">
+            {mockAppointments.length > 0 ? (
+              <div className="space-y-4 flex-1">
+                {mockAppointments.map((apt) => (
+                  <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
+                    <div>
+                      <p className="text-white font-medium">{apt.client}</p>
+                      <p className="text-subtle text-sm">{apt.vehicle} • {apt.service}</p>
+                    </div>
+                    <div className="mt-2 sm:mt-0 text-right">
+                      <p className="text-white text-sm">{apt.date}</p>
+                      <p className="text-accent text-sm flex items-center justify-end gap-1"><Clock className="w-3 h-3" /> {apt.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                  <p className="text-subtle text-sm">No upcoming appointments scheduled.</p>
+              </div>
+            )}
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px] flex flex-col"
+          >
              <h2 className="text-white font-medium flex items-center gap-2 mb-6">
               <Star className="w-4 h-4 text-accent" />
               Recent Reviews
             </h2>
-            <div className="h-full flex items-center justify-center">
-                <p className="text-subtle text-sm">No recent reviews.</p>
-            </div>
-          </div>
+            {mockReviews.length > 0 ? (
+              <div className="space-y-4 flex-1">
+                {mockReviews.map((review) => (
+                  <div key={review.id} className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-white font-medium">{review.client}</p>
+                      <span className="text-subtle text-xs">{review.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-white/20"}`} />
+                      ))}
+                    </div>
+                    <p className="text-subtle text-sm italic">"{review.comment}"</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                  <p className="text-subtle text-sm">No recent reviews.</p>
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
     </DashboardLayout>

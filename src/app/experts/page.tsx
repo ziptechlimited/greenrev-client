@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import ExpertList from "@/components/experts/ExpertList";
 import ExpertMap from "@/components/experts/ExpertMap";
-import expertsData from "@/data/experts.json";
 import { motion } from "framer-motion";
+import { apiRequest } from "@/lib/apiClient";
 
 interface Expert {
   id: string;
@@ -22,9 +22,30 @@ interface Expert {
 }
 
 export default function ExpertsPage() {
-  const [selectedExpert, setSelectedExpert] = useState<Expert | undefined>(
-    expertsData[0] as any
-  );
+  const [experts, setExperts] = useState<Expert[]>([]);
+  const [selectedExpert, setSelectedExpert] = useState<Expert | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchExperts() {
+      try {
+        const response = await apiRequest<{ experts: Expert[] }>("/api/v1/experts");
+        
+        if (response.success && response.data && response.data.experts) {
+          setExperts(response.data.experts);
+          if (response.data.experts.length > 0) {
+            setSelectedExpert(response.data.experts[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch experts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchExperts();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-black overflow-hidden">
@@ -33,26 +54,41 @@ export default function ExpertsPage() {
       <main className="flex-1 flex overflow-hidden pt-20">
         {/* Left Sidebar - Locations List */}
         <div className="w-full md:w-[400px] lg:w-[450px] shrink-0 h-full hidden md:block">
-          <ExpertList 
-            onSelectExpert={(expert) => setSelectedExpert(expert as any)}
-            selectedExpertId={selectedExpert?.id}
-          />
+          {isLoading ? (
+            <div className="h-full flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
+            </div>
+          ) : (
+            <ExpertList 
+              experts={experts}
+              onSelectExpert={(expert) => setSelectedExpert(expert as any)}
+              selectedExpertId={selectedExpert?.id}
+            />
+          )}
         </div>
 
         {/* Main Content - Map View */}
         <div className="flex-1 relative h-full">
-            <ExpertMap 
-                experts={expertsData as any} 
-                selectedExpert={selectedExpert}
-                onSelectExpert={(expert) => setSelectedExpert(expert as any)}
-            />
-            
-            {/* Mobile List Trigger (Optional/Future) */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:hidden">
-                <button className="px-8 py-4 bg-accent text-black font-black uppercase tracking-widest text-[10px] rounded-full shadow-2xl">
-                    View List
-                </button>
+          {isLoading ? (
+            <div className="h-full flex items-center justify-center bg-[#1e1e1e]">
+              <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
             </div>
+          ) : (
+            <>
+              <ExpertMap 
+                  experts={experts} 
+                  selectedExpert={selectedExpert}
+                  onSelectExpert={(expert) => setSelectedExpert(expert as any)}
+              />
+              
+              {/* Mobile List Trigger (Optional/Future) */}
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 md:hidden">
+                  <button className="px-8 py-4 bg-accent text-black font-black uppercase tracking-widest text-[10px] rounded-full shadow-2xl">
+                      View List
+                  </button>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
