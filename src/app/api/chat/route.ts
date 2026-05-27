@@ -1,93 +1,92 @@
+import { streamText, tool } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
+import { z } from 'zod';
+
 export const maxDuration = 30;
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5050";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
 
 export async function POST(req: Request) {
   const apiKey = process.env.OPENROUTER_API_KEY;
-  
+
   if (!apiKey) {
-    return new Response(
-      "Error: OPENROUTER_API_KEY is missing. Please add it to your .env.local file to enable the AI Concierge.", 
-      { status: 500 }
-    );
+    return new Response("Error: OPENROUTER_API_KEY is missing.", { status: 500 });
   }
 
-  try {
-    const { messages, compareData } = await req.json();
+  const { messages, compareData } = await req.json();
 
-    let systemPromptContext = "";
+  const openrouter = createOpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey,
+  });
 
-    if (compareData && Array.isArray(compareData) && compareData.length > 0) {
-      // Highly optimal: use exact car details passed from the client context
-      systemPromptContext = `The user is currently comparing these specific vehicles:\n${JSON.stringify(compareData, null, 2)}\n\nGuidelines for comparison:
-1. Provide a detailed side-by-side comparison.
-2. Highlight which car wins in terms of horsepower, acceleration, and value.
-3. Keep the conversational nature and give professional automotive advice.
-4. If asked which is better, provide a definitive recommendation based on their intended use.`;
-    } else {
-      // Fetch live inventory from database
-      let inventoryContext = "No inventory available currently.";
-      try {
-        const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.data.products) {
-            inventoryContext = JSON.stringify(data.data.products, null, 2);
+  // Only include compare-specific context if cars are selected — keeps the base prompt tiny
+  const compareContext = compareData?.length > 0
+    ? `\n\nThe user is currently comparing these vehicles in the compare view:\n${JSON.stringify(
+        compareData.map((c: any) => ({
+          name: c.name,
+          make: c.make,
+          price: c.price,
+          horsepower: c.specs?.horsepower,
+          topSpeed: c.specs?.topSpeed,
+          '0_100': c.specs?.['0_100'],
+          torque: c.specs?.torque,
+        })),
+        null,
+        2
+      )}`
+    : '';
+
+  const result = await streamText({
+    model: openrouter('google/gemini-2.0-flash-001'),
+    system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership.${compareContext}
+
+Guidelines:
+- Be sophisticated, professional, and conversational.
+- Use markdown for readability: **bold** for key specs, bullet lists for comparisons.
+- Give definitive, opinionated recommendations when asked.
+- If the user asks about what else is in the showroom, alternative cars, or anything requiring live inventory knowledge, call the search_showroom tool.
+- Do NOT make up car names or prices — only reference real vehicles from your compare context or from tool results.`,
+    messages,
+    tools: {
+      search_showroom: tool({
+        description:
+          'Fetches the live showroom inventory. Call this when the user asks about what cars are available, alternatives, or wants to compare against the broader inventory.',
+        parameters: z.object({
+          reason: z
+            .string()
+            .describe('Brief reason why inventory is needed, e.g. "user asked for alternatives to Lexus LX 600"'),
+        }),
+        // @ts-ignore
+        execute: async (args: any) => {
+          const { reason } = args;
+          console.log(`[Tool: search_showroom] Reason: ${reason}`);
+          try {
+            const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
+            if (!res.ok) return { error: 'Could not reach inventory database.' };
+            const data = await res.json();
+            if (!data.success || !data.data.products) return { vehicles: [] };
+
+            // Return lightweight summary only — no images, no descriptions
+            const vehicles = data.data.products.map((p: any) => ({
+              name: p.name,
+              make: p.make,
+              price: p.price,
+              horsepower: p.specs?.horsepower,
+              topSpeed: p.specs?.topSpeed,
+              '0_100': p.specs?.['0_100'],
+              torque: p.specs?.torque,
+            }));
+
+            return { vehicles, total: vehicles.length };
+          } catch (e) {
+            return { error: 'Failed to fetch inventory from the database.' };
           }
-        }
-      } catch (error) {
-        console.error("Failed to fetch inventory for chat context:", error);
-      }
-      
-      systemPromptContext = `Our exclusive inventory: ${inventoryContext}\n\nGuidelines:
-1. Be sophisticated, professional, and helpful.
-2. Recommend cars based on user budget (₦) and specs.
-3. Compare cars side-by-side if asked.
-4. If unavailable, suggest the closest match.
-5. Use markdown for readability (bolding, lists).
-6. State Horsepower, 0-100 time, and Price when recommending.
-Always use exact car names.`;
-    }
-
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://greenrevmotors.com', // Required for some OpenRouter models
-        'X-Title': 'Sarkin Mota AI Concierge',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
-        messages: [
-          {
-            role: 'system',
-            content: `You are the Sarkin Mota AI Concierge, a world-class automotive expert. 
-${systemPromptContext}`
-          },
-          ...messages
-        ],
-        stream: true,
+        },
       }),
-    });
-
-    if (!response.ok) {
-      let errorMessage = "Failed to connect to OpenRouter";
-      try {
-        const error = await response.json();
-        console.error("OpenRouter Error:", error);
-        errorMessage = error?.error?.message || errorMessage;
-      } catch (e) {
-        const text = await response.text();
-        console.error("OpenRouter Error (Text):", text);
-        errorMessage = `Non-JSON Error: ${response.statusText}`;
-      }
-      return new Response(errorMessage, { status: response.status });
     }
+  });
 
-    return new Response(response.body);
-  } catch (error: any) {
-    console.error("Internal Server Error in chat route:", error);
-    return new Response(`Internal Server Error: ${error?.message || 'Unknown'}`, { status: 500 });
-  }
+  // @ts-ignore
+  return result.toUIMessageStreamResponse();
 }
