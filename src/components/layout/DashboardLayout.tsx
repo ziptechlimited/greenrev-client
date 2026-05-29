@@ -6,6 +6,7 @@ import { LogOut, Menu, X, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserRole } from "@/context/AuthContext";
+import ProfileAlertModal from "@/components/mechanic/ProfileAlertModal";
 
 interface NavItem {
   name: string;
@@ -47,6 +48,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
 
   return (
     <div className="min-h-screen bg-background flex">
+      <ProfileAlertModal />
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isOpen && (

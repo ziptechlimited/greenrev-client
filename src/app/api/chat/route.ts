@@ -60,7 +60,6 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     model: openrouter('google/gemini-2.0-flash-001'),
-    maxSteps: 3,
     system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership.${compareContext}
 
 Guidelines:

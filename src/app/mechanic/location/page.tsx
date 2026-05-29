@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { LayoutDashboard, User, MapPin, Calendar, Settings, Navigation, Check } from "lucide-react";
+import { LayoutDashboard, User, MapPin, Calendar, Settings, Navigation, Check, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiRequest } from "@/lib/apiClient";
 
 const MECHANIC_NAV = [
   { name: "Overview", href: "/mechanic/dashboard", icon: LayoutDashboard },
@@ -15,21 +16,73 @@ const MECHANIC_NAV = [
 
 export default function MechanicLocationPage() {
   const [hasChanges, setHasChanges] = useState(false);
-  const [location, setLocation] = useState({
-    address: "123 Main St",
-    city: "San Francisco",
-    state: "CA",
-    zip: "94105",
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [originalLocation, setOriginalLocation] = useState({
+    address: "",
+    city: "",
+    state: "", // Using state as country or we can map it
+    country: "US", // Default country
+    lat: 0,
+    lng: 0,
     radius: "25",
   });
+  const [location, setLocation] = useState(originalLocation);
+
+  useEffect(() => {
+    async function loadLocation() {
+      try {
+        const res = await apiRequest<{ profile: any }>("/api/v1/mechanic/profile");
+        if (res.success && res.data && res.data.profile) {
+          const p = {
+            address: res.data.profile.address || "",
+            city: res.data.profile.city || "",
+            state: "",
+            country: res.data.profile.country || "US",
+            lat: res.data.profile.lat || 0,
+            lng: res.data.profile.lng || 0,
+            radius: "25",
+          };
+          setLocation(p);
+          setOriginalLocation(p);
+        }
+      } catch (err) {
+        console.error("Failed to load location", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadLocation();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setLocation({ ...location, [e.target.name]: e.target.value });
     setHasChanges(true);
   };
 
-  const handleSave = () => {
-    setHasChanges(false);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await apiRequest("/api/v1/mechanic/location", {
+        method: "PATCH",
+        body: JSON.stringify({
+          address: location.address,
+          city: location.city,
+          country: location.country, // Just mapping for now
+          // Could use a geocoding API here, but we will mock lat/lng
+          lat: location.lat || (37.7749 + (Math.random() - 0.5) * 0.1),
+          lng: location.lng || (-122.4194 + (Math.random() - 0.5) * 0.1),
+        }),
+      });
+      if (res.success) {
+        setOriginalLocation(location);
+        setHasChanges(false);
+      }
+    } catch (err) {
+      console.error("Failed to save location", err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -41,6 +94,12 @@ export default function MechanicLocationPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {isLoading ? (
+            <div className="lg:col-span-2 flex items-center justify-center min-h-[400px]">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          ) : (
+            <>
           {/* Map Placeholder */}
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 h-[400px] lg:h-auto min-h-[400px] relative overflow-hidden group">
             <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center backdrop-blur-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -91,21 +150,21 @@ export default function MechanicLocationPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">State</label>
+                  <label className="text-sm font-medium text-white">Country</label>
                   <input
                     type="text"
-                    name="state"
-                    value={location.state}
+                    name="country"
+                    value={location.country}
                     onChange={handleChange}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">ZIP</label>
+                  <label className="text-sm font-medium text-white">State/Region</label>
                   <input
                     type="text"
-                    name="zip"
-                    value={location.zip}
+                    name="state"
+                    value={location.state}
                     onChange={handleChange}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
                   />
@@ -129,41 +188,35 @@ export default function MechanicLocationPage() {
                 <option value="100">100 Miles</option>
                 <option value="any">Anywhere</option>
               </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Save Bar */}
-      <AnimatePresence>
-        {hasChanges && (
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4"
-          >
-            <div className="bg-black/90 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
-              <span className="text-white text-sm font-medium px-4">Unsaved changes</span>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setHasChanges(false)}
-                  className="px-6 py-2 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Discard
-                </button>
+              <div className="pt-4 border-t border-white/10 flex justify-end gap-3">
+                {hasChanges && (
+                  <button
+                    onClick={() => {
+                      setLocation(originalLocation);
+                      setHasChanges(false);
+                    }}
+                    disabled={isSaving}
+                    className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
+                  >
+                    Discard
+                  </button>
+                )}
                 <button
                   onClick={handleSave}
-                  className="bg-accent text-white px-6 py-2 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2"
+                  disabled={isSaving || !hasChanges}
+                  className="bg-accent text-white px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Check className="w-4 h-4" />
-                  Save Changes
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Save Location
                 </button>
               </div>
+
             </div>
-          </motion.div>
+          </div>
+          </>
         )}
-      </AnimatePresence>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

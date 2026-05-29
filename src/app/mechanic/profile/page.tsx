@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { LayoutDashboard, User, MapPin, Calendar, Settings, Camera, Check, X } from "lucide-react";
-import { mockProfile } from "@/data/mechanicMockData";
+import { LayoutDashboard, User, MapPin, Calendar, Settings, Camera, Check, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiRequest } from "@/lib/apiClient";
 
 const MECHANIC_NAV = [
   { name: "Overview", href: "/mechanic/dashboard", icon: LayoutDashboard },
@@ -15,9 +15,38 @@ const MECHANIC_NAV = [
 ];
 
 export default function MechanicProfilePage() {
-  const [profile, setProfile] = useState(mockProfile);
+  const [profile, setProfile] = useState({ name: "", bio: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
+  const [originalProfile, setOriginalProfile] = useState({ name: "", bio: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
+  const [profileImageBase64, setProfileImageBase64] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const res = await apiRequest<{ profile: any }>("/api/v1/mechanic/profile");
+        if (res.success && res.data && res.data.profile) {
+          const p = {
+            name: res.data.profile.name || "",
+            bio: res.data.profile.bio || "",
+            specialties: res.data.profile.specialization || [],
+            hourlyRate: res.data.profile.hourlyRate || 0,
+            profileImage: res.data.profile.profileImage || "",
+          };
+          setProfile(p);
+          setOriginalProfile(p);
+          setProfileImageBase64(null);
+        }
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadProfile();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -40,9 +69,41 @@ export default function MechanicProfilePage() {
     setHasChanges(true);
   };
 
-  const handleSave = () => {
-    // In a real app, this would save to the backend
-    setHasChanges(false);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImageBase64(reader.result as string);
+        setHasChanges(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await apiRequest("/api/v1/mechanic/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: profile.name,
+          bio: profile.bio,
+          specialization: profile.specialties,
+          hourlyRate: Number(profile.hourlyRate),
+          ...(profileImageBase64 && { profileImageBase64 }),
+        }),
+      });
+      if (res.success) {
+        setOriginalProfile(profile);
+        setProfileImageBase64(null);
+        setHasChanges(false);
+      }
+    } catch (err) {
+      console.error("Failed to save profile", err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -54,19 +115,30 @@ export default function MechanicProfilePage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Avatar & Quick Info */}
-          <div className="lg:col-span-1 space-y-6">
+          {isLoading ? (
+            <div className="lg:col-span-3 flex items-center justify-center min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          ) : (
+            <>
+              {/* Left Column: Avatar & Quick Info */}
+              <div className="lg:col-span-1 space-y-6">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col items-center">
               <div className="relative group mb-6">
                 <div className="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border-2 border-white/10">
-                  <User className="w-16 h-16 text-white/40" />
+                  {profileImageBase64 || profile.profileImage ? (
+                    <img src={profileImageBase64 || profile.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-16 h-16 text-white/40" />
+                  )}
                 </div>
-                <button className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <div className="flex flex-col items-center">
                     <Camera className="w-6 h-6 text-white mb-1" />
                     <span className="text-xs text-white">Change</span>
                   </div>
-                </button>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                </label>
               </div>
               <h3 className="text-xl font-medium text-white mb-1">{profile.name}</h3>
               <p className="text-accent text-sm">Expert Mechanic</p>
@@ -147,44 +219,36 @@ export default function MechanicProfilePage() {
                 </div>
               </div>
 
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Save Bar */}
-      <AnimatePresence>
-        {hasChanges && (
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4"
-          >
-            <div className="bg-black/90 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
-              <span className="text-white text-sm font-medium px-4">Unsaved changes</span>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setProfile(mockProfile);
-                    setHasChanges(false);
-                  }}
-                  className="px-6 py-2 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Discard
-                </button>
+              <div className="pt-4 border-t border-white/10 flex justify-end gap-3">
+                {hasChanges && (
+                  <button
+                    onClick={() => {
+                      setProfile(originalProfile);
+                      setProfileImageBase64(null);
+                      setHasChanges(false);
+                    }}
+                    disabled={isSaving}
+                    className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
+                  >
+                    Discard
+                  </button>
+                )}
                 <button
                   onClick={handleSave}
-                  className="bg-accent text-white px-6 py-2 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2"
+                  disabled={isSaving || !hasChanges}
+                  className="bg-accent text-white px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Check className="w-4 h-4" />
-                  Save Changes
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Save Profile
                 </button>
               </div>
+
             </div>
-          </motion.div>
+          </div>
+          </>
         )}
-      </AnimatePresence>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }
