@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { LayoutDashboard, User, MapPin, Calendar, Settings, Star, Clock, Check, X } from "lucide-react";
