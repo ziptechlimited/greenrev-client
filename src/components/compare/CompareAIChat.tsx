@@ -66,7 +66,6 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
   // @ts-ignore
   const { messages, sendMessage, isLoading, setMessages } = useChat({
     api: "/api/chat",
-    body: { compareData: compareItems },
   });
 
   useEffect(() => {
@@ -90,7 +89,11 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
     
     try {
       if (sendMessage) {
-        await sendMessage({ role: 'user', content: userMessage });
+        // Always pass the latest compareItems so context is fresh on every message
+        await sendMessage(
+          { role: 'user', content: userMessage },
+          { body: { compareData: compareItems } }
+        );
       }
     } catch (err) {
       console.error(err);
@@ -159,7 +162,7 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
               </p>
             </div>
           ) : (
-            messages.map((m: UIMessage) => {
+            messages.map((m: any) => {
               // Render tool invocation as a subtle status indicator
               if (m.role === "tool") return null;
 
@@ -191,82 +194,57 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/5 border border-accent/20 rounded-full w-fit">
                         <Search className="w-3 h-3 text-accent animate-pulse" />
                         <span className="text-[10px] text-accent tracking-widest uppercase font-bold">
-                          Searching showroom...
+                          {m.toolInvocations[0].state === "result" ? "Searched showroom" : "Searching showroom..."}
                         </span>
                       </div>
                     )}
-                    {m.parts ? (
-                      m.parts.map((part: any, i: number) => {
-                        if (part.type === "text") {
-                          return (
-                            <div
-                              key={i}
-                              className={cn(
-                                "p-4 rounded-2xl text-sm leading-relaxed break-words",
-                                m.role === "user"
-                                  ? "bg-accent text-black font-medium rounded-tr-none"
-                                  : "bg-white/5 text-white/90 rounded-tl-none"
-                              )}
-                            >
-                              {m.role === "assistant" ? (
-                                <MarkdownRenderer content={part.text} />
-                              ) : (
-                                part.text
-                              )}
-                            </div>
-                          );
-                        }
-                        if (part.type === "tool-invocation") {
-                          // Render tool invocation as a subtle status indicator
-                          return (
-                            <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-accent/5 border border-accent/20 rounded-full w-fit">
-                              <Search className="w-3 h-3 text-accent animate-pulse" />
-                              <span className="text-[10px] text-accent tracking-widest uppercase font-bold">
-                                {part.toolInvocation.state === "result" ? "Searched showroom" : "Searching showroom..."}
-                              </span>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })
-                    ) : m.content ? (
-                      <div
-                        className={cn(
-                          "p-4 rounded-2xl text-sm leading-relaxed break-words",
-                          m.role === "user"
-                            ? "bg-accent text-black font-medium rounded-tr-none"
-                            : "bg-white/5 text-white/90 rounded-tl-none"
-                        )}
-                      >
-                        {m.role === "assistant" ? (
-                          <MarkdownRenderer content={m.content} />
+                    
+                    {/* Text content bubble */}
+                    <div
+                      className={cn(
+                        "p-4 rounded-2xl text-sm leading-relaxed break-words",
+                        m.role === "user"
+                          ? "bg-accent text-black font-medium rounded-tr-none"
+                          : "bg-white/5 text-white/90 rounded-tl-none"
+                      )}
+                    >
+                      {(() => {
+                        const messageText = m.content || (m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') ?? '');
+                        
+                        if (!messageText) return null;
+                        
+                        return m.role === "assistant" ? (
+                          <MarkdownRenderer content={messageText} />
                         ) : (
-                          m.content
-                        )}
-                      </div>
-                    ) : null}
+                          messageText
+                        );
+                      })()}
+                    </div>
                   </div>
                 </motion.div>
               );
             })
           )}
-        </AnimatePresence>
 
-        {/* Typing indicator */}
-        {isLoading && messages[messages.length - 1]?.role === "user" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-3 items-start"
-          >
-            <div className="w-8 h-8 rounded-xl bg-accent/20 flex items-center justify-center text-accent">
-              <Loader2 className="w-4 h-4 animate-spin" />
-            </div>
-            <div className="p-4 rounded-2xl bg-white/5 text-white/40 text-xs rounded-tl-none">
-              Analyzing...
-            </div>
-          </motion.div>
-        )}
+          {/* Thinking indicator when waiting for the server to start responding */}
+          {isLoading && messages.length > 0 && messages[messages.length - 1].role === "user" && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-3 flex-row"
+            >
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 bg-accent/20 text-accent">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col gap-2 max-w-[85%]">
+                <div className="p-4 rounded-2xl bg-white/5 text-white/40 text-xs rounded-tl-none flex items-center gap-2 w-fit">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Analyzing...
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Input */}

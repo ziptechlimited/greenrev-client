@@ -1,5 +1,5 @@
-import { streamText, tool } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import { streamText, tool, convertToModelMessages } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { z } from 'zod';
 
 export const maxDuration = 30;
@@ -15,8 +15,7 @@ export async function POST(req: Request) {
 
   const { messages, compareData } = await req.json();
 
-  const openrouter = createOpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
+  const openrouter = createOpenRouter({
     apiKey,
   });
 
@@ -37,6 +36,28 @@ export async function POST(req: Request) {
       )}`
     : '';
 
+  // Normalize UIMessages: the new SDK sends messages with `parts`, but simple
+  // user messages sent by sendMessage() may only have `content`. We need both.
+  const normalizedMessages = messages.map((m: any) => {
+    if (m.parts) return m; // already has parts (assistant / multi-turn messages)
+    // Plain user message with just a content string
+    return {
+      ...m,
+      parts: [{ type: 'text', text: m.content ?? '' }],
+    };
+  });
+
+  const modelMessages = await convertToModelMessages(normalizedMessages);
+  const cleanMessages = modelMessages.map((m: any) => {
+    if (Array.isArray(m.content)) {
+      m.content = m.content.map((c: any) => {
+        const { providerOptions, ...rest } = c;
+        return rest;
+      });
+    }
+    return m;
+  });
+
   const result = await streamText({
     model: openrouter('google/gemini-2.0-flash-001'),
     system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership.${compareContext}
@@ -47,7 +68,7 @@ Guidelines:
 - Give definitive, opinionated recommendations when asked.
 - If the user asks about what else is in the showroom, alternative cars, or anything requiring live inventory knowledge, call the search_showroom tool.
 - Do NOT make up car names or prices — only reference real vehicles from your compare context or from tool results.`,
-    messages,
+    messages: cleanMessages,
     tools: {
       search_showroom: tool({
         description:
