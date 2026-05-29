@@ -5,6 +5,7 @@ import { GoogleMap, useJsApiLoader, OverlayView } from "@react-google-maps/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Wrench, Phone, Mail } from "lucide-react";
 import Image from "next/image";
+import BookingModal from "./BookingModal";
 
 interface Expert {
   id: string;
@@ -62,6 +63,7 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const onLoad = useCallback(function callback(map: google.maps.Map) {
     setMap(map);
@@ -222,13 +224,25 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
                  </div>
               </div>
 
-              <button className="w-full py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-accent transition-all">
+              <button 
+                onClick={() => setIsBookingModalOpen(true)}
+                className="w-full py-5 bg-white text-black font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-accent transition-all"
+              >
                 Book Specialized Service
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {selectedExpert && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          mechanicId={selectedExpert.id}
+          mechanicName={selectedExpert.name}
+        />
+      )}
 
       {/* Custom Map Controls */}
       <div className="absolute top-12 right-12 flex flex-col gap-4">
