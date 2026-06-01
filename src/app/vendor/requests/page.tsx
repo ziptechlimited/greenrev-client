@@ -131,7 +131,10 @@ function RequestCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-white font-medium text-sm truncate">{request.productName}</p>
+              <p className="text-white font-medium text-sm truncate">
+                {request.productName}
+                {request.quantity > 1 ? ` (x${request.quantity})` : ""}
+              </p>
               <p className="text-subtle text-xs">{request.productPrice} · {request.productMake}</p>
             </div>
             <StatusBadge status={request.status} />

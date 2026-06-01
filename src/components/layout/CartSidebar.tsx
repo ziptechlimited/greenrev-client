@@ -135,7 +135,7 @@ export default function CartSidebar() {
                   <span className="text-white text-lg font-display tracking-wider">{cartTotal}</span>
                 </div>
                 <Link 
-                  href="/order"
+                  href="/cart"
                   onClick={() => setIsCartOpen(false)}
                   className="w-full py-4 bg-white text-black text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white border border-transparent hover:border-white transition-all duration-300 flex items-center justify-center"
                 >

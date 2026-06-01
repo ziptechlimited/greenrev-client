@@ -50,6 +50,7 @@ export interface AcquisitionRequest {
   productImage: string;
   productPrice: string;
   productMake: string | null;
+  quantity: number;
   message: string | null;
   status: AcquisitionStatus;
   acceptedAt: string | null;

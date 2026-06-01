@@ -10,6 +10,7 @@ import { getProduct } from "@/lib/apiProduct";
 import { transformProductToCarEntry } from "@/lib/transformProduct";
 import { CarEntry } from "@/components/shared/InventoryCard";
 import { cn } from "@/lib/utils";
+import { createAcquisitionRequest } from "@/lib/apiAcquisition";
 
 function OrderContent() {
   const router = useRouter();
@@ -44,7 +45,8 @@ function OrderContent() {
         }
       }
       fetchCar();
-    } else if (cartItems.length > 0) {
+    } else {
+      // Only show vehicle items from cart
       const firstVehicle = cartItems.find((item) => item.type === "vehicle");
       if (firstVehicle?.originalData) {
         setActiveCar(firstVehicle.originalData as CarEntry);
@@ -64,12 +66,30 @@ function OrderContent() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const message = `Delivery Address: ${formData.address}, ${formData.city}\nNotes: ${formData.notes || 'None'}`;
     
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    clearCart();
+    try {
+      // Only vehicle items — parts are handled via the cart modal
+      const vehicleItemsToSubmit = searchParams.get("id")
+        ? [activeCar].filter(Boolean)
+        : cartItems.filter((item) => item.type === "vehicle");
+
+      await Promise.all(vehicleItemsToSubmit.map((item: any) => 
+        createAcquisitionRequest({
+          productId: item.id,
+          quantity: 1,
+          message
+        })
+      ));
+      
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      clearCart();
+    } catch (error) {
+      console.error("Failed to submit request", error);
+      setIsSubmitting(false);
+      alert("Failed to submit request. Please try again.");
+    }
   };
 
   if (isSuccess) {

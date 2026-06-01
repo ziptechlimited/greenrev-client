@@ -235,6 +235,7 @@ function RequestCard({
             <div>
               <p className="text-white font-medium text-sm">
                 {request.productName}
+                {request.quantity > 1 ? ` (x${request.quantity})` : ""}
               </p>
               <p className="text-subtle text-xs">
                 {request.productPrice} · {request.productMake}

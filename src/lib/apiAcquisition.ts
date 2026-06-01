@@ -10,6 +10,7 @@ import type {
 // ─── Customer: Create an acquisition request ─────────────────────────────────
 export async function createAcquisitionRequest(data: {
   productId: string;
+  quantity?: number;
   message?: string;
 }): Promise<{ request: AcquisitionRequest }> {
   const res = await apiRequest<{ request: AcquisitionRequest }>(

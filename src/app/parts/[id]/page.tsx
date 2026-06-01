@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   ShoppingCart,
@@ -10,23 +10,38 @@ import {
   ShieldCheck,
   Check,
   Loader2,
+  Send,
+  CheckCircle2,
+  X,
+  ArrowUpRight,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { getProduct, getAllProducts } from "@/lib/apiProduct";
 import { transformProductToPartEntry, PartEntry } from "@/lib/transformProduct";
+import { createAcquisitionRequest } from "@/lib/apiAcquisition";
 
 function PartDetailsContent() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
   const { addToCart } = useCart();
+  const { user } = useAuth();
+
   const [part, setPart] = useState<PartEntry | null>(null);
   const [relatedParts, setRelatedParts] = useState<PartEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdded, setIsAdded] = useState(false);
+
+  // Acquisition modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [requestSuccess, setRequestSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchPartAndRelated() {
@@ -66,6 +81,52 @@ function PartDetailsContent() {
     }
   }, [id, router]);
 
+  const handleAddToCart = () => {
+    if (!part) return;
+    addToCart({
+      id: part.id,
+      name: part.name,
+      price: `$${part.price.toLocaleString()}`,
+      image: part.image,
+      type: "part",
+      quantity: 1,
+      vendor: part.brand,
+      originalData: part,
+    });
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleRequestClick = () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    setModalOpen(true);
+    setRequestSuccess(false);
+    setSubmitError("");
+    setMessage("");
+  };
+
+  const handleSubmitRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!part) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await createAcquisitionRequest({
+        productId: part.id,
+        quantity: 1,
+        message: message.trim() || undefined,
+      });
+      setRequestSuccess(true);
+    } catch (err: any) {
+      setSubmitError(err.message || "Failed to submit request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-white">
@@ -95,21 +156,6 @@ function PartDetailsContent() {
       </div>
     );
   }
-
-  const handleAddToCart = () => {
-    addToCart({
-      id: part.id,
-      name: part.name,
-      price: `$${part.price.toLocaleString()}`,
-      image: part.image,
-      type: "part",
-      quantity: 1,
-      vendor: part.brand,
-      originalData: part,
-    });
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
 
   return (
     <main className="min-h-screen bg-background pt-32 pb-20">
@@ -205,12 +251,22 @@ function PartDetailsContent() {
                 </div>
               </div>
 
-              {/* Add to Cart */}
-              <div className="pt-6">
+              {/* Action Buttons */}
+              <div className="pt-6 space-y-3">
+                {/* Primary: Place Request */}
+                <button
+                  onClick={handleRequestClick}
+                  className="w-full py-5 bg-accent text-black font-display tracking-widest uppercase text-sm rounded-2xl shadow-[0_10px_30px_rgba(199,164,61,0.3)] transition-all hover:scale-[1.02] hover:shadow-[0_15px_40px_rgba(199,164,61,0.4)] active:scale-95 flex items-center justify-center gap-3"
+                >
+                  Place Acquisition Request
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+
+                {/* Secondary: Add to Cart */}
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdded}
-                  className="w-full py-5 bg-white text-black font-bold uppercase tracking-widest text-xs rounded-full hover:scale-[1.02] transition-all flex items-center justify-center gap-3 disabled:bg-accent disabled:text-black shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                  className="w-full py-4 bg-white/5 border border-white/20 text-white font-bold uppercase tracking-widest text-xs rounded-2xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 disabled:bg-accent/20 disabled:border-accent/30 disabled:text-accent"
                 >
                   {isAdded ? (
                     <>
@@ -220,7 +276,7 @@ function PartDetailsContent() {
                   ) : (
                     <>
                       <ShoppingCart className="w-4 h-4" />
-                      Acquire Component
+                      Add to Selection
                     </>
                   )}
                 </button>
@@ -265,6 +321,125 @@ function PartDetailsContent() {
           </div>
         )}
       </div>
+
+      {/* Acquisition Request Modal */}
+      <AnimatePresence>
+        {modalOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { if (!submitting) setModalOpen(false); }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200]"
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-[201] flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-6 border-b border-white/5">
+                  <div>
+                    <h2 className="text-xl font-display text-white">Place Acquisition Request</h2>
+                    <p className="text-subtle text-xs mt-1">{part?.name} · ${part?.price.toLocaleString()}</p>
+                  </div>
+                  <button
+                    onClick={() => setModalOpen(false)}
+                    className="p-2 text-white/40 hover:text-white transition-colors rounded-full hover:bg-white/5"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Modal Body */}
+                <div className="p-6">
+                  {!requestSuccess ? (
+                    <form onSubmit={handleSubmitRequest} className="space-y-5">
+                      <p className="text-sm text-white/70 leading-relaxed">
+                        Submitting this request will connect you with the vendor. Their contact details will be revealed once they accept your request.
+                      </p>
+
+                      <div>
+                        <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold block mb-2">
+                          Message to Vendor <span className="normal-case tracking-normal opacity-60">(optional)</span>
+                        </label>
+                        <textarea
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          placeholder="Any fitment questions, quantity needs, or specific requirements…"
+                          rows={4}
+                          maxLength={1000}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 resize-none transition-all"
+                        />
+                        <p className="text-right text-[10px] text-white/20 mt-1">{message.length}/1000</p>
+                      </div>
+
+                      {submitError && (
+                        <p className="text-red-400 text-sm p-3 bg-red-400/10 border border-red-400/20 rounded-xl">
+                          {submitError}
+                        </p>
+                      )}
+
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full py-4 bg-accent text-black font-display tracking-widest uppercase text-sm rounded-2xl hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-3"
+                      >
+                        {submitting
+                          ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
+                          : <><Send className="w-4 h-4" /> Send Request</>
+                        }
+                      </button>
+                    </form>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 text-green-400">
+                        <CheckCircle2 className="w-6 h-6 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-white">Request sent successfully!</p>
+                          <p className="text-subtle text-xs">The vendor has been notified.</p>
+                        </div>
+                      </div>
+
+                      <div className="p-5 bg-white/[0.03] border border-white/10 rounded-2xl">
+                        <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">
+                          Next Step
+                        </p>
+                        <p className="text-sm text-white/70 leading-relaxed">
+                          Once the vendor accepts your request, you'll see their contact details and a payment receipt upload field in your requests page.
+                        </p>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => setModalOpen(false)}
+                          className="flex-1 py-3 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors"
+                        >
+                          Close
+                        </button>
+                        <a
+                          href="/acquisitions"
+                          className="flex-1 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition-colors text-center"
+                        >
+                          View My Requests
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
