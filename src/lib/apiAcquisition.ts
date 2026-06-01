@@ -59,13 +59,41 @@ export async function vendorAcceptRequest(id: string): Promise<AcquisitionReques
   return res.data.request;
 }
 
-export async function uploadPaymentReceipt(id: string, receiptUrl: string): Promise<AcquisitionRequest> {
+export async function uploadPaymentReceipt(id: string, receiptImageBase64: string): Promise<AcquisitionRequest> {
   const res = await apiRequest<{ request: AcquisitionRequest }>(
     `/api/v1/acquisition-requests/${id}/receipt`,
-    { method: "POST", body: JSON.stringify({ receiptUrl }) }
+    { method: "POST", body: JSON.stringify({ receiptImageBase64 }) }
   );
   if (!res.success) throw new Error(res.error.message);
   return res.data.request;
+}
+
+export interface AcquisitionMessage {
+  _id: string;
+  acquisitionId: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getAcquisitionMessages(id: string): Promise<AcquisitionMessage[]> {
+  const res = await apiRequest<AcquisitionMessage[]>(
+    `/api/v1/acquisition-requests/${id}/messages`,
+    { method: "GET" }
+  );
+  if (!res.success) throw new Error(res.error.message);
+  return res.data || [];
+}
+
+export async function sendAcquisitionMessage(id: string, text: string): Promise<AcquisitionMessage> {
+  const res = await apiRequest<AcquisitionMessage>(
+    `/api/v1/acquisition-requests/${id}/messages`,
+    { method: "POST", body: JSON.stringify({ text }) }
+  );
+  if (!res.success) throw new Error(res.error.message);
+  return res.data;
 }
 
 export async function vendorConfirmPayment(id: string, amount: number): Promise<AcquisitionRequest> {

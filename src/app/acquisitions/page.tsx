@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Send,
 } from "lucide-react";
+import { AcquisitionChat } from "@/components/shared/AcquisitionChat";
 import Navbar from "@/components/layout/Navbar";
 import {
   customerConfirmCompleted,
@@ -156,12 +157,14 @@ function ReviewForm({
 
 function RequestCard({
   request,
+  currentUserId,
   onUploadReceipt,
   onConfirmCompleted,
   onReviewSubmit,
 }: {
   request: AcquisitionRequest;
-  onUploadReceipt: (id: string, receiptUrl: string) => Promise<void>;
+  currentUserId: string;
+  onUploadReceipt: (id: string, receiptBase64: string) => Promise<void>;
   onConfirmCompleted: (id: string) => Promise<void>;
   onReviewSubmit: (
     id: string,
@@ -171,7 +174,7 @@ function RequestCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [receiptUrl, setReceiptUrl] = useState("");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
   const cfg = STATUS_CONFIG[request.status];
   const isTerminal = request.status === "completed";
@@ -187,12 +190,19 @@ function RequestCard({
   );
 
   const handleUploadReceipt = async () => {
-    if (!receiptUrl.trim()) return;
+    if (!receiptFile) return;
     setLoading(true);
     try {
-      await onUploadReceipt(request._id, receiptUrl.trim());
-      setReceiptUrl("");
-    } finally {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        await onUploadReceipt(request._id, base64);
+        setReceiptFile(null);
+        setLoading(false);
+      };
+      reader.readAsDataURL(receiptFile);
+    } catch (error) {
+      console.error(error);
       setLoading(false);
     }
   };
@@ -341,15 +351,15 @@ function RequestCard({
                         Upload Payment Receipt
                       </p>
                       <input
-                        value={receiptUrl}
-                        onChange={(e) => setReceiptUrl(e.target.value)}
-                        placeholder="Paste receipt URL (e.g. cloud storage link)"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-accent/50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-accent file:text-black hover:file:bg-accent/90"
                       />
                       <button
                         type="button"
                         onClick={handleUploadReceipt}
-                        disabled={loading || !receiptUrl.trim()}
+                        disabled={loading || !receiptFile}
                         className="w-full py-3 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-50"
                       >
                         {loading ? "Uploading..." : "Submit Receipt"}
@@ -433,6 +443,13 @@ function RequestCard({
                       {request.review.comment}
                     </p>
                   )}
+                </div>
+              )}
+
+              {/* Chat Integration */}
+              {request.status !== "pending" && (
+                <div className="mt-6">
+                  <AcquisitionChat acquisitionId={request._id} currentUserId={currentUserId} />
                 </div>
               )}
 
@@ -590,6 +607,7 @@ export default function AcquisitionsPage() {
                   <RequestCard
                     key={req._id}
                     request={req}
+                    currentUserId={user?.id || ""}
                     onUploadReceipt={handleUploadReceipt}
                     onConfirmCompleted={handleConfirmCompleted}
                     onReviewSubmit={handleReviewSubmit}

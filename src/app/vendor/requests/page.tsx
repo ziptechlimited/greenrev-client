@@ -19,7 +19,9 @@ import {
   MessageSquare,
   Car,
 } from "lucide-react";
+import { AcquisitionChat } from "@/components/shared/AcquisitionChat";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useAuth } from "@/context/AuthContext";
 import {
   getVendorRequests,
   getVendorRequestCount,
@@ -71,10 +73,12 @@ function StatusBadge({ status }: { status: AcquisitionStatus }) {
 
 function RequestCard({
   request,
+  currentUserId,
   onAccept,
   onConfirmPayment,
 }: {
   request: AcquisitionRequest;
+  currentUserId: string;
   onAccept: (id: string) => Promise<void>;
   onConfirmPayment: (id: string, amount: number) => Promise<void>;
 }) {
@@ -273,6 +277,13 @@ function RequestCard({
                 </div>
               )}
 
+              {/* Chat Integration */}
+              {request.status !== "pending" && (
+                <div className="mt-6">
+                  <AcquisitionChat acquisitionId={request._id} currentUserId={currentUserId} />
+                </div>
+              )}
+
               {request.status === "completed" && (
                 <div className="flex items-center gap-2 text-green-400 text-xs">
                   <CheckCircle2 className="w-4 h-4" />
@@ -289,6 +300,7 @@ function RequestCard({
 }
 
 export default function VendorRequestsPage() {
+  const { user } = useAuth();
   const [requests, setRequests] = useState<AcquisitionRequest[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -413,6 +425,7 @@ export default function VendorRequestsPage() {
                 <RequestCard
                   key={req._id}
                   request={req}
+                  currentUserId={user?.id || ""}
                   onAccept={handleAccept}
                   onConfirmPayment={handleConfirmPayment}
                 />
