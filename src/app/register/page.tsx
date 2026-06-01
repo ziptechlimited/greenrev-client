@@ -33,8 +33,7 @@ export default function RegisterPage() {
     setDoneMessage(null);
     try {
       await register({ ...formData, role: "customer" });
-      setDoneMessage("Account created. Please verify your email before logging in.");
-      router.push("/login");
+      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (err) {
       const message = err instanceof AuthError ? err.message : err instanceof Error ? err.message : "Signup failed";
       setErrorMessage(message);
