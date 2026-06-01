@@ -25,7 +25,7 @@ export default function MechanicDashboardPage() {
 
   const fetchBookings = async () => {
     try {
-      const res = await apiRequest("/api/v1/bookings/mechanic");
+      const res = await apiRequest<{ bookings: any[] }>("/api/v1/bookings/mechanic");
       if (res.success) {
         setBookings(res.data.bookings);
       }
