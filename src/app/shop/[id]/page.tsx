@@ -15,9 +15,6 @@ import {
   Scale,
   Loader2,
   X,
-  Phone,
-  Mail,
-  Building2,
   CheckCircle2,
   Send,
 } from "lucide-react";
@@ -30,7 +27,6 @@ import { transformProductToCarEntry } from "@/lib/transformProduct";
 import type { CarEntry } from "@/components/shared/InventoryCard";
 import { useAuth } from "@/context/AuthContext";
 import { createAcquisitionRequest } from "@/lib/apiAcquisition";
-import type { VendorContact } from "@/types/acquisition";
 
 function CarDetailsContent() {
   const params = useParams();
@@ -48,7 +44,6 @@ function CarDetailsContent() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [vendorContact, setVendorContact] = useState<VendorContact | null>(null);
   const [requestSuccess, setRequestSuccess] = useState(false);
 
   useEffect(() => {
@@ -108,7 +103,6 @@ function CarDetailsContent() {
     setModalOpen(true);
     setRequestSuccess(false);
     setSubmitError("");
-    setVendorContact(null);
   };
 
   const handleSubmitRequest = async (e: React.FormEvent) => {
@@ -117,11 +111,10 @@ function CarDetailsContent() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const result = await createAcquisitionRequest({
+      await createAcquisitionRequest({
         productId: car.id,
         message: message.trim() || undefined,
       });
-      setVendorContact(result.vendorContact);
       setRequestSuccess(true);
     } catch (err: any) {
       setSubmitError(err.message || "Failed to submit request. Please try again.");
@@ -453,40 +446,14 @@ function CarDetailsContent() {
                         </div>
                       </div>
 
-                      {vendorContact && (
-                        <div className="p-5 bg-white/[0.03] border border-white/10 rounded-2xl space-y-4">
-                          <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Vendor Contact Details</p>
-
-                          <div className="space-y-3">
-                            {vendorContact.companyName && (
-                              <div className="flex items-center gap-3">
-                                <Building2 className="w-4 h-4 text-accent flex-shrink-0" />
-                                <span className="text-white text-sm">{vendorContact.companyName}</span>
-                              </div>
-                            )}
-                            <a
-                              href={`mailto:${vendorContact.email}`}
-                              className="flex items-center gap-3 group"
-                            >
-                              <Mail className="w-4 h-4 text-accent flex-shrink-0" />
-                              <span className="text-white text-sm group-hover:text-accent transition-colors underline underline-offset-2">
-                                {vendorContact.email}
-                              </span>
-                            </a>
-                            {vendorContact.phone && (
-                              <a
-                                href={`tel:${vendorContact.phone}`}
-                                className="flex items-center gap-3 group"
-                              >
-                                <Phone className="w-4 h-4 text-accent flex-shrink-0" />
-                                <span className="text-white text-sm group-hover:text-accent transition-colors">
-                                  {vendorContact.phone}
-                                </span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      )}
+                      <div className="p-5 bg-white/[0.03] border border-white/10 rounded-2xl">
+                        <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">
+                          Next Step
+                        </p>
+                        <p className="text-sm text-white/70 leading-relaxed">
+                          Once the vendor accepts your request, you’ll see their contact details and a payment receipt upload field in your requests page.
+                        </p>
+                      </div>
 
                       <div className="flex gap-3">
                         <button

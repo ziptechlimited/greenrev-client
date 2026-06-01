@@ -1,9 +1,31 @@
 export type AcquisitionStatus =
   | "pending"
   | "accepted"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+  | "receipt_uploaded"
+  | "payment_confirmed"
+  | "completed";
+
+export type AcquisitionEventAction =
+  | "created"
+  | "vendor_accepted"
+  | "receipt_uploaded"
+  | "payment_confirmed"
+  | "client_completed"
+  | "admin_flagged"
+  | "admin_resolved";
+
+export interface AcquisitionEvent {
+  _id: string;
+  requestId: string;
+  actorId: string;
+  actorRole: string;
+  action: AcquisitionEventAction;
+  fromStatus: AcquisitionStatus | null;
+  toStatus: AcquisitionStatus | null;
+  metadata: unknown | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface VendorContact {
   name: string;
@@ -20,7 +42,7 @@ export interface AcquisitionRequest {
   customerPhone: string | null;
   vendorId: string;
   vendorName: string;
-  vendorEmail: string;
+  vendorEmail: string | null;
   vendorPhone: string | null;
   vendorCompanyName: string | null;
   productId: string;
@@ -31,11 +53,18 @@ export interface AcquisitionRequest {
   message: string | null;
   status: AcquisitionStatus;
   acceptedAt: string | null;
+  receiptUrl?: string | null;
+  receiptUploadedAt?: string | null;
+  vendorPaymentAmount?: number | null;
+  vendorPaymentConfirmedAt?: string | null;
   completedAt: string | null;
-  cancelledAt: string | null;
   vendorSeen: boolean;
   hasReview: boolean;
   review?: Review | null;
+  adminFlaggedAt?: string | null;
+  adminFlagReason?: string | null;
+  adminResolvedAt?: string | null;
+  adminResolution?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -3,21 +3,61 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, Package, PlusCircle, User, Settings,
-  ShoppingCart, Clock, CheckCircle2, XCircle, Loader2,
-  ChevronDown, ChevronUp, Phone, Mail, MessageSquare, Car,
+  LayoutDashboard,
+  Package,
+  PlusCircle,
+  User,
+  Settings,
+  ShoppingCart,
+  Clock,
+  CheckCircle2,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Phone,
+  Mail,
+  MessageSquare,
+  Car,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { getVendorRequests, completeTransaction, updateRequestStatus, getVendorRequestCount } from "@/lib/apiAcquisition";
+import {
+  getVendorRequests,
+  getVendorRequestCount,
+  vendorAcceptRequest,
+  vendorConfirmPayment,
+} from "@/lib/apiAcquisition";
 import type { AcquisitionRequest, AcquisitionStatus } from "@/types/acquisition";
 import { cn } from "@/lib/utils";
 
-const STATUS_CONFIG: Record<AcquisitionStatus, { label: string; color: string; bg: string }> = {
-  pending:    { label: "Pending",     color: "text-yellow-400",  bg: "bg-yellow-400/10 border-yellow-400/20" },
-  accepted:   { label: "Accepted",   color: "text-blue-400",    bg: "bg-blue-400/10 border-blue-400/20" },
-  in_progress:{ label: "In Progress",color: "text-purple-400",  bg: "bg-purple-400/10 border-purple-400/20" },
-  completed:  { label: "Completed",  color: "text-green-400",   bg: "bg-green-400/10 border-green-400/20" },
-  cancelled:  { label: "Cancelled",  color: "text-white/40",    bg: "bg-white/5 border-white/10" },
+const STATUS_CONFIG: Record<
+  AcquisitionStatus,
+  { label: string; color: string; bg: string }
+> = {
+  pending: {
+    label: "Pending",
+    color: "text-yellow-400",
+    bg: "bg-yellow-400/10 border-yellow-400/20",
+  },
+  accepted: {
+    label: "Accepted",
+    color: "text-blue-400",
+    bg: "bg-blue-400/10 border-blue-400/20",
+  },
+  receipt_uploaded: {
+    label: "Receipt Uploaded",
+    color: "text-purple-300",
+    bg: "bg-purple-500/10 border-purple-500/20",
+  },
+  payment_confirmed: {
+    label: "Payment Confirmed",
+    color: "text-emerald-300",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+  },
+  completed: {
+    label: "Completed",
+    color: "text-green-400",
+    bg: "bg-green-400/10 border-green-400/20",
+  },
 };
 
 function StatusBadge({ status }: { status: AcquisitionStatus }) {
@@ -31,27 +71,39 @@ function StatusBadge({ status }: { status: AcquisitionStatus }) {
 
 function RequestCard({
   request,
-  onComplete,
-  onStatusChange,
+  onAccept,
+  onConfirmPayment,
 }: {
   request: AcquisitionRequest;
-  onComplete: (id: string) => Promise<void>;
-  onStatusChange: (id: string, status: AcquisitionStatus) => Promise<void>;
+  onAccept: (id: string) => Promise<void>;
+  onConfirmPayment: (id: string, amount: number) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState("");
 
-  const handleComplete = async () => {
+  const handleAccept = async () => {
     setLoading(true);
-    try { await onComplete(request._id); } finally { setLoading(false); }
+    try {
+      await onAccept(request._id);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleStatus = async (status: AcquisitionStatus) => {
+  const handleConfirmPayment = async () => {
+    const value = Number(amount);
+    if (!Number.isFinite(value) || value <= 0) return;
     setLoading(true);
-    try { await onStatusChange(request._id, status); } finally { setLoading(false); }
+    try {
+      await onConfirmPayment(request._id, value);
+      setAmount("");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const isTerminal = request.status === "completed" || request.status === "cancelled";
+  const isTerminal = request.status === "completed";
   const formattedDate = new Date(request.createdAt).toLocaleDateString("en-US", {
     day: "numeric", month: "short", year: "numeric",
   });
@@ -145,41 +197,79 @@ function RequestCard({
 
               {/* Action Buttons */}
               {!isTerminal && (
-                <div className="flex flex-wrap gap-3 pt-1">
+                <div className="space-y-3 pt-1">
                   {request.status === "pending" && (
                     <button
-                      onClick={() => handleStatus("accepted")}
+                      onClick={handleAccept}
                       disabled={loading}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-blue-500/20 transition-colors disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-blue-500/20 transition-colors disabled:opacity-50"
                     >
+                      {loading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : null}
                       Accept Request
                     </button>
                   )}
-                  {(request.status === "accepted" || request.status === "pending") && (
-                    <button
-                      onClick={() => handleStatus("in_progress")}
-                      disabled={loading}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-purple-500/20 transition-colors disabled:opacity-50"
-                    >
-                      Mark In Progress
-                    </button>
+
+                  {request.status === "accepted" && (
+                    <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-sm text-white/70">
+                        Waiting for the customer to upload a payment receipt.
+                      </p>
+                    </div>
                   )}
-                  <button
-                    onClick={handleComplete}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/20 transition-colors disabled:opacity-50"
-                  >
-                    {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                    Mark Complete
-                  </button>
-                  <button
-                    onClick={() => handleStatus("cancelled")}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-colors disabled:opacity-50"
-                  >
-                    <XCircle className="w-3.5 h-3.5" />
-                    Cancel
-                  </button>
+
+                  {request.status === "receipt_uploaded" && (
+                    <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                        Confirm Payment
+                      </p>
+                      {request.receiptUrl ? (
+                        <a
+                          href={request.receiptUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[10px] uppercase tracking-widest font-bold text-accent inline-block"
+                        >
+                          View Receipt
+                        </a>
+                      ) : null}
+                      <input
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        inputMode="decimal"
+                        placeholder="Enter exact amount"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleConfirmPayment}
+                        disabled={
+                          loading ||
+                          !Number.isFinite(Number(amount)) ||
+                          Number(amount) <= 0
+                        }
+                        className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/20 transition-colors disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : null}
+                        Confirm Payment
+                      </button>
+                    </div>
+                  )}
+
+                  {request.status === "payment_confirmed" && (
+                    <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-sm text-white/70">
+                        Payment confirmed
+                        {typeof request.vendorPaymentAmount === "number"
+                          ? ` (${request.vendorPaymentAmount})`
+                          : ""}
+                        . Waiting for the customer to confirm completion.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -231,18 +321,19 @@ export default function VendorRequestsPage() {
     { name: "Settings",     href: "/vendor/settings",       icon: Settings },
   ];
 
-  const handleComplete = async (id: string) => {
-    const updated = await completeTransaction(id);
-    setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, ...updated } : r)));
+  const handleAccept = async (id: string) => {
+    const updated = await vendorAcceptRequest(id);
+    setRequests((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, ...updated } : r)),
+    );
     setPendingCount((c) => Math.max(0, c - 1));
   };
 
-  const handleStatusChange = async (id: string, status: AcquisitionStatus) => {
-    const updated = await updateRequestStatus(id, status);
-    setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, ...updated } : r)));
-    if (status === "cancelled" || status === "completed") {
-      setPendingCount((c) => Math.max(0, c - 1));
-    }
+  const handleConfirmPayment = async (id: string, amount: number) => {
+    const updated = await vendorConfirmPayment(id, amount);
+    setRequests((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, ...updated } : r)),
+    );
   };
 
   const filtered = filter === "all"
@@ -253,9 +344,9 @@ export default function VendorRequestsPage() {
     { label: "All", value: "all" },
     { label: "Pending", value: "pending" },
     { label: "Accepted", value: "accepted" },
-    { label: "In Progress", value: "in_progress" },
+    { label: "Receipt Uploaded", value: "receipt_uploaded" },
+    { label: "Payment Confirmed", value: "payment_confirmed" },
     { label: "Completed", value: "completed" },
-    { label: "Cancelled", value: "cancelled" },
   ];
 
   return (
@@ -322,8 +413,8 @@ export default function VendorRequestsPage() {
                 <RequestCard
                   key={req._id}
                   request={req}
-                  onComplete={handleComplete}
-                  onStatusChange={handleStatusChange}
+                  onAccept={handleAccept}
+                  onConfirmPayment={handleConfirmPayment}
                 />
               ))}
             </AnimatePresence>

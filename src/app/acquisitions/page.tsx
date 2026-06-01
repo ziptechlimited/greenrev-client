@@ -3,23 +3,62 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Clock, CheckCircle2, XCircle, Star, Loader2,
-  ChevronDown, ChevronUp, Phone, Mail, Car,
-  MessageSquare, Send,
+  Clock,
+  CheckCircle2,
+  Star,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  Phone,
+  Mail,
+  Car,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { getCustomerRequests, updateRequestStatus, createReview } from "@/lib/apiAcquisition";
-import type { AcquisitionRequest, AcquisitionStatus } from "@/types/acquisition";
+import {
+  customerConfirmCompleted,
+  getCustomerRequests,
+  uploadPaymentReceipt,
+  createReview,
+} from "@/lib/apiAcquisition";
+import type {
+  AcquisitionRequest,
+  AcquisitionStatus,
+} from "@/types/acquisition";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
-const STATUS_CONFIG: Record<AcquisitionStatus, { label: string; color: string; bg: string }> = {
-  pending:     { label: "Pending",     color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/20" },
-  accepted:    { label: "Accepted",   color: "text-blue-400",   bg: "bg-blue-400/10 border-blue-400/20" },
-  in_progress: { label: "In Progress",color: "text-purple-400", bg: "bg-purple-400/10 border-purple-400/20" },
-  completed:   { label: "Completed",  color: "text-green-400",  bg: "bg-green-400/10 border-green-400/20" },
-  cancelled:   { label: "Cancelled",  color: "text-white/40",   bg: "bg-white/5 border-white/10" },
+const STATUS_CONFIG: Record<
+  AcquisitionStatus,
+  { label: string; color: string; bg: string }
+> = {
+  pending: {
+    label: "Pending",
+    color: "text-yellow-400",
+    bg: "bg-yellow-400/10 border-yellow-400/20",
+  },
+  accepted: {
+    label: "Accepted",
+    color: "text-blue-400",
+    bg: "bg-blue-400/10 border-blue-400/20",
+  },
+  receipt_uploaded: {
+    label: "Receipt Uploaded",
+    color: "text-purple-300",
+    bg: "bg-purple-500/10 border-purple-500/20",
+  },
+  payment_confirmed: {
+    label: "Payment Confirmed",
+    color: "text-emerald-300",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+  },
+  completed: {
+    label: "Completed",
+    color: "text-green-400",
+    bg: "bg-green-400/10 border-green-400/20",
+  },
 };
 
 function StarRating({
@@ -46,7 +85,7 @@ function StarRating({
               "w-7 h-7 transition-colors",
               (hovered || value) >= star
                 ? "text-accent fill-accent"
-                : "text-white/20"
+                : "text-white/20",
             )}
           />
         </button>
@@ -69,7 +108,10 @@ function ReviewForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0) { setError("Please select a rating"); return; }
+    if (rating === 0) {
+      setError("Please select a rating");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -82,7 +124,10 @@ function ReviewForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl"
+    >
       <p className="text-white text-sm font-medium">Leave a Review</p>
       <StarRating value={rating} onChange={setRating} />
       {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -98,7 +143,11 @@ function ReviewForm({
         disabled={loading || rating === 0}
         className="flex items-center gap-2 px-5 py-2.5 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-50"
       >
-        {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+        {loading ? (
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Send className="w-3.5 h-3.5" />
+        )}
         Submit Review
       </button>
     </form>
@@ -107,26 +156,54 @@ function ReviewForm({
 
 function RequestCard({
   request,
-  onStatusChange,
+  onUploadReceipt,
+  onConfirmCompleted,
   onReviewSubmit,
 }: {
   request: AcquisitionRequest;
-  onStatusChange: (id: string, status: AcquisitionStatus) => Promise<void>;
-  onReviewSubmit: (id: string, rating: number, comment: string) => Promise<void>;
+  onUploadReceipt: (id: string, receiptUrl: string) => Promise<void>;
+  onConfirmCompleted: (id: string) => Promise<void>;
+  onReviewSubmit: (
+    id: string,
+    rating: number,
+    comment: string,
+  ) => Promise<void>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState("");
 
   const cfg = STATUS_CONFIG[request.status];
-  const isTerminal = request.status === "completed" || request.status === "cancelled";
-  const canReview = request.status === "completed" && !request.hasReview && !request.review;
-  const formattedDate = new Date(request.createdAt).toLocaleDateString("en-US", {
-    day: "numeric", month: "short", year: "numeric",
-  });
+  const isTerminal = request.status === "completed";
+  const canReview =
+    request.status === "completed" && !request.hasReview && !request.review;
+  const formattedDate = new Date(request.createdAt).toLocaleDateString(
+    "en-US",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    },
+  );
 
-  const handleStatus = async (status: AcquisitionStatus) => {
+  const handleUploadReceipt = async () => {
+    if (!receiptUrl.trim()) return;
     setLoading(true);
-    try { await onStatusChange(request._id, status); } finally { setLoading(false); }
+    try {
+      await onUploadReceipt(request._id, receiptUrl.trim());
+      setReceiptUrl("");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmCompleted = async () => {
+    setLoading(true);
+    try {
+      await onConfirmCompleted(request._id);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -146,10 +223,20 @@ function RequestCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-white font-medium text-sm">{request.productName}</p>
-              <p className="text-subtle text-xs">{request.productPrice} · {request.productMake}</p>
+              <p className="text-white font-medium text-sm">
+                {request.productName}
+              </p>
+              <p className="text-subtle text-xs">
+                {request.productPrice} · {request.productMake}
+              </p>
             </div>
-            <span className={cn("text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border", cfg.bg, cfg.color)}>
+            <span
+              className={cn(
+                "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+                cfg.bg,
+                cfg.color,
+              )}
+            >
               {cfg.label}
             </span>
           </div>
@@ -159,7 +246,9 @@ function RequestCard({
               <Clock className="w-3 h-3" />
               {formattedDate}
             </span>
-            <span className="font-medium text-white/60">{request.vendorName}</span>
+            <span className="font-medium text-white/60">
+              {request.vendorName}
+            </span>
           </div>
         </div>
 
@@ -167,7 +256,11 @@ function RequestCard({
           onClick={() => setExpanded(!expanded)}
           className="flex-shrink-0 p-2 text-white/40 hover:text-white transition-colors"
         >
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {expanded ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </button>
       </div>
 
@@ -183,61 +276,125 @@ function RequestCard({
             <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-5">
               {/* Vendor Contact */}
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3">Vendor Contact</p>
-                <div className="flex flex-wrap gap-3">
-                  <a
-                    href={`mailto:${request.vendorEmail}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    {request.vendorEmail}
-                  </a>
-                  {request.vendorPhone && (
-                    <a
-                      href={`tel:${request.vendorPhone}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      {request.vendorPhone}
-                    </a>
-                  )}
-                </div>
-                {request.vendorCompanyName && (
-                  <p className="text-xs text-subtle mt-2">{request.vendorCompanyName}</p>
+                <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3">
+                  Vendor Contact
+                </p>
+                {request.status === "pending" ? (
+                  <div className="p-4 bg-white/[0.02] border border-white/5 rounded-xl">
+                    <p className="text-sm text-white/60">
+                      Vendor contact details unlock after the vendor accepts
+                      your request.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap gap-3">
+                      {request.vendorEmail && (
+                        <a
+                          href={`mailto:${request.vendorEmail}`}
+                          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
+                        >
+                          <Mail className="w-3.5 h-3.5" />
+                          {request.vendorEmail}
+                        </a>
+                      )}
+                      {request.vendorPhone && (
+                        <a
+                          href={`tel:${request.vendorPhone}`}
+                          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
+                        >
+                          <Phone className="w-3.5 h-3.5" />
+                          {request.vendorPhone}
+                        </a>
+                      )}
+                    </div>
+                    {request.vendorCompanyName && (
+                      <p className="text-xs text-subtle mt-2">
+                        {request.vendorCompanyName}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
               {/* Your Message */}
               {request.message && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">Your Message</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">
+                    Your Message
+                  </p>
                   <div className="flex gap-2 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
                     <MessageSquare className="w-4 h-4 text-white/30 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-white/70 leading-relaxed">{request.message}</p>
+                    <p className="text-sm text-white/70 leading-relaxed">
+                      {request.message}
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Status Actions (customer) */}
               {!isTerminal && (
-                <div className="flex flex-wrap gap-3">
-                  {request.status !== "in_progress" && (
-                    <button
-                      onClick={() => handleStatus("in_progress")}
-                      disabled={loading}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-purple-500/20 transition-colors disabled:opacity-50"
-                    >
-                      Mark In Progress
-                    </button>
+                <div className="space-y-3">
+                  {request.status === "accepted" && (
+                    <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                        Upload Payment Receipt
+                      </p>
+                      <input
+                        value={receiptUrl}
+                        onChange={(e) => setReceiptUrl(e.target.value)}
+                        placeholder="Paste receipt URL (e.g. cloud storage link)"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleUploadReceipt}
+                        disabled={loading || !receiptUrl.trim()}
+                        className="w-full py-3 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-50"
+                      >
+                        {loading ? "Uploading..." : "Submit Receipt"}
+                      </button>
+                    </div>
                   )}
-                  <button
-                    onClick={() => handleStatus("cancelled")}
-                    disabled={loading}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-colors disabled:opacity-50"
-                  >
-                    <XCircle className="w-3.5 h-3.5" />
-                    Cancel Request
-                  </button>
+
+                  {request.status === "receipt_uploaded" && (
+                    <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-sm text-white/70">
+                        Receipt submitted. Waiting for the vendor to confirm
+                        payment.
+                      </p>
+                      {request.receiptUrl && (
+                        <a
+                          href={request.receiptUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[10px] uppercase tracking-widest font-bold text-accent inline-block mt-3"
+                        >
+                          View Receipt
+                        </a>
+                      )}
+                    </div>
+                  )}
+
+                  {request.status === "payment_confirmed" && (
+                    <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                      <p className="text-sm text-white/70">
+                        Vendor confirmed payment
+                        {typeof request.vendorPaymentAmount === "number"
+                          ? ` (${request.vendorPaymentAmount})`
+                          : ""}
+                        .
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleConfirmCompleted}
+                        disabled={loading}
+                        className="w-full py-3 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent transition-colors disabled:opacity-50"
+                      >
+                        {loading ? "Confirming..." : "I Received My Order"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -245,21 +402,36 @@ function RequestCard({
               {request.status === "completed" && (
                 <div className="flex items-center gap-2 text-green-400 text-xs">
                   <CheckCircle2 className="w-4 h-4" />
-                  Transaction completed {request.completedAt ? new Date(request.completedAt).toLocaleDateString() : ""}
+                  Transaction completed{" "}
+                  {request.completedAt
+                    ? new Date(request.completedAt).toLocaleDateString()
+                    : ""}
                 </div>
               )}
 
               {/* Existing review */}
               {request.review && (
                 <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-2">
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">Your Review</p>
+                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                    Your Review
+                  </p>
                   <div className="flex gap-0.5">
-                    {[1,2,3,4,5].map((s) => (
-                      <Star key={s} className={cn("w-4 h-4", s <= request.review!.rating ? "text-accent fill-accent" : "text-white/20")} />
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={cn(
+                          "w-4 h-4",
+                          s <= request.review!.rating
+                            ? "text-accent fill-accent"
+                            : "text-white/20",
+                        )}
+                      />
                     ))}
                   </div>
                   {request.review.comment && (
-                    <p className="text-sm text-white/70">{request.review.comment}</p>
+                    <p className="text-sm text-white/70">
+                      {request.review.comment}
+                    </p>
                   )}
                 </div>
               )}
@@ -268,7 +440,9 @@ function RequestCard({
               {canReview && (
                 <ReviewForm
                   requestId={request._id}
-                  onSubmit={(rating, comment) => onReviewSubmit(request._id, rating, comment)}
+                  onSubmit={(rating, comment) =>
+                    onReviewSubmit(request._id, rating, comment)
+                  }
                 />
               )}
             </div>
@@ -299,12 +473,25 @@ export default function AcquisitionsPage() {
     }
   }, [user, authLoading, router]);
 
-  const handleStatusChange = async (id: string, status: AcquisitionStatus) => {
-    const updated = await updateRequestStatus(id, status);
-    setRequests((prev) => prev.map((r) => (r._id === id ? { ...r, ...updated } : r)));
+  const handleUploadReceipt = async (id: string, receiptUrl: string) => {
+    const updated = await uploadPaymentReceipt(id, receiptUrl);
+    setRequests((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, ...updated } : r)),
+    );
   };
 
-  const handleReviewSubmit = async (id: string, rating: number, comment: string) => {
+  const handleConfirmCompleted = async (id: string) => {
+    const updated = await customerConfirmCompleted(id);
+    setRequests((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, ...updated } : r)),
+    );
+  };
+
+  const handleReviewSubmit = async (
+    id: string,
+    rating: number,
+    comment: string,
+  ) => {
     await createReview(id, { rating, comment });
     const refreshed = await getCustomerRequests();
     setRequests(refreshed);
@@ -314,12 +501,13 @@ export default function AcquisitionsPage() {
     { label: "All", value: "all" },
     { label: "Pending", value: "pending" },
     { label: "Accepted", value: "accepted" },
-    { label: "In Progress", value: "in_progress" },
+    { label: "Receipt Uploaded", value: "receipt_uploaded" },
+    { label: "Payment Confirmed", value: "payment_confirmed" },
     { label: "Completed", value: "completed" },
-    { label: "Cancelled", value: "cancelled" },
   ];
 
-  const filtered = filter === "all" ? requests : requests.filter((r) => r.status === filter);
+  const filtered =
+    filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
   return (
     <>
@@ -331,7 +519,9 @@ export default function AcquisitionsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-10"
           >
-            <h1 className="text-4xl md:text-5xl font-display text-white mb-3">My Requests</h1>
+            <h1 className="text-4xl md:text-5xl font-display text-white mb-3">
+              My Requests
+            </h1>
             <p className="text-subtle">
               Track your acquisition requests and connect with vendors.
             </p>
@@ -341,7 +531,10 @@ export default function AcquisitionsPage() {
           {requests.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-8">
               {filterTabs.map((tab) => {
-                const count = tab.value === "all" ? requests.length : requests.filter((r) => r.status === tab.value).length;
+                const count =
+                  tab.value === "all"
+                    ? requests.length
+                    : requests.filter((r) => r.status === tab.value).length;
                 return (
                   <button
                     key={tab.value}
@@ -350,10 +543,11 @@ export default function AcquisitionsPage() {
                       "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
                       filter === tab.value
                         ? "bg-white/10 text-white border-white/20"
-                        : "text-white/40 border-white/5 hover:text-white hover:border-white/20"
+                        : "text-white/40 border-white/5 hover:text-white hover:border-white/20",
                     )}
                   >
-                    {tab.label} {count > 0 && <span className="opacity-60">({count})</span>}
+                    {tab.label}{" "}
+                    {count > 0 && <span className="opacity-60">({count})</span>}
                   </button>
                 );
               })}
@@ -369,9 +563,12 @@ export default function AcquisitionsPage() {
               <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
                 <Car className="w-8 h-8 text-white/20" />
               </div>
-              <h2 className="text-2xl font-display text-white mb-3">No requests yet</h2>
+              <h2 className="text-2xl font-display text-white mb-3">
+                No requests yet
+              </h2>
               <p className="text-subtle mb-8 max-w-xs">
-                Browse the showroom and place your first acquisition request to connect with a vendor.
+                Browse the showroom and place your first acquisition request to
+                connect with a vendor.
               </p>
               <a
                 href="/shop"
@@ -382,7 +579,9 @@ export default function AcquisitionsPage() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-20 text-center">
-              <p className="text-subtle text-sm">No requests match this filter.</p>
+              <p className="text-subtle text-sm">
+                No requests match this filter.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -391,7 +590,8 @@ export default function AcquisitionsPage() {
                   <RequestCard
                     key={req._id}
                     request={req}
-                    onStatusChange={handleStatusChange}
+                    onUploadReceipt={handleUploadReceipt}
+                    onConfirmCompleted={handleConfirmCompleted}
                     onReviewSubmit={handleReviewSubmit}
                   />
                 ))}
