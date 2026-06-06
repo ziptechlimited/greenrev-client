@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserRole } from "@/context/AuthContext";
 import ProfileAlertModal from "@/components/mechanic/ProfileAlertModal";
+import { VerificationBadge } from "@/components/VerificationBadge";
 
 interface NavItem {
   name: string;
@@ -64,9 +65,8 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
 
       {/* Sidebar */}
       <motion.aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-[#050505] border-r border-white/5 z-50 flex flex-col transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-[#050505] border-r border-white/5 z-50 flex flex-col transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         <div className="p-8 flex items-center justify-between">
           <div>
@@ -78,9 +78,12 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
           </button>
         </div>
 
-        <div className="px-8 py-4 border-b border-white/5 mb-4">
+        <div className="px-8 py-4 border-b border-white/5 mb-4 space-y-1">
           <p className="text-white text-sm font-medium">{user.name ?? "Account"}</p>
           <p className="text-white/40 text-xs">{user.email}</p>
+          <div className="pt-1">
+            <VerificationBadge />
+          </div>
         </div>
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -90,11 +93,10 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  isActive 
-                    ? "bg-white/10 text-white font-medium" 
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
+                    ? "bg-white/10 text-white font-medium"
                     : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
+                  }`}
               >
                 <item.icon className={`w-5 h-5 ${isActive ? "text-accent" : ""}`} />
                 <span className="text-sm flex-1">{item.name}</span>
@@ -109,7 +111,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-white/60 hover:text-red-400 hover:bg-red-400/10 transition-colors"
           >

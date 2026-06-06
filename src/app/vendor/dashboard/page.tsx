@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { LayoutDashboard, Package, PlusCircle, User, Settings, TrendingUp, ShoppingCart, CheckCircle } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { getVendorRequestCount, getVendorRequests } from "@/lib/apiAcquisition";
+import { VerificationBadge } from "@/components/VerificationBadge";
 
 export default function VendorDashboardPage() {
   const [pendingCount, setPendingCount] = useState(0);
@@ -48,7 +49,9 @@ export default function VendorDashboardPage() {
     <DashboardLayout navItems={VENDOR_NAV} role="vendor" title="Vendor Portal">
       <div className="space-y-8">
         <header>
-          <h1 className="text-3xl font-display text-white mb-2">Vendor Overview</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-display text-white">Vendor Overview</h1>
+          </div>
           <p className="text-subtle text-sm">Manage your inventory, track requests, and monitor performance.</p>
         </header>
 

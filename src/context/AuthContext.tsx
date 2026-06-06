@@ -25,6 +25,9 @@ interface User {
   email: string;
   role: UserRole;
   isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  verificationLevel: "basic" | "individual" | "business";
+  verificationStatus: "unverified" | "pending" | "verified" | "rejected";
 }
 
 interface AuthContextType {

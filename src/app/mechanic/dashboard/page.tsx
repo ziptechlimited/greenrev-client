@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { LayoutDashboard, User, MapPin, Calendar, Settings, Star, Clock, Check, X } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { mockReviews } from "@/data/mechanicMockData";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { apiRequest } from "@/lib/apiClient";
 
 const MECHANIC_NAV = [
@@ -61,7 +62,9 @@ export default function MechanicDashboardPage() {
     <DashboardLayout navItems={MECHANIC_NAV} role="mechanic" title="Expert Portal">
       <div className="space-y-8">
         <header>
-          <h1 className="text-3xl font-display text-white mb-2">Expert Overview</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-display text-white">Expert Overview</h1>
+          </div>
           <p className="text-subtle text-sm">Manage your service requests, schedule, and profile visibility.</p>
         </header>
 

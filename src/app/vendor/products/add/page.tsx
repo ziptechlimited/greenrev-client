@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { createProduct, getProduct, updateProduct } from "@/lib/apiProduct";
+import { createProduct, getProduct, updateProduct, uploadProductImage } from "@/lib/apiProduct";
 import type {
   ProductCategory,
   ProductColor,
@@ -56,6 +56,9 @@ export default function VendorAddProductPage() {
     colorName: "",
     colorHex: "#000000",
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +118,22 @@ export default function VendorAddProductPage() {
     setSuccess(false);
 
     try {
+      let finalImageUrl = formData.image;
+
+      if (selectedFile) {
+        setIsUploadingImage(true);
+        try {
+          finalImageUrl = await uploadProductImage(selectedFile);
+        } catch (uploadErr) {
+          setError("Image upload failed. Please try again.");
+          setIsSubmitting(false);
+          setIsUploadingImage(false);
+          return;
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
       const specs: ProductSpecs = {};
       if (formData.horsepower) specs.horsepower = Number(formData.horsepower);
       if (formData.torque) specs.torque = formData.torque;
@@ -137,7 +156,7 @@ export default function VendorAddProductPage() {
         priceValue: isNaN(priceValue) ? undefined : priceValue,
         year: formData.year ? Number(formData.year) : undefined,
         mileage: formData.mileage || undefined,
-        image: formData.image,
+        image: finalImageUrl,
         specs: Object.keys(specs).length > 0 ? specs : undefined,
         color,
         description: formData.description || undefined,
@@ -173,6 +192,8 @@ export default function VendorAddProductPage() {
         colorName: "",
         colorHex: "#000000",
       });
+      setSelectedFile(null);
+      setImagePreview("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create product");
     } finally {
@@ -182,6 +203,28 @@ export default function VendorAddProductPage() {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validExtensions = ["jpg", "jpeg", "png", "avif", "webp", "glb", "gltf"];
+    const extension = file.name.split(".").pop()?.toLowerCase();
+
+    if (!extension || !validExtensions.includes(extension)) {
+      setError("Unsupported file extension. Please use jpg, png, avif, webp, glb, or gltf.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("File size exceeds 10MB limit.");
+      return;
+    }
+
+    setSelectedFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setError(null);
   };
 
   return (
@@ -392,30 +435,51 @@ export default function VendorAddProductPage() {
 
                 <div>
                   <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
-                    Image URL *
+                    Product Image *
                   </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="url"
-                      required
-                      placeholder="https://example.com/image.jpg"
-                      value={formData.image}
-                      onChange={(e) =>
-                        handleInputChange("image", e.target.value)
-                      }
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-accent transition-colors"
-                    />
-                    {formData.image && (
-                      <div className="relative w-20 h-12">
-                        <img
-                          src={formData.image}
-                          alt="Preview"
-                          className="w-full h-full object-cover rounded-xl"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                      </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="relative group">
+                      <input
+                        type="file"
+                        accept=".jpg,.jpeg,.png,.avif,.webp,.glb,.gltf"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="product-image-upload"
+                      />
+                      <label
+                        htmlFor="product-image-upload"
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                          imagePreview
+                            ? "border-accent bg-accent/5"
+                            : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        {imagePreview ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={imagePreview}
+                              alt="Preview"
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                              <p className="text-white text-xs font-medium">Change Image</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <PlusCircle className="w-8 h-8 text-white/40 mb-2" />
+                            <p className="text-white/60 text-sm">Click to upload</p>
+                            <p className="text-subtle text-xs mt-1">
+                              JPG, PNG, AVIF, WEBP, GLB, GLTF (Max 10MB)
+                            </p>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                    {isUploadingImage && (
+                      <p className="text-accent text-xs animate-pulse">
+                        Uploading image to Cloudinary...
+                      </p>
                     )}
                   </div>
                 </div>

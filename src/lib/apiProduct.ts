@@ -5,6 +5,24 @@ import type {
   UpdateProductInput,
 } from "@/types/product";
 
+export async function uploadProductImage(
+  file: File,
+): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await apiRequest<{ url: string }>("/api/v1/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.success) {
+    throw new Error(response.error.message);
+  }
+
+  return response.data.url;
+}
+
 export async function createProduct(
   data: CreateProductInput,
 ): Promise<Product> {
