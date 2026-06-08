@@ -83,19 +83,12 @@ export default function PartsPage() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div>
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full text-accent text-[10px] uppercase font-bold tracking-[0.2em] mb-4"
-            >
-              Performance Boutique
-            </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-5xl md:text-7xl font-display text-white mb-4"
             >
-              Parts & <span className="text-accent italic">Pedigree.</span>
+              Parts
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -168,7 +161,7 @@ export default function PartsPage() {
                     Need help with installation or selecting the right spec?
                   </p>
                   <button className="text-[10px] font-bold tracking-widest uppercase text-white py-2 px-4 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                    Contact Concierge
+                    Contact Support
                   </button>
                 </div>
               </div>

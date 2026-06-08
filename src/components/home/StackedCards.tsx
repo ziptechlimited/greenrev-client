@@ -31,16 +31,7 @@ const CARDS = [
     cta: "Get Valuation",
     href: "/sell",
     image: "/images/home/relinquish.png",
-  },
-  {
-    id: "sourcing",
-    title: "Private\nSourcing.",
-    description:
-      "Leverage our global network to find the exact configuration and provenance you desire, handled with utmost discretion.",
-    cta: "Request Sourcing",
-    href: "/sourcing",
-    image: "/images/home/comparison.png",
-  },
+  }
 ];
 
 // ─── Per-card scroll phases ─────────────────────────────────────────────────
@@ -51,13 +42,13 @@ const CARDS = [
 function getPhase(i: number, total: number) {
   // Calculate step dynamically so that the last card finishes entering around 0.95
   const step = total > 1 ? 0.67 / (total - 1) : 0;
-  const enterStart  = i * step;
-  const enterEnd    = enterStart + 0.28;
+  const enterStart = i * step;
+  const enterEnd = enterStart + 0.28;
   // second card starts entering when first card is 50% through its entry
-  const nextEnter   = (i + 1) * step;
+  const nextEnter = (i + 1) * step;
   const shrinkStart = nextEnter;              // starts shrinking when next card appears
-  const shrinkEnd   = nextEnter + 0.28;       // fully thumbnail when next card is full
-  const isLast      = i === total - 1;
+  const shrinkEnd = nextEnter + 0.28;       // fully thumbnail when next card is full
+  const isLast = i === total - 1;
   return { enterStart, enterEnd, shrinkStart, shrinkEnd, isLast };
 }
 
@@ -67,7 +58,7 @@ function IntroHeading({ progress }: { progress: MotionValue<number> }) {
   const opacity = useTransform(
     progress,
     [0, 0.06, 0.12, 0.20],
-    [0,  1,    1,   0]
+    [0, 1, 1, 0]
   );
   const scale = useTransform(
     progress,
@@ -177,16 +168,16 @@ function Card({
   // ─ Parallax: image drifts upward as scroll advances through this card ──────
   // Maps the card's full scroll window to a vertical image offset
   const parallaxStart = phase.enterStart;
-  const parallaxEnd   = phase.isLast ? 1 : phase.shrinkEnd;
+  const parallaxEnd = phase.isLast ? 1 : phase.shrinkEnd;
   const parallaxY = useTransform(
     progress,
     [parallaxStart, parallaxEnd],
     [50, -50]
   );
 
-  const sx = useSpring(x,        { stiffness: 65, damping: 22, restDelta: 0.5 });
-  const sy = useSpring(y,        { stiffness: 65, damping: 22, restDelta: 0.5 });
-  const ss = useSpring(scale,    { stiffness: 65, damping: 22 });
+  const sx = useSpring(x, { stiffness: 65, damping: 22, restDelta: 0.5 });
+  const sy = useSpring(y, { stiffness: 65, damping: 22, restDelta: 0.5 });
+  const ss = useSpring(scale, { stiffness: 65, damping: 22 });
   const spy = useSpring(parallaxY, { stiffness: 40, damping: 20 });
 
   return (
@@ -286,7 +277,7 @@ export default function StackedCards() {
   // Compute pixel offsets for thumbnail/enter positions at runtime
   const [offsets, setOffsets] = useState({
     thumbX: -500, thumbY: -320,
-    enterX: 500,  enterY: 320,
+    enterX: 500, enterY: 320,
   });
 
   useEffect(() => {

@@ -79,7 +79,7 @@ function VerifyEmailInner() {
 
     if (res.success) {
       setStatus("ok");
-      setTimeout(() => router.push("/login"), 1500);
+      setTimeout(() => router.push(searchParams.get("role") === "admin" ? "/admin/login" : "/login"), 1500);
     } else {
       setStatus("error");
       setErrorMessage(res.error?.message ?? "Invalid PIN. Please try again.");
@@ -187,7 +187,7 @@ function VerifyEmailInner() {
 
           {/* Footer links */}
           <div className="flex items-center justify-between text-[10px] uppercase tracking-widest font-bold text-subtle pt-2">
-            <Link href="/login" className="hover:text-white transition-colors">
+            <Link href={searchParams.get("role") === "admin" ? "/admin/login" : "/login"} className="hover:text-white transition-colors">
               Back to Login
             </Link>
             {email && status !== "ok" && (

@@ -41,6 +41,12 @@ interface AuthContextType {
     companyName?: string;
     garageName?: string;
   }) => Promise<void>;
+  adminRegister: (input: {
+    name: string;
+    email: string;
+    password: string;
+    activationCode: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -104,6 +110,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const adminRegister = async (input: {
+    name: string;
+    email: string;
+    password: string;
+    activationCode: string;
+  }) => {
+    const res = await apiRequest<{ user: User }>(
+      "/api/v1/auth/admin-register",
+      { method: "POST", body: JSON.stringify(input) },
+      { retryOn401: false },
+    );
+    if (!res.success) {
+      throw new AuthError(res.error.code, res.error.message);
+    }
+  };
+
   const logout = async () => {
     await apiRequest<{ ok: boolean }>("/api/v1/auth/logout", {
       method: "POST",
@@ -153,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         login,
         register,
+        adminRegister,
         logout,
         resendVerification,
         forgotPassword,

@@ -31,7 +31,6 @@ import { cn } from "@/lib/utils";
 const ADMIN_NAV = [
   { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Users & Vendors", href: "/admin/users", icon: Users },
-  { name: "System Logs", href: "/admin/logs", icon: Activity },
 ];
 
 const STATUS_CONFIG: Record<

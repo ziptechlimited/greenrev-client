@@ -11,12 +11,12 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-accent selection:text-black">
       <HeroScroll />
-      <WhyGreenRev />
-      
+      {/* <WhyGreenRev />  */}
+
       {/* Grouped High-Fidelity Sections */}
       <ServicesGrid />
       <StackedCards />
-      
+
       <CarMorph />
       <Testimonials />
       <GlobalPresence />

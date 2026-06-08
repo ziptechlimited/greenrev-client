@@ -50,18 +50,21 @@ export default function VerificationPage() {
         ? { nin, selfieUrl: selfieUrl || "https://example.com/selfie.jpg" }
         : { cacNumber, cacDocumentUrl: "url", directorIdUrl: "url", businessAddress: "addr", bankAccountNumber: "123", bankCode: "001" };
 
-      const res = await apiRequest<{ success: boolean }>(endpoint, {
+      const res = await apiRequest<{ success: boolean; data?: any; error?: any }>(endpoint, {
         method: "POST",
         body: JSON.stringify(body),
       });
 
       if (res.success) {
-        setMessage({ type: 'success', text: "Your verification request has been submitted and is under review." });
+        setMessage({ type: 'success', text: "Smile ID Verification Successful! Upgrading your account..." });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
-        throw new Error("Submission failed");
+        throw new Error(res.error?.message || "Submission failed");
       }
-    } catch (err) {
-      setMessage({ type: 'error', text: "Something went wrong. Please try again or contact support." });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || "Something went wrong. Please try again or contact support." });
     } finally {
       setIsLoading(false);
     }

@@ -8,7 +8,7 @@ export function VerificationBadge() {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
 
-  if (!user) return null;
+  if (!user || user.role === 'admin') return null;
 
   const getBadgeProps = () => {
     if (user.verificationStatus !== 'verified') {

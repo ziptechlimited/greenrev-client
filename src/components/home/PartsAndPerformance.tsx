@@ -16,7 +16,7 @@ export default function PartsAndPerformance() {
 
       <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center gap-16 md:gap-24 relative z-10">
         {/* Image Content */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
@@ -24,15 +24,15 @@ export default function PartsAndPerformance() {
           className="lg:w-1/2 relative"
         >
           <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-[40px] border border-white/10 group">
-            <Image 
-              src="/images/home/parts.png" 
-              alt="Performance Parts" 
-              fill 
+            <Image
+              src="/images/home/parts.png"
+              alt="Performance Parts"
+              fill
               className="object-cover transition-transform duration-1000 group-hover:scale-110"
             />
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-            
+
             {/* Floating Info Badge */}
             <div className="absolute bottom-10 left-10 right-10 p-8 bg-black/60 backdrop-blur-2xl border border-white/10 rounded-3xl">
               <div className="flex items-center gap-4 mb-4">
@@ -61,21 +61,21 @@ export default function PartsAndPerformance() {
               <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               Engineering Excellence
             </div>
-            
+
             <h2 className="text-5xl md:text-7xl font-display text-white leading-none tracking-tighter">
               PARTS & <br />
               <span className="text-accent italic">PERFORMANCE.</span>
             </h2>
-            
+
             <p className="text-subtle text-lg md:text-xl leading-relaxed font-light opacity-80">
-              Enhance your machine with highest-grade components and bespoke accessories. 
-              From titanium exhaust systems to carbon fiber aero kits, we provide the 
+              Enhance your machine with highest-grade components and bespoke accessories.
+              From titanium exhaust systems to carbon fiber aero kits, we provide the
               pedigree your vehicle deserves.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -89,7 +89,7 @@ export default function PartsAndPerformance() {
               </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
