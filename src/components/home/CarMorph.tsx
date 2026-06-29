@@ -33,7 +33,14 @@ const ShowcaseSection = () => {
 
   // Image rotation based on scroll progress
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+    
+    mm.add({
+      isDesktop: "(min-width: 768px)",
+      isMobile: "(max-width: 767px)"
+    }, (context) => {
+      const { isMobile } = context.conditions as { isMobile: boolean };
+      
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -73,7 +80,7 @@ const ShowcaseSection = () => {
       // Headline from left
       scrollTl.fromTo(
         headlineRef.current,
-        { x: '-55vw', opacity: 0 },
+        { x: isMobile ? '-100vw' : '-55vw', opacity: 0 },
         { x: 0, opacity: 1, ease: 'none' },
         0
       );
@@ -99,8 +106,8 @@ const ShowcaseSection = () => {
         tags.forEach((tag, i) => {
           scrollTl.fromTo(
             tag,
-            { x: '40vw', opacity: 0 },
-            { x: 0, opacity: 1, ease: 'none' },
+            { x: isMobile ? 0 : '40vw', y: isMobile ? '20vh' : 0, opacity: 0 },
+            { x: 0, y: 0, opacity: 1, ease: 'none' },
             0.08 + i * 0.03
           );
         });
@@ -112,7 +119,7 @@ const ShowcaseSection = () => {
       scrollTl.fromTo(
         headlineRef.current,
         { x: 0, opacity: 1 },
-        { x: '-18vw', opacity: 0, ease: 'power2.in' },
+        { x: isMobile ? '-100vw' : '-18vw', opacity: 0, ease: 'power2.in' },
         0.7
       );
 
@@ -134,8 +141,8 @@ const ShowcaseSection = () => {
         tags.forEach((tag, i) => {
           scrollTl.fromTo(
             tag,
-            { x: 0, opacity: 1 },
-            { x: '18vw', opacity: 0, ease: 'power2.in' },
+            { x: 0, y: 0, opacity: 1 },
+            { x: isMobile ? 0 : '18vw', y: isMobile ? '20vh' : 0, opacity: 0, ease: 'power2.in' },
             0.7 + i * 0.02
           );
         });
@@ -154,9 +161,9 @@ const ShowcaseSection = () => {
         { scale: 1.05, opacity: 0.35, ease: 'power2.in' },
         0.7
       );
-    }, sectionRef);
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   return (
@@ -193,7 +200,7 @@ const ShowcaseSection = () => {
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-center px-[7vw]">
         {/* Headline - Left */}
-        <div ref={headlineRef} className="max-w-[40vw] mb-6" style={{ opacity: 0 }}>
+        <div ref={headlineRef} className="max-w-[90vw] md:max-w-[40vw] mb-6" style={{ opacity: 0 }}>
           <h2 className="font-display font-medium text-[clamp(34px,3.6vw,56px)] text-white">
             Precision in
             <br />
@@ -202,7 +209,7 @@ const ShowcaseSection = () => {
         </div>
 
         {/* Body - Left */}
-        <div ref={bodyRef} className="max-w-[34vw] mb-8" style={{ opacity: 0 }}>
+        <div ref={bodyRef} className="max-w-[90vw] md:max-w-[34vw] mb-8" style={{ opacity: 0 }}>
           <p className="text-base text-subtle leading-relaxed">
             From grille to diffuser, every line is intentional. We photograph and inspect
             so you know exactly what you&apos;re acquiring.
@@ -217,12 +224,12 @@ const ShowcaseSection = () => {
         {/* Spec Tags - Right */}
         <div
           ref={tagsRef}
-          className="absolute right-[7vw] top-[22vh] w-[22vw] space-y-4"
+          className="absolute left-[7vw] md:left-auto right-[7vw] bottom-[15vh] md:bottom-auto md:top-[22vh] w-[86vw] md:w-[22vw] space-y-0 space-x-4 md:space-x-0 md:space-y-4 flex flex-row md:flex-col overflow-x-auto custom-scrollbar pb-4 md:pb-0"
         >
           {specTags.map((tag, index) => (
             <div
               key={tag.label}
-              className="spec-tag bg-white/5 backdrop-blur-md border border-white/10 p-4 flex justify-between items-center transition-transform hover:border-accent"
+              className="spec-tag bg-white/5 backdrop-blur-md border border-white/10 p-4 flex flex-col md:flex-row justify-between items-start md:items-center transition-transform hover:border-accent flex-shrink-0 w-[60vw] md:w-full gap-2 md:gap-0"
               style={{
                 opacity: 0,
                 animationDelay: `${index * 0.5}s`,

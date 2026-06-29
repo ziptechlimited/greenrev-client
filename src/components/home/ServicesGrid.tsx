@@ -19,7 +19,7 @@ export default function ServicesGrid() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="lg:col-span-3 relative group overflow-hidden rounded-[32px] border border-white/10"
+          className="lg:col-span-3 relative group overflow-hidden rounded-[32px] border border-white/10 min-h-[400px] lg:min-h-0"
         >
           <Image
             src="/images/home/showroom.png"
@@ -29,9 +29,9 @@ export default function ServicesGrid() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
 
-          <div className="absolute bottom-12 left-12 right-12 space-y-6">
-            <h2 className="text-6xl font-display text-white tracking-tight">The Showroom</h2>
-            <p className="text-white/60 text-xl max-w-md font-light leading-relaxed">
+          <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 space-y-4 md:space-y-6">
+            <h2 className="text-4xl md:text-6xl font-display text-white tracking-tight">The Showroom</h2>
+            <p className="text-white/60 text-lg md:text-xl max-w-md font-light leading-relaxed">
               A curated collection of world-class machines, meticulously selected for the discerning collector.
             </p>
             <Link
@@ -51,7 +51,7 @@ export default function ServicesGrid() {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10"
+            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10 min-h-[300px] lg:min-h-0"
           >
             <Image
               src="/images/home/parts.png"
@@ -61,7 +61,7 @@ export default function ServicesGrid() {
             />
             <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
 
-            <div className="absolute top-12 left-12 right-12 space-y-4">
+            <div className="absolute top-6 left-6 right-6 md:top-12 md:left-12 md:right-12 space-y-4">
               <h3 className="text-accent text-sm font-bold uppercase tracking-[0.3em]">PARTS & PERFORMANCE</h3>
               <p className="text-white/80 text-lg font-light leading-relaxed">
                 Enhance your machine with highest-grade components and bespoke accessories.
@@ -83,7 +83,7 @@ export default function ServicesGrid() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10"
+            className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10 min-h-[300px] lg:min-h-0"
           >
             <Image
               src="/images/home/expert.png"
@@ -93,7 +93,7 @@ export default function ServicesGrid() {
             />
             <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors" />
 
-            <div className="absolute bottom-12 left-12 right-12 space-y-4">
+            <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 space-y-4">
               <h3 className="text-white text-sm font-bold uppercase tracking-[0.3em]">
                 EXPERT CARE
               </h3>

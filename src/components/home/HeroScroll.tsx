@@ -162,7 +162,7 @@ export default function HeroScroll() {
           className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none px-6 text-center"
           style={{ opacity: introOpacity, y: introY, scale: introScale }}
         >
-          <h1 className="text-6xl md:text-9xl font-display uppercase tracking-[0.3em] text-white">
+          <h1 className="text-4xl md:text-9xl font-display uppercase tracking-[0.3em] text-white">
             GreenRev <span className="text-accent">Motors</span>
           </h1>
           <div className="mt-4 w-24 h-[1px] bg-accent/50" />
@@ -178,10 +178,10 @@ export default function HeroScroll() {
           className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none px-6 text-center"
           style={{ opacity: textOpacity, y: textY }}
         >
-          <h1 className="text-5xl md:text-8xl font-display uppercase tracking-widest text-white mb-6">
+          <h1 className="text-4xl md:text-8xl font-display uppercase tracking-widest text-white mb-6">
             Command the Road.
           </h1>
-          <p className="text-lg md:text-2xl text-subtle max-w-2xl font-light">
+          <p className="text-base md:text-2xl text-subtle max-w-2xl font-light">
             Curated performance machines for those who move differently.
           </p>
         </motion.div>

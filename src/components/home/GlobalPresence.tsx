@@ -140,7 +140,7 @@ export default function GlobalPresence() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group flex items-center gap-4 bg-white text-black px-10 py-5 rounded-full font-display text-lg tracking-widest hover:bg-accent transition-all duration-500 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+            className="group flex items-center gap-4 bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-full font-display text-base md:text-lg tracking-widest hover:bg-accent transition-all duration-500 shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
           >
             <span>Inquire Now</span>
             <div className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center group-hover:bg-white group-hover:scale-110 transition-all duration-500">

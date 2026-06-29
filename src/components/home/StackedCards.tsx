@@ -217,9 +217,9 @@ function Card({
         <h2 className="text-4xl md:text-5xl font-display text-white tracking-tight leading-[1.05] whitespace-pre-line">
           {card.title}
         </h2>
-        {/* <p className="text-white/55 text-sm font-light leading-relaxed max-w-xs">
+        <p className="text-white/85 text-sm font-light leading-relaxed max-w-[80vw] md:hidden">
           {card.description}
-        </p> */}
+        </p>
         <Link
           href={card.href}
           className="inline-flex items-center gap-2 text-accent text-[10px] font-bold uppercase tracking-[0.3em] hover:gap-4 transition-all duration-300"
@@ -279,14 +279,15 @@ export default function StackedCards() {
     thumbX: -500, thumbY: -320,
     enterX: 500, enterY: 320,
   });
+  const [dimensions, setDimensions] = useState({ cw: 900, ch: 940 });
 
   useEffect(() => {
     function compute() {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      // Card dimensions match the stage element
-      const cw = Math.min(vw * 0.65, 900);
-      const ch = Math.min(vh * 0.88, 940);
+      const isMobile = vw < 768;
+      const cw = isMobile ? vw * 0.85 : Math.min(vw * 0.65, 900);
+      const ch = isMobile ? vh * 0.70 : Math.min(vh * 0.88, 940);
       const thumbScale = 0.22;
       const gap = 12; // gap between thumbnail edge and main card edge
 
@@ -310,6 +311,7 @@ export default function StackedCards() {
       const enterY = eyCenter - vh / 2;
 
       setOffsets({ thumbX, thumbY, enterX, enterY });
+      setDimensions({ cw, ch });
     }
     compute();
     window.addEventListener("resize", compute);
@@ -346,8 +348,8 @@ export default function StackedCards() {
             left: "50%",
             top: "50%",
             transform: "translate(-50%, -50%)",
-            width: "min(50vw, 900px)",
-            height: "min(88vh, 940px)",
+            width: dimensions.cw,
+            height: dimensions.ch,
           }}
         >
           {CARDS.map((card, i) => (
@@ -368,7 +370,7 @@ export default function StackedCards() {
 
         {/* Right-side descriptors — pinned just outside the card's right edge */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-[220px] pointer-events-none z-50"
+          className="hidden md:block absolute top-1/2 -translate-y-1/2 w-[220px] pointer-events-none z-50"
           style={{ left: "calc(50% + min(32.5vw, 450px) + 28px)" }}
         >
           <div className="relative h-36">

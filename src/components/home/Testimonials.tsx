@@ -39,14 +39,14 @@ export default function Testimonials() {
         <h3 className="text-4xl md:text-6xl font-display text-black tracking-tight leading-tight">Client <br className="hidden md:block" />Testimonials.</h3>
       </div>
       
-      <div className="w-full relative cursor-grab active:cursor-grabbing">
-        <motion.div style={{ x: x1 }} className="flex gap-8 md:gap-12 px-6 md:px-12 w-max">
+      <div className="w-full relative cursor-grab active:cursor-grabbing overflow-x-auto snap-x snap-mandatory">
+        <motion.div style={{ x: x1 }} className="flex gap-8 md:gap-12 px-6 md:px-12 w-max pb-8">
           {[...testimonials, ...testimonials].map((t, idx) => (
             <motion.div 
               key={idx}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              className="group relative w-[85vw] md:w-[600px] shrink-0 p-10 md:p-14 bg-white border border-black/[0.08] hover:border-black/20 shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] rounded-sm flex flex-col justify-between overflow-hidden"
+              className="group relative w-[85vw] md:w-[600px] shrink-0 p-8 md:p-14 bg-white border border-black/[0.08] hover:border-black/20 shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] rounded-sm flex flex-col justify-between overflow-hidden snap-center"
             >
               {/* Giant Decorative Quote Mark */}
               <div className="absolute top-4 right-8 text-[8rem] md:text-[10rem] font-display text-black/[0.03] leading-none group-hover:text-black/[0.05] transition-colors duration-500 select-none pointer-events-none">
