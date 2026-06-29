@@ -81,9 +81,7 @@ export default function LoginPage() {
         {/* Animated Noise Overlay */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-10 bg-[url('/noise.png')] mix-blend-overlay" />
         
-        {/* Subtle Glows */}
-        <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-accent/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-white/5 rounded-full blur-[120px] mix-blend-screen" />
+        {/* Subtle Glows removed per user request */}
 
         <div className="relative z-20 p-24 max-w-2xl">
           <motion.p 
