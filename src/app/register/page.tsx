@@ -70,7 +70,7 @@ export default function RegisterPage() {
                   placeholder="Full Name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/10"
+                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/50"
                 />
               </div>
             </div>
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                   placeholder="Email Address"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/10"
+                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/50"
                 />
               </div>
             </div>
@@ -96,7 +96,7 @@ export default function RegisterPage() {
                   placeholder="Password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/10"
+                  className="w-full bg-transparent border-b border-white/10 py-4 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/50"
                 />
               </div>
             </div>

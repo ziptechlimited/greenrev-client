@@ -88,7 +88,15 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            const bestMatch = navItems.reduce((best, nav) => {
+              if (pathname === nav.href || pathname.startsWith(nav.href + "/")) {
+                if (!best || nav.href.length > best.href.length) {
+                  return nav;
+                }
+              }
+              return best;
+            }, null as NavItem | null);
+            const isActive = bestMatch?.href === item.href;
             return (
               <Link
                 key={item.name}
