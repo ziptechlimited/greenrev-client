@@ -22,18 +22,18 @@ export async function POST(req: Request) {
   // Only include compare-specific context if cars are selected — keeps the base prompt tiny
   const compareContext = compareData?.length > 0
     ? `\n\nThe user is currently comparing these vehicles in the compare view:\n${JSON.stringify(
-        compareData.map((c: any) => ({
-          name: c.name,
-          make: c.make,
-          price: c.price,
-          horsepower: c.specs?.horsepower,
-          topSpeed: c.specs?.topSpeed,
-          '0_100': c.specs?.['0_100'],
-          torque: c.specs?.torque,
-        })),
-        null,
-        2
-      )}`
+      compareData.map((c: any) => ({
+        name: c.name,
+        make: c.make,
+        price: c.price,
+        horsepower: c.specs?.horsepower,
+        topSpeed: c.specs?.topSpeed,
+        '0_100': c.specs?.['0_100'],
+        torque: c.specs?.torque,
+      })),
+      null,
+      2
+    )}`
     : '';
 
   // Normalize UIMessages: the new SDK sends messages with `parts`, but simple
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
   });
 
   const result = await streamText({
-    model: openrouter('openrouter/owl-alpha'),
+    model: openrouter('google/gemma-4-31b-it:free'),
     system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership.${compareContext}
 
 Guidelines:
