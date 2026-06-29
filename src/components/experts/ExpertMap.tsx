@@ -179,7 +179,7 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
-            className="absolute bottom-12 right-12 w-[400px] bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl z-40"
+            className="absolute bottom-4 right-4 md:bottom-12 md:right-12 w-[calc(100vw-2rem)] md:w-[400px] bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl z-40"
           >
             <div className="relative h-48">
               <Image 
@@ -245,7 +245,7 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
       )}
 
       {/* Custom Map Controls */}
-      <div className="absolute top-12 right-12 flex flex-col gap-4">
+      <div className="absolute top-20 right-4 md:top-12 md:right-12 flex flex-col gap-4">
          <div className="p-4 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl space-y-3">
             <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />

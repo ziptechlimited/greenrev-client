@@ -76,7 +76,7 @@ function IntroHeading({ progress }: { progress: MotionValue<number> }) {
       style={{ opacity, scale, y }}
       className="absolute inset-0 flex flex-col items-center justify-start pt-24 md:pt-32 z-50 pointer-events-none"
     >
-      <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-white tracking-tight text-center leading-tight">
+      <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-black tracking-tight text-center leading-tight">
         Experience Highlights
       </h2>
     </motion.div>
@@ -260,10 +260,10 @@ function Descriptor({
       style={{ opacity, y }}
       className="absolute inset-0 space-y-3 pointer-events-auto"
     >
-      <p className="text-white/85 text-lgmd:text-xl font-light leading-relaxed">{text}</p>
+      <p className="text-black/85 text-lg md:text-xl font-light leading-relaxed">{text}</p>
       <Link
         href={href}
-        className="inline-flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.2em] hover:text-white transition-colors mt-1"
+        className="inline-flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.2em] hover:text-black transition-colors mt-1"
       >
         {cta} <ArrowUpRight className="w-3.5 h-3.5" />
       </Link>
@@ -334,7 +334,7 @@ export default function StackedCards() {
   const scrollHeight = `${total * 200 + 100}vh`;
 
   return (
-    <div ref={containerRef} style={{ height: scrollHeight }} className="relative bg-black">
+    <div ref={containerRef} style={{ height: scrollHeight }} className="relative bg-white">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
 
         {/* Cinematic intro heading — fades in as section enters, fades before cards appear */}

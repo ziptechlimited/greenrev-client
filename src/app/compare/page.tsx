@@ -111,7 +111,7 @@ export default function ComparePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="fixed bottom-6 right-6 w-full max-w-[400px] md:max-w-[500px] lg:max-w-[550px] z-[100] shadow-2xl"
+            className="fixed bottom-6 right-4 left-4 md:left-auto md:right-6 w-[calc(100%-2rem)] md:w-full max-w-none md:max-w-[500px] lg:max-w-[550px] z-[100] shadow-2xl"
           >
             <CompareAIChat compareItems={compareItems} />
           </motion.div>
