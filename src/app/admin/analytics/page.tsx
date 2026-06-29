@@ -1,16 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { LayoutDashboard, Users, Activity, ShoppingBag, ShieldCheck, TrendingUp } from "lucide-react";
-
-const ADMIN_NAV = [
-  { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Users & Customers", href: "/admin/users", icon: Users },
-  { name: "Vendors", href: "/admin/vendors", icon: ShoppingBag },
-  { name: "Mechanics", href: "/admin/mechanics", icon: ShieldCheck },
-  { name: "Products", href: "/admin/products", icon: TrendingUp },
-  { name: "Analytics", href: "/admin/analytics", icon: Activity },
-];
+import { ADMIN_NAV } from "@/lib/adminNav";
 
 export default function AdminAnalyticsPage() {
   return (

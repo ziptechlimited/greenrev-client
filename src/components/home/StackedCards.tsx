@@ -54,26 +54,21 @@ function getPhase(i: number, total: number) {
 
 // ─── Intro heading ─────────────────────────────────────────────────────────────
 function IntroHeading({ progress }: { progress: MotionValue<number> }) {
-  // Fades in and scales up as the section first enters view
+  // Visible as it scrolls into view naturally, then fades out and scales up as scroll progresses
   const opacity = useTransform(
     progress,
-    [0, 0.06, 0.12, 0.20],
-    [0, 1, 1, 0]
+    [0, 0.05, 0.15],
+    [1, 1, 0]
   );
   const scale = useTransform(
     progress,
-    [0, 0.06, 0.12, 0.20],
-    [0.88, 1, 1, 1.06]
-  );
-  const y = useTransform(
-    progress,
-    [0, 0.06],
-    [30, 0]
+    [0, 0.05, 0.15],
+    [1, 1, 1.06]
   );
 
   return (
     <motion.div
-      style={{ opacity, scale, y }}
+      style={{ opacity, scale }}
       className="absolute inset-0 flex flex-col items-center justify-start pt-24 md:pt-32 z-50 pointer-events-none"
     >
       <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-black tracking-tight text-center leading-tight">
@@ -175,9 +170,9 @@ function Card({
     [50, -50]
   );
 
-  const sx = useSpring(x, { stiffness: 65, damping: 22, restDelta: 0.5 });
-  const sy = useSpring(y, { stiffness: 65, damping: 22, restDelta: 0.5 });
-  const ss = useSpring(scale, { stiffness: 65, damping: 22 });
+  const sx = useSpring(x, { stiffness: 150, damping: 25, restDelta: 0.5 });
+  const sy = useSpring(y, { stiffness: 150, damping: 25, restDelta: 0.5 });
+  const ss = useSpring(scale, { stiffness: 150, damping: 25 });
   const spy = useSpring(parallaxY, { stiffness: 40, damping: 20 });
 
   return (
@@ -324,8 +319,8 @@ export default function StackedCards() {
   });
 
   const progress = useSpring(scrollYProgress, {
-    stiffness: 50,
-    damping: 20,
+    stiffness: 120,
+    damping: 24,
     restDelta: 0.001,
   });
 

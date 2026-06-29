@@ -27,11 +27,9 @@ import type {
   AcquisitionStatus,
 } from "@/types/acquisition";
 import { cn } from "@/lib/utils";
+import { ADMIN_NAV } from "@/lib/adminNav";
 
-const ADMIN_NAV = [
-  { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Users & Vendors", href: "/admin/users", icon: Users },
-];
+
 
 const STATUS_CONFIG: Record<
   AcquisitionStatus,

@@ -7,11 +7,9 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { adminListUsers, adminUpdateUserStatus, adminUpdateUserRole, adminDeleteUser, adminUpdateUserTier, AdminUser } from "@/lib/apiAdmin";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { ADMIN_NAV } from "@/lib/adminNav";
 
-const ADMIN_NAV = [
-  { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Users & Vendors", href: "/admin/users", icon: Users },
-];
+
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
