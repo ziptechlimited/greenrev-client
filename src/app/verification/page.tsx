@@ -20,7 +20,6 @@ export default function VerificationPage() {
   const { user } = useAuth();
   const [level, setLevel] = useState<"individual" | "business">("individual");
   const [nin, setNin] = useState("");
-  const [selfieUrl, setSelfieUrl] = useState("");
   const [cacNumber, setCacNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -47,7 +46,7 @@ export default function VerificationPage() {
     try {
       const endpoint = level === "individual" ? "/api/v1/verification/individual" : "/api/v1/verification/business";
       const body = level === "individual"
-        ? { nin, selfieUrl: selfieUrl || "https://example.com/selfie.jpg" }
+        ? { nin, selfieUrl: "pending-smile-sdk-capture" }
         : { cacNumber, cacDocumentUrl: "url", directorIdUrl: "url", businessAddress: "addr", bankAccountNumber: "123", bankCode: "001" };
 
       const res = await apiRequest<{ success: boolean; data?: any; error?: any }>(endpoint, {
@@ -247,17 +246,11 @@ export default function VerificationPage() {
                                 className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-accent transition-all placeholder:text-white/20"
                               />
                             </div>
-                            <div className="group">
-                              <label className="block mb-2 text-[10px] font-bold uppercase tracking-widest text-white/40 group-focus-within:text-accent transition-colors">
-                                Selfie Liveness URL
-                              </label>
-                              <input
-                                type="text"
-                                value={selfieUrl}
-                                onChange={(e) => setSelfieUrl(e.target.value)}
-                                placeholder="https://..."
-                                className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-accent transition-all placeholder:text-white/20"
-                              />
+                            <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/20 flex gap-3">
+                              <AlertCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                              <p className="text-xs text-subtle leading-relaxed">
+                                Your NIN will be matched against the national database. A live selfie capture will be prompted automatically once Smile ID is fully activated.
+                              </p>
                             </div>
                           </motion.div>
                         ) : (
