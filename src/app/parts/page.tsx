@@ -97,7 +97,7 @@ export default function PartsPage() {
               className="text-subtle max-w-md"
             >
               Enhance your machine with highest-grade components. From titanium
-              exhaust systems to bespoke carbon aero.
+              exhaust systems to custom carbon aero.
             </motion.p>
           </div>
 

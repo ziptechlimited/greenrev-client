@@ -6,13 +6,13 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 const CARDS = [
   {
     id: 1,
-    title: "Precision",
+    title: "Quality",
     description: "Every machine at GreenRev undergoes a rigorous 300-point performance and telemetry audit. We deal in absolute technical mastery, ensuring every vehicle in our collection delivers peak efficiency and surgical handling on every curve.",
   },
   {
     id: 2,
     title: "Exclusivity",
-    description: "Access to the world's most elusive performance machines and bespoke modifications. Our global network secures limited-run masterpieces for a select clientele that demands nothing less than the extraordinary and the unobtainable.",
+    description: "Access to high-performance cars and custom modifications. Our global network secures limited-run vehicles for a select clientele that demands nothing less than the extraordinary.",
   },
   {
     id: 3,

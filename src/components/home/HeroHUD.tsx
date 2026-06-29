@@ -194,7 +194,7 @@ function RightHUD() {
       <HUDCard title="Wheel" icon={<Cpu className="w-3 h-3 text-accent" />}>
         <div className="p-4">
           <p className="text-white text-lg font-display mb-1">
-            Precision engineered,
+            Custom engineered,
           </p>
           <p className="text-subtle text-sm">curated alloy formulations</p>
         </div>

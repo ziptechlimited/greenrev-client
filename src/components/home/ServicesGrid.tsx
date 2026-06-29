@@ -64,7 +64,7 @@ export default function ServicesGrid() {
             <div className="absolute top-6 left-6 right-6 md:top-12 md:left-12 md:right-12 space-y-4">
               <h3 className="text-accent text-sm font-bold uppercase tracking-[0.3em]">PARTS & PERFORMANCE</h3>
               <p className="text-white/80 text-lg font-light leading-relaxed">
-                Enhance your machine with highest-grade components and bespoke accessories.
+                Enhance your car with highest-grade components and custom accessories.
               </p>
               <div className="pt-2">
                 <Link

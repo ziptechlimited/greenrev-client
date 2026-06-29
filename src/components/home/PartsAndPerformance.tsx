@@ -40,7 +40,7 @@ export default function PartsAndPerformance() {
                   <Cpu className="text-accent w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="text-white font-display text-xl">Bespoke Engineering</h4>
+                  <h4 className="text-white font-display text-xl">Custom Engineering</h4>
                   <p className="text-white/40 text-xs uppercase tracking-widest">Optimized Telemetry</p>
                 </div>
               </div>
@@ -68,7 +68,7 @@ export default function PartsAndPerformance() {
             </h2>
 
             <p className="text-subtle text-lg md:text-xl leading-relaxed font-light opacity-80">
-              Enhance your machine with highest-grade components and bespoke accessories.
+              Enhance your car with highest-grade components and custom accessories.
               From titanium exhaust systems to carbon fiber aero kits, we provide the
               pedigree your vehicle deserves.
             </p>

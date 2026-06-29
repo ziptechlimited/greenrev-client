@@ -202,7 +202,7 @@ const ShowcaseSection = () => {
         {/* Headline - Left */}
         <div ref={headlineRef} className="max-w-[90vw] md:max-w-[40vw] mb-6" style={{ opacity: 0 }}>
           <h2 className="font-display font-medium text-[clamp(34px,3.6vw,56px)] text-white">
-            Precision in
+            Quality in
             <br />
             Every Angle.
           </h2>

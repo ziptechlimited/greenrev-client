@@ -85,7 +85,7 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
       <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
         <MapPin className="w-8 h-8 text-red-500/50" />
       </div>
-      <h3 className="text-xl font-display text-white mb-2">Matrix Connectivity Failed</h3>
+      <h3 className="text-xl font-display text-white mb-2">Map Failed to Load</h3>
       <p className="text-white/40 text-sm max-w-xs leading-relaxed">
         We encountered a synchronization error with the mapping grid. Please verify your satellite uplink (API Key).
       </p>
@@ -98,7 +98,7 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
   if (!isLoaded) return (
     <div className="w-full h-full bg-[#050505] flex items-center justify-center">
       <div className="text-accent text-xs uppercase tracking-[0.3em] font-bold animate-pulse">
-        Initializing Global Matrix...
+        Loading Map...
       </div>
     </div>
   );

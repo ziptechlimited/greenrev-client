@@ -18,7 +18,7 @@ const CARDS = [
     id: "compare",
     title: "Compare \nand Decide.",
     description:
-      "Utilize our advanced side-by-side analysis tool to evaluate performance metrics, aerodynamics, and bespoke options.",
+      "Utilize our side-by-side analysis tool to evaluate performance metrics, aerodynamics, and custom options.",
     cta: "Launch Comparison",
     href: "/compare",
     image: "/images/home/compare.jpeg",

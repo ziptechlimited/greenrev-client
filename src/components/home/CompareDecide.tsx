@@ -37,7 +37,7 @@ export default function CompareDecide() {
             <div className="space-y-4">
               <h2 className="text-5xl font-display text-white tracking-tight">Compare & Decide</h2>
               <p className="text-white/60 text-sm font-light leading-relaxed max-w-sm mx-auto">
-                Utilize our advanced side-by-side analysis tool to evaluate performance metrics, aerodynamics, and bespoke options.
+                Utilize our side-by-side analysis tool to evaluate performance metrics, aerodynamics, and custom options.
               </p>
             </div>
 

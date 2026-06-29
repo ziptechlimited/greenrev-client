@@ -98,7 +98,7 @@ export default function LoginPage() {
             transition={{ delay: 0.7, duration: 1 }}
             className="text-6xl xl:text-7xl font-display text-white leading-none mb-8"
           >
-            Precision <br /> 
+            Quality <br /> 
             <span className="text-white/40 italic">In Every</span> <br />
             Interaction.
           </motion.h2>
@@ -108,7 +108,7 @@ export default function LoginPage() {
             transition={{ delay: 0.9, duration: 1 }}
             className="text-subtle text-lg font-light leading-relaxed max-w-md"
           >
-            Access our private network of performance machines, bespoke components, and master experts.
+            Access our network of cars, custom components, and experienced mechanics.
           </motion.p>
         </div>
       </div>

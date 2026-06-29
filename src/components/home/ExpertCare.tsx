@@ -32,7 +32,7 @@ export default function ExpertCare() {
               <div className="absolute top-10 right-10 flex flex-col gap-4">
                 <div className="px-6 py-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl text-right">
                   <div className="text-accent text-3xl font-display">99.9%</div>
-                  <div className="text-white/40 text-[8px] uppercase tracking-widest">Precision Rating</div>
+                  <div className="text-white/40 text-[8px] uppercase tracking-widest">Quality Rating</div>
                 </div>
               </div>
             </div>
@@ -74,7 +74,7 @@ export default function ExpertCare() {
                 {
                   icon: <Shield className="w-6 h-6 text-accent" />,
                   title: "Extended Warranty",
-                  desc: "Bespoke protection plans that cover rare machines and high-performance modifications."
+                  desc: "Custom protection plans that cover rare cars and high-performance modifications."
                 },
                 {
                   icon: <Clock className="w-6 h-6 text-accent" />,
