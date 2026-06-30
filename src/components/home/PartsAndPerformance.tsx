@@ -68,9 +68,7 @@ export default function PartsAndPerformance() {
             </h2>
 
             <p className="text-subtle text-lg md:text-xl leading-relaxed font-light opacity-80">
-              Enhance your car with highest-grade components and custom accessories.
-              From titanium exhaust systems to carbon fiber aero kits, we provide the
-              pedigree your vehicle deserves.
+              Find top-quality auto parts tailored for Nigerian roads. From essential replacements like engines, brake pads, lights, batteries, air filters, and shock absorbers, to custom performance accessories, we provide the pedigree your vehicle deserves.
             </p>
           </motion.div>
 

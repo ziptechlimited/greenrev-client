@@ -24,6 +24,11 @@ export default function ShopPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
 
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [minYear, setMinYear] = useState<number | null>(null);
+  const [priceExpanded, setPriceExpanded] = useState(false);
+  const [yearExpanded, setYearExpanded] = useState(false);
+
   const itemsPerPage = 12;
 
   useEffect(() => {
@@ -43,11 +48,15 @@ export default function ShopPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [activeMake, activeColor, searchQuery]);
+  }, [activeMake, activeColor, searchQuery, maxPrice, minYear]);
 
   const allCars = useMemo(() => {
     return vendorVehicles;
   }, [vendorVehicles]);
+
+  const maxInventoryPrice = 500000000;
+  const minInventoryYear = 2015;
+  const maxInventoryYear = 2030;
 
   const makes = useMemo(() => {
     const allMakes = allCars.map((car) => car.make);
@@ -67,9 +76,18 @@ export default function ShopPage() {
       const matchesSearch =
         car.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         car.make.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesMake && matchesColor && matchesSearch;
+
+      const p = parseFloat(car.price.replace(/[^0-9.]/g, ""));
+      const currentMaxPrice = maxPrice === null ? maxInventoryPrice : maxPrice;
+      const matchesMaxPrice = p <= currentMaxPrice;
+
+      const y = car.year;
+      const currentMinYear = minYear === null ? minInventoryYear : minYear;
+      const matchesMinYear = y >= currentMinYear;
+
+      return matchesMake && matchesColor && matchesSearch && matchesMaxPrice && matchesMinYear;
     });
-  }, [activeMake, activeColor, searchQuery, allCars]);
+  }, [activeMake, activeColor, searchQuery, allCars, maxPrice, maxInventoryPrice, minYear, minInventoryYear]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCars.length / itemsPerPage));
   const pageSafe = Math.min(page, totalPages);
@@ -196,17 +214,68 @@ export default function ShopPage() {
                   Filters
                 </h4>
                 <div className="space-y-4">
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center group cursor-pointer hover:border-white/20 transition-colors">
-                    <span className="text-sm text-subtle group-hover:text-white transition-colors">
-                      Price Range
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors" />
+                  {/* Price Filter (Max) */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
+                    <div
+                      onClick={() => setPriceExpanded(!priceExpanded)}
+                      className="p-4 flex justify-between items-center group cursor-pointer"
+                    >
+                      <span className="text-sm text-subtle group-hover:text-white transition-colors">
+                        Max Price
+                      </span>
+                      <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", priceExpanded && "rotate-180")} />
+                    </div>
+                    {priceExpanded && (
+                      <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
+                        <input
+                          type="range"
+                          min={0}
+                          max={maxInventoryPrice}
+                          step={1000}
+                          value={maxPrice === null ? maxInventoryPrice : maxPrice}
+                          onChange={(e) => setMaxPrice(Number(e.target.value))}
+                          className="w-full accent-accent"
+                        />
+                        <div className="flex justify-between text-xs text-subtle">
+                          <span>$0</span>
+                          <span className="text-white font-medium">
+                            ${(maxPrice === null ? maxInventoryPrice : maxPrice).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex justify-between items-center group cursor-pointer hover:border-white/20 transition-colors">
-                    <span className="text-sm text-subtle group-hover:text-white transition-colors">
-                      Year
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors" />
+
+                  {/* Year Filter (Min) */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
+                    <div
+                      onClick={() => setYearExpanded(!yearExpanded)}
+                      className="p-4 flex justify-between items-center group cursor-pointer"
+                    >
+                      <span className="text-sm text-subtle group-hover:text-white transition-colors">
+                        Min Year
+                      </span>
+                      <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", yearExpanded && "rotate-180")} />
+                    </div>
+                    {yearExpanded && (
+                      <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
+                        <input
+                          type="range"
+                          min={minInventoryYear}
+                          max={maxInventoryYear}
+                          step={1}
+                          value={minYear === null ? minInventoryYear : minYear}
+                          onChange={(e) => setMinYear(Number(e.target.value))}
+                          className="w-full accent-accent"
+                        />
+                        <div className="flex justify-between text-xs text-subtle">
+                          <span className="text-white font-medium">
+                            {minYear === null ? minInventoryYear : minYear}
+                          </span>
+                          <span>{maxInventoryYear}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -292,7 +361,10 @@ export default function ShopPage() {
                 <button
                   onClick={() => {
                     setActiveMake("All");
+                    setActiveColor("All");
                     setSearchQuery("");
+                    setMaxPrice(null);
+                    setMinYear(null);
                   }}
                   className="text-accent underline underline-offset-8 uppercase tracking-widest text-[10px] font-bold hover:text-white transition-colors"
                 >
@@ -392,11 +464,84 @@ export default function ShopPage() {
                   </div>
                 </div>
 
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold mb-6">
+                    Filters
+                  </h4>
+                  <div className="space-y-4">
+                    {/* Price Filter (Max) */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
+                      <div
+                        onClick={() => setPriceExpanded(!priceExpanded)}
+                        className="p-4 flex justify-between items-center group cursor-pointer"
+                      >
+                        <span className="text-sm text-subtle group-hover:text-white transition-colors">
+                          Max Price
+                        </span>
+                        <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", priceExpanded && "rotate-180")} />
+                      </div>
+                      {priceExpanded && (
+                        <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
+                          <input
+                            type="range"
+                            min={0}
+                            max={maxInventoryPrice}
+                            step={1000}
+                            value={maxPrice === null ? maxInventoryPrice : maxPrice}
+                            onChange={(e) => setMaxPrice(Number(e.target.value))}
+                            className="w-full accent-accent"
+                          />
+                          <div className="flex justify-between text-xs text-subtle">
+                            <span>$0</span>
+                            <span className="text-white font-medium">
+                              ${(maxPrice === null ? maxInventoryPrice : maxPrice).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Year Filter (Min) */}
+                    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
+                      <div
+                        onClick={() => setYearExpanded(!yearExpanded)}
+                        className="p-4 flex justify-between items-center group cursor-pointer"
+                      >
+                        <span className="text-sm text-subtle group-hover:text-white transition-colors">
+                          Min Year
+                        </span>
+                        <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", yearExpanded && "rotate-180")} />
+                      </div>
+                      {yearExpanded && (
+                        <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
+                          <input
+                            type="range"
+                            min={minInventoryYear}
+                            max={maxInventoryYear}
+                            step={1}
+                            value={minYear === null ? minInventoryYear : minYear}
+                            onChange={(e) => setMinYear(Number(e.target.value))}
+                            className="w-full accent-accent"
+                          />
+                          <div className="flex justify-between text-xs text-subtle">
+                            <span className="text-white font-medium">
+                              {minYear === null ? minInventoryYear : minYear}
+                            </span>
+                            <span>{maxInventoryYear}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   onClick={() => {
                     setActiveMake("All");
                     setActiveColor("All");
                     setSearchQuery("");
+                    setMaxPrice(null);
+                    setMinYear(null);
                     setIsFilterOpen(false);
                   }}
                   className="w-full py-4 text-xs font-bold tracking-widest uppercase border border-white/10 rounded-2xl text-white hover:bg-white/5 transition-all"

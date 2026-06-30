@@ -53,7 +53,18 @@ export default function PartsPage() {
 
   const categories = useMemo(() => {
     const allCategories = allParts.map((part) => part.category);
-    return ["All", ...Array.from(new Set(allCategories))];
+    const popularCategories = [
+      "Engines", 
+      "Brake Pads", 
+      "Lights", 
+      "Batteries", 
+      "Air Filters", 
+      "Shock Absorbers", 
+      "Spark Plugs", 
+      "Tyres", 
+      "Alternators"
+    ];
+    return ["All", ...Array.from(new Set([...popularCategories, ...allCategories]))];
   }, [allParts]);
 
   const filteredParts = useMemo(() => {
@@ -96,8 +107,7 @@ export default function PartsPage() {
               transition={{ delay: 0.1 }}
               className="text-subtle max-w-md"
             >
-              Enhance your machine with highest-grade components. From titanium
-              exhaust systems to custom carbon aero.
+              Find top-quality parts for your vehicle, including engines, brake pads, lights, batteries, air filters, shock absorbers, and more.
             </motion.p>
           </div>
 

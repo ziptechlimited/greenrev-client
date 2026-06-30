@@ -61,6 +61,7 @@ function MarkdownRenderer({ content }: MarkdownRendererProps) {
 export default function CompareAIChat({ compareItems }: { compareItems: CarEntry[] }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // @ts-ignore
@@ -81,11 +82,12 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input || !input.trim() || isLoading) return;
+    if (!input || !input.trim() || isThinking) return;
     if (isMinimized) setIsMinimized(false);
     
     const userMessage = input;
     setInput("");
+    setIsThinking(true);
     
     try {
       if (sendMessage) {
@@ -97,6 +99,8 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsThinking(false);
     }
   };
 
@@ -226,20 +230,34 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
             })
           )}
 
-          {/* Thinking indicator when waiting for the server to start responding */}
-          {isLoading && messages.length > 0 && messages[messages.length - 1].role === "user" && (
+          {/* Thinking bubble — hide once the assistant has started streaming text */}
+          {isThinking && (() => {
+            if (messages.length === 0) return true;
+            const last = messages[messages.length - 1];
+            if (last.role !== "assistant") return true;
+            const lastText = last.content || (last.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') ?? '');
+            return !lastText; // hide once text is flowing
+          })() && (
             <motion.div
+              key="thinking-bubble"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
               className="flex gap-3 flex-row"
             >
               <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 bg-accent/20 text-accent">
                 <Bot className="w-4 h-4" />
               </div>
               <div className="flex flex-col gap-2 max-w-[85%]">
-                <div className="p-4 rounded-2xl bg-white/5 text-white/40 text-xs rounded-tl-none flex items-center gap-2 w-fit">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  Analyzing...
+                <div className="p-4 rounded-2xl bg-white/5 rounded-tl-none flex items-center gap-1.5 w-fit">
+                  {[0, 1, 2].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-white/40 block"
+                      animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                    />
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -263,10 +281,10 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
           />
           <button
             type="submit"
-            disabled={isLoading || !input || !input.trim()}
+            disabled={isThinking || !input || !input.trim()}
             className="w-12 h-12 bg-accent text-black rounded-full flex items-center justify-center hover:bg-accent/80 disabled:opacity-40 transition-all shrink-0 hover:scale-105 active:scale-95"
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {isThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </form>
       </div>
