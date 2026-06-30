@@ -108,3 +108,21 @@ export async function deleteProduct(id: string): Promise<void> {
     throw new Error(response.error.message);
   }
 }
+
+export async function bulkDeleteProducts(
+  ids: string[],
+): Promise<{ deletedCount: number }> {
+  const response = await apiRequest<{ deletedCount: number; message: string }>(
+    "/api/v1/products/bulk",
+    {
+      method: "DELETE",
+      body: JSON.stringify({ ids }),
+    },
+  );
+
+  if (!response.success) {
+    throw new Error(response.error.message);
+  }
+
+  return response.data;
+}

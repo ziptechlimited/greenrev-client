@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { motion } from "framer-motion";
-import { getVendorProducts } from "@/lib/apiProduct";
+import { motion, AnimatePresence } from "framer-motion";
+import { getVendorProducts, bulkDeleteProducts } from "@/lib/apiProduct";
 import type { Product } from "@/types/product";
 import {
   LayoutDashboard,
@@ -16,6 +16,11 @@ import {
   Car,
   Wrench,
   ShoppingCart,
+  Trash2,
+  CheckSquare,
+  Square,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 
 const VENDOR_NAV = [
@@ -27,45 +32,196 @@ const VENDOR_NAV = [
   { name: "Settings", href: "/vendor/settings", icon: Settings },
 ];
 
+// ─── Confirmation Modal ───────────────────────────────────────────────────────
+function ConfirmDeleteModal({
+  count,
+  onConfirm,
+  onCancel,
+  isDeleting,
+}: {
+  count: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isDeleting: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onCancel}
+      />
+
+      {/* Dialog */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 12 }}
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        className="relative bg-[#0e0e0e] border border-white/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl"
+      >
+        <button
+          onClick={onCancel}
+          className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+          disabled={isDeleting}
+          aria-label="Close"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 mb-6 mx-auto">
+          <AlertTriangle className="w-7 h-7 text-red-400" />
+        </div>
+
+        <h2 className="text-white font-display text-xl text-center mb-2">
+          Delete {count} {count === 1 ? "product" : "products"}?
+        </h2>
+        <p className="text-subtle text-sm text-center mb-8 leading-relaxed">
+          This action cannot be undone. The selected{" "}
+          {count === 1 ? "product" : "products"} will be permanently removed
+          from your inventory and the public showroom.
+        </p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={isDeleting}
+            className="flex-1 py-3 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isDeleting}
+            className="flex-1 py-3 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isDeleting ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Deleting…
+              </>
+            ) : (
+              <>
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function VendorProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchProducts() {
-      setIsLoading(true);
-      setError(null);
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
-      try {
-        const data = await getVendorProducts();
-        setProducts(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load products");
-      } finally {
-        setIsLoading(false);
-      }
+  // Bulk delete modal
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getVendorProducts();
+      setProducts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load products");
+    } finally {
+      setIsLoading(false);
     }
-
-    fetchProducts();
   }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const stats = useMemo(() => {
     const vehicles = products.filter((p) => p.category === "vehicle").length;
     const parts = products.filter((p) => p.category === "part").length;
     const inStock = products.filter((p) => p.inStock !== false).length;
-
     return { vehicles, parts, inStock, total: products.length };
   }, [products]);
+
+  // ── Selection helpers ──────────────────────────────────────────────────────
+  function getProductId(p: Product, i: number): string {
+    return (p._id || p.id || `${p.name}-${i}`) as string;
+  }
+
+  function toggleSelectMode() {
+    setIsSelectMode((v) => !v);
+    setSelectedIds(new Set());
+    setDeleteError(null);
+  }
+
+  function toggleOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (selectedIds.size === products.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(
+        new Set(products.map((p, i) => getProductId(p, i))),
+      );
+    }
+  }
+
+  const allSelected =
+    products.length > 0 && selectedIds.size === products.length;
+  const someSelected = selectedIds.size > 0;
+
+  // ── Bulk delete flow ───────────────────────────────────────────────────────
+  async function handleBulkDelete() {
+    if (selectedIds.size === 0) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await bulkDeleteProducts(Array.from(selectedIds));
+      // Optimistically remove from list
+      setProducts((prev) =>
+        prev.filter((p, i) => !selectedIds.has(getProductId(p, i))),
+      );
+      setSelectedIds(new Set());
+      setIsSelectMode(false);
+    } catch (err) {
+      setDeleteError(
+        err instanceof Error ? err.message : "Failed to delete products",
+      );
+    } finally {
+      setIsDeleting(false);
+      setShowConfirm(false);
+    }
+  }
 
   return (
     <DashboardLayout navItems={VENDOR_NAV} role="vendor" title="Vendor Portal">
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">My Products</h1>
-          <p className="text-subtle text-sm">Manage your vehicle and parts inventory.</p>
+          <p className="text-subtle text-sm">
+            Manage your vehicle and parts inventory.
+          </p>
         </header>
 
+        {/* Stats + actions row */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full sm:w-auto">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
@@ -78,7 +234,9 @@ export default function VendorProductsPage() {
               <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
                 Vehicles
               </p>
-              <p className="text-white text-2xl font-display">{stats.vehicles}</p>
+              <p className="text-white text-2xl font-display">
+                {stats.vehicles}
+              </p>
             </div>
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
               <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
@@ -90,19 +248,46 @@ export default function VendorProductsPage() {
               <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
                 In Stock
               </p>
-              <p className="text-white text-2xl font-display">{stats.inStock}</p>
+              <p className="text-white text-2xl font-display">
+                {stats.inStock}
+              </p>
             </div>
           </div>
 
-          <Link
-            href="/vendor/products/add"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-accent transition-all"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Add Product
-          </Link>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {products.length > 0 && (
+              <button
+                onClick={toggleSelectMode}
+                className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full border font-bold uppercase tracking-widest text-xs transition-all ${
+                  isSelectMode
+                    ? "border-white/20 bg-white/5 text-white"
+                    : "border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {isSelectMode ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <CheckSquare className="w-4 h-4" />
+                    Select
+                  </>
+                )}
+              </button>
+            )}
+            <Link
+              href="/vendor/products/add"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-accent transition-all"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Product
+            </Link>
+          </div>
         </div>
 
+        {/* Errors */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
             <p className="text-red-200 text-sm font-medium">Error</p>
@@ -110,17 +295,74 @@ export default function VendorProductsPage() {
           </div>
         )}
 
+        {deleteError && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-start gap-3">
+            <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-red-200 text-sm font-medium">
+                Bulk delete failed
+              </p>
+              <p className="text-red-300/80 text-xs mt-0.5">{deleteError}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk-select toolbar */}
+        <AnimatePresence>
+          {isSelectMode && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="sticky top-4 z-20 bg-[#0e0e0e]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-5 py-3 flex items-center justify-between gap-4 shadow-xl"
+            >
+              {/* Select-all */}
+              <button
+                onClick={toggleAll}
+                className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors"
+              >
+                {allSelected ? (
+                  <CheckSquare className="w-4 h-4 text-accent" />
+                ) : (
+                  <Square className="w-4 h-4" />
+                )}
+                {allSelected ? "Deselect all" : "Select all"}
+              </button>
+
+              {/* Count */}
+              <span className="text-subtle text-xs tabular-nums">
+                {selectedIds.size} of {products.length} selected
+              </span>
+
+              {/* Delete button */}
+              <button
+                onClick={() => {
+                  setDeleteError(null);
+                  setShowConfirm(true);
+                }}
+                disabled={!someSelected}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete ({selectedIds.size})
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Product grid */}
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
           {isLoading ? (
             <div className="min-h-[280px] flex items-center justify-center">
-              <p className="text-subtle text-sm">Loading products...</p>
+              <p className="text-subtle text-sm">Loading products…</p>
             </div>
           ) : products.length === 0 ? (
             <div className="min-h-[280px] flex flex-col items-center justify-center text-center gap-4">
               <p className="text-white font-medium">No products yet</p>
               <p className="text-subtle text-sm max-w-md">
-                Create your first vehicle or performance part to see it here and in the public
-                showroom.
+                Create your first vehicle or performance part to see it here and
+                in the public showroom.
               </p>
               <Link
                 href="/vendor/products/add"
@@ -133,10 +375,10 @@ export default function VendorProductsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {products.map((product, i) => {
-                const icon = product.category === "vehicle" ? Car : Wrench;
-                const Icon = icon;
-                const id = product._id || product.id || `${product.name}-${i}`;
+                const Icon = product.category === "vehicle" ? Car : Wrench;
+                const id = getProductId(product, i);
                 const inStock = product.inStock !== false;
+                const isSelected = selectedIds.has(id);
 
                 return (
                   <motion.div
@@ -144,8 +386,57 @@ export default function VendorProductsPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.04 }}
-                    className="bg-black/20 border border-white/10 rounded-2xl overflow-hidden"
+                    onClick={() => isSelectMode && toggleOne(id)}
+                    className={`relative bg-black/20 border rounded-2xl overflow-hidden transition-all duration-200 ${
+                      isSelectMode ? "cursor-pointer" : ""
+                    } ${
+                      isSelected
+                        ? "border-red-500/50 ring-1 ring-red-500/40 bg-red-500/5"
+                        : "border-white/10 hover:border-white/20"
+                    }`}
                   >
+                    {/* Checkbox overlay (select mode) */}
+                    <AnimatePresence>
+                      {isSelectMode && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute top-3 right-3 z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleOne(id);
+                          }}
+                        >
+                          <div
+                            className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isSelected
+                                ? "bg-red-500 border-red-500"
+                                : "bg-black/60 border-white/30 hover:border-white/60"
+                            }`}
+                          >
+                            {isSelected && (
+                              <svg
+                                className="w-3.5 h-3.5 text-white"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={3}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Image */}
                     <div className="relative w-full h-44">
                       <Image
                         src={product.image}
@@ -172,25 +463,34 @@ export default function VendorProductsPage() {
                       </div>
                     </div>
 
+                    {/* Card body */}
                     <div className="p-5 space-y-3">
                       <div>
-                        <p className="text-white font-medium leading-tight">{product.name}</p>
-                        <p className="text-subtle text-xs mt-1">{product.make}</p>
+                        <p className="text-white font-medium leading-tight">
+                          {product.name}
+                        </p>
+                        <p className="text-subtle text-xs mt-1">
+                          {product.make}
+                        </p>
                       </div>
                       <div className="flex items-end justify-between gap-4">
-                        <p className="text-white font-display text-xl">{product.price}</p>
+                        <p className="text-white font-display text-xl">
+                          {product.price}
+                        </p>
                         <p className="text-subtle text-xs">
                           Qty: {product.stockQuantity ?? 0}
                         </p>
                       </div>
-                      <div className="pt-2">
-                        <Link
-                          href={`/vendor/products/add?edit=${encodeURIComponent(id)}`}
-                          className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/10 text-white/80 hover:text-white hover:bg-white/5 transition-all text-[10px] font-bold uppercase tracking-widest w-full"
-                        >
-                          Edit
-                        </Link>
-                      </div>
+                      {!isSelectMode && (
+                        <div className="pt-2">
+                          <Link
+                            href={`/vendor/products/add?edit=${encodeURIComponent(id)}`}
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/10 text-white/80 hover:text-white hover:bg-white/5 transition-all text-[10px] font-bold uppercase tracking-widest w-full"
+                          >
+                            Edit
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
@@ -199,6 +499,18 @@ export default function VendorProductsPage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {showConfirm && (
+          <ConfirmDeleteModal
+            count={selectedIds.size}
+            onConfirm={handleBulkDelete}
+            onCancel={() => setShowConfirm(false)}
+            isDeleting={isDeleting}
+          />
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   );
 }
