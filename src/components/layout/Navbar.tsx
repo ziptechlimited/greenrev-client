@@ -77,14 +77,14 @@ export default function Navbar() {
           <div className="flex flex-1 justify-start">
             <Link
               href="/"
-              className="w-10 h-10 md:w-12 md:h-12 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center shadow-xl overflow-hidden p-2 hover:bg-white/10 transition-colors"
+              className="flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <Image
                 src="/logo.png"
                 alt="GreenRev Motors Logo"
-                width={48}
-                height={48}
-                className="w-full h-full object-contain mix-blend-screen"
+                width={80}
+                height={80}
+                className="w-16 h-16 md:w-20 md:h-20 object-contain"
               />
             </Link>
           </div>
@@ -193,7 +193,7 @@ function CartButton() {
       onClick={() => setIsCartOpen(true)}
       className="relative p-3 md:p-3.5 bg-black/50 backdrop-blur-xl border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center shadow-2xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
     >
-      <Handbag className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
+      <ToolsCartIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
 
       <AnimatePresence>
         {mounted && cartCount > 0 && (
@@ -250,12 +250,12 @@ function UserDropdown({
     user.role === "admin"
       ? "/admin/dashboard"
       : user.role === "vendor"
-      ? "/vendor/dashboard"
-      : user.role === "mechanic"
-      ? "/mechanic/dashboard"
-      : user.role === "customer"
-      ? "/acquisitions"
-      : null;
+        ? "/vendor/dashboard"
+        : user.role === "mechanic"
+          ? "/mechanic/dashboard"
+          : user.role === "customer"
+            ? "/acquisitions"
+            : null;
 
   const roleLabels: Record<string, { label: string; style: string }> = {
     admin: {
@@ -387,12 +387,12 @@ function MobileMenu({
     user?.role === "admin"
       ? "/admin/dashboard"
       : user?.role === "vendor"
-      ? "/vendor/dashboard"
-      : user?.role === "mechanic"
-      ? "/mechanic/dashboard"
-      : user?.role === "customer"
-      ? "/acquisitions"
-      : null;
+        ? "/vendor/dashboard"
+        : user?.role === "mechanic"
+          ? "/mechanic/dashboard"
+          : user?.role === "customer"
+            ? "/acquisitions"
+            : null;
 
   const roleLabels: Record<string, { label: string; style: string }> = {
     admin: {
@@ -415,9 +415,9 @@ function MobileMenu({
 
   const roleInfo = user?.role
     ? roleLabels[user.role as string] || {
-        label: user.role,
-        style: "bg-white/10 text-white/70 border border-white/20",
-      }
+      label: user.role,
+      style: "bg-white/10 text-white/70 border border-white/20",
+    }
     : null;
 
   return (
@@ -435,14 +435,14 @@ function MobileMenu({
             <Link
               href="/"
               onClick={onClose}
-              className="w-10 h-10 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 flex items-center justify-center shadow-xl p-2"
+              className="flex items-center justify-center"
             >
               <Image
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Logo"
-                width={40}
-                height={40}
-                className="w-full h-full object-contain mix-blend-screen"
+                width={80}
+                height={80}
+                className="w-16 h-16 object-contain"
               />
             </Link>
 
@@ -565,5 +565,28 @@ function MobileMenu({
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+// ─── Custom Icons ─────────────────────────────────────────────────────────────
+function ToolsCartIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="8" cy="21" r="1" />
+      <circle cx="19" cy="21" r="1" />
+      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+      <g transform="translate(7.5, 5.5) scale(0.5)" strokeWidth="4">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+      </g>
+    </svg>
   );
 }
