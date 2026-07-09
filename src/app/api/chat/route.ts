@@ -109,5 +109,11 @@ Guidelines:
   });
 
   // @ts-ignore
-  return result.toUIMessageStreamResponse();
+  const response = result.toUIMessageStreamResponse();
+  
+  // Disable buffering on Render / Nginx proxy to allow real-time streaming
+  response.headers.set('X-Accel-Buffering', 'no');
+  response.headers.set('Cache-Control', 'no-cache, no-transform');
+  
+  return response;
 }
