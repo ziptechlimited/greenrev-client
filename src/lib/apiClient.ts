@@ -5,6 +5,12 @@ export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5050";
 
+let storedCsrfToken: string | undefined;
+
+export function setCsrfToken(token: string) {
+  storedCsrfToken = token;
+}
+
 function getCookie(name: string): string | undefined {
   if (typeof document === "undefined") return undefined;
   const parts = document.cookie.split(";").map((p) => p.trim());
@@ -14,7 +20,7 @@ function getCookie(name: string): string | undefined {
 }
 
 async function doFetch<T>(input: RequestInfo, init?: RequestInit): Promise<ApiResponse<T>> {
-  const csrf = getCookie("csrf_token");
+  const csrf = storedCsrfToken || getCookie("csrf_token");
   const headers = new Headers(init?.headers ?? {});
   headers.set("Accept", "application/json");
   if (!headers.has("Content-Type") && init?.body && typeof init.body === "string") {
@@ -52,6 +58,8 @@ export async function apiRequest<T>(
         method: "POST",
       });
       if (refreshed && (refreshed as any).success === true) {
+        const token = (refreshed as any).data?.csrfToken;
+        if (token) setCsrfToken(token);
         return doFetch<T>(url, init);
       }
     }

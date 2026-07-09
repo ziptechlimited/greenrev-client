@@ -7,8 +7,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { apiBaseUrl, apiRequest } from "@/lib/apiClient";
-
+import { apiBaseUrl, apiRequest, setCsrfToken } from "@/lib/apiClient";
 export type UserRole = "customer" | "vendor" | "mechanic" | "admin" | null;
 
 export class AuthError extends Error {
@@ -65,11 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const res = await apiRequest<{ user: User }>("/api/v1/auth/me", {
+      const res = await apiRequest<{ user: User; csrfToken?: string }>("/api/v1/auth/me", {
         method: "GET",
       });
       if (cancelled) return;
       if (res.success) {
+        if (res.data.csrfToken) setCsrfToken(res.data.csrfToken);
         setUser(res.data.user);
       } else {
         setUser(null);
@@ -90,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!res.success) {
       throw new AuthError(res.error.code, res.error.message);
     }
+    if (res.data.csrfToken) setCsrfToken(res.data.csrfToken);
     setUser(res.data.user);
     return res.data.user;
   };
