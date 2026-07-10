@@ -51,7 +51,7 @@ export default function ExpertsPage() {
     <div className="flex flex-col h-screen bg-black overflow-hidden">
       <Navbar />
       
-      <main className="flex-1 flex overflow-hidden pt-20">
+      <main className="flex-1 flex overflow-hidden pt-24 md:pt-36">
         {/* Left Sidebar - Locations List */}
         <div className="w-full md:w-[400px] lg:w-[450px] shrink-0 h-full hidden md:block">
           {isLoading ? (
