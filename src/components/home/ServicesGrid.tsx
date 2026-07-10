@@ -22,7 +22,7 @@ export default function ServicesGrid() {
           className="lg:col-span-3 relative group overflow-hidden rounded-[32px] border border-white/10 min-h-[400px] lg:min-h-0"
         >
           <Image
-            src="/images/home/showroom.png"
+            src="/images/home/showroom.jpeg"
             alt="The Showroom"
             fill
             className="object-cover transition-transform duration-1000 group-hover:scale-110"
@@ -55,7 +55,7 @@ export default function ServicesGrid() {
           >
             <Image
               src="/images/home/parts.png"
-              alt="Parts & Performance"
+              alt="Parts and Performance"
               fill
               className="object-cover transition-transform duration-1000 group-hover:scale-110"
             />
@@ -86,7 +86,7 @@ export default function ServicesGrid() {
             className="flex-1 relative group overflow-hidden rounded-[32px] border border-white/10 min-h-[300px] lg:min-h-0"
           >
             <Image
-              src="/images/home/expert.png"
+              src="/images/home/expert.jpeg"
               alt="Expert Care"
               fill
               className="object-cover transition-transform duration-1000 group-hover:scale-110"

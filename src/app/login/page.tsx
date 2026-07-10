@@ -42,9 +42,9 @@ export default function LoginPage() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         staggerChildren: 0.1,
         delayChildren: 0.3
       }
@@ -53,8 +53,8 @@ export default function LoginPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }
     }
@@ -64,28 +64,28 @@ export default function LoginPage() {
     <main className="min-h-screen bg-black flex overflow-hidden selection:bg-accent selection:text-black">
       {/* Left Column: Visual Content */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#050505] items-center justify-center overflow-hidden border-r border-white/5">
-        <motion.div 
+        <motion.div
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.4 }}
           transition={{ duration: 2, ease: "easeOut" }}
           className="absolute inset-0 z-0"
         >
-          <Image 
-            src="/images/home/relinquish.png"
+          <Image
+            src="/images/home/relinquish.jpeg"
             alt="Cinematic automotive detail"
             fill
             className="object-cover grayscale"
             priority
           />
         </motion.div>
-        
+
         {/* Animated Noise Overlay */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-10 bg-[url('/noise.png')] mix-blend-overlay" />
-        
+
         {/* Subtle Glows removed per user request */}
 
         <div className="relative z-20 p-24 max-w-2xl">
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 1 }}
@@ -93,17 +93,17 @@ export default function LoginPage() {
           >
             GreenRev Boutique
           </motion.p>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 1 }}
             className="text-6xl xl:text-7xl font-display text-white leading-none mb-8"
           >
-            Quality <br /> 
+            Quality <br />
             <span className="text-white/40 italic">In Every</span> <br />
             Interaction.
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 1 }}
@@ -118,8 +118,8 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 relative flex flex-col justify-center px-6 md:px-12 lg:px-24 py-20">
         {/* Mobile-only background hint */}
         <div className="lg:hidden absolute inset-0 z-0 bg-[#050505]">
-           <div className="absolute inset-0 opacity-10 bg-[url('/images/home/relinquish.png')] bg-cover bg-center grayscale" />
-           <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
+          <div className="absolute inset-0 opacity-10 bg-[url('/images/home/relinquish.png')] bg-cover bg-center grayscale" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
         </div>
 
         <div className="relative z-10 w-full max-w-md mx-auto lg:mx-0">
@@ -128,7 +128,7 @@ export default function LoginPage() {
             Home
           </Link>
 
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -143,21 +143,21 @@ export default function LoginPage() {
               <div className="space-y-6">
                 <div className="group relative">
                   <Mail className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                  <input 
+                  <input
                     required
-                    type="email" 
+                    type="email"
                     placeholder="Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-transparent border-b border-white/10 py-5 pl-8 focus:outline-none focus:border-accent transition-colors text-lg font-light placeholder:text-white/50"
                   />
                 </div>
-                
+
                 <div className="group relative">
                   <Lock className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-colors" />
-                  <input 
+                  <input
                     required
-                    type={showPassword ? "text" : "password"} 
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -227,14 +227,14 @@ export default function LoginPage() {
                 <span className="text-[10px] uppercase font-bold tracking-widest text-white/20">New Here?</span>
                 <div className="h-px flex-1 bg-white/5" />
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { name: "Client", href: "/register" },
                   { name: "Vendor", href: "/vendor-signup" },
                   { name: "Expert", href: "/mechanic-signup" }
                 ].map((link) => (
-                  <Link 
+                  <Link
                     key={link.name}
                     href={link.href}
                     className="flex items-center justify-center py-4 border border-white/5 rounded-xl text-[10px] font-bold uppercase tracking-widest text-white/40 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all"
