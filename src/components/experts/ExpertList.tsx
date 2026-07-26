@@ -30,8 +30,8 @@ export default function ExpertList({ onSelectExpert, selectedExpertId, experts }
   const [selectedCity, setSelectedCity] = useState<string>("All");
 
   const filteredExperts = experts.filter((expert) => {
-    const matchesSearch = expert.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          expert.city.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (expert.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (expert.city || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCity = selectedCity === "All" || expert.city === selectedCity;
     
     return matchesSearch && matchesCity;

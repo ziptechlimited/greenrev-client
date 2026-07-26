@@ -2,6 +2,7 @@
 
 import { useRef, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -26,7 +27,7 @@ const ShowcaseSection = () => {
   const bgRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLButtonElement>(null);
+  const ctaRef = useRef<HTMLAnchorElement>(null);
   const tagsRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -217,9 +218,9 @@ const ShowcaseSection = () => {
         </div>
 
         {/* CTA - Left */}
-        <button ref={ctaRef} className="px-8 py-3 w-fit bg-accent text-black font-semibold uppercase tracking-wider text-sm transition-transform hover:scale-105" style={{ opacity: 0 }}>
+        <Link href="/shop" ref={ctaRef} className="px-8 py-3 w-fit bg-accent text-black font-semibold uppercase tracking-wider text-sm transition-transform hover:scale-105" style={{ opacity: 0 }}>
           View Full Gallery
-        </button>
+        </Link>
 
         {/* Spec Tags - Right */}
         <div

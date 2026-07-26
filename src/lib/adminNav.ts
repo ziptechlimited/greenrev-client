@@ -30,5 +30,6 @@ export const ADMIN_NAV = [
 
   // Batch 2: Moderation & Engagement
   { name: "Support", href: "/admin/support", icon: MessageSquare },
+  { name: "Inquiries", href: "/admin/inquiries", icon: FileText },
   { name: "Reviews", href: "/admin/reviews", icon: Star },
 ];

@@ -419,12 +419,13 @@ function PartDetailsContent() {
                       </div>
 
                       <div className="flex gap-3">
-                        <button
+                        <Link
+                          href="/shop"
                           onClick={() => setModalOpen(false)}
-                          className="flex-1 py-3 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors"
+                          className="flex-1 py-3 border border-white/20 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-center"
                         >
-                          Close
-                        </button>
+                          Continue Browsing
+                        </Link>
                         <a
                           href="/acquisitions"
                           className="flex-1 py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition-colors text-center"

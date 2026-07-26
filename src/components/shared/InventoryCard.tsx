@@ -34,7 +34,7 @@ export default function InventoryCard({ car }: { car: CarEntry }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { addToCart } = useCart();
-  const { addToCompare, compareItems } = useCompare();
+  const { addToCompare, removeFromCompare, compareItems } = useCompare();
   
   const isComparing = compareItems.some(item => item.id === car.id);
   const { scrollYProgress } = useScroll({
@@ -66,7 +66,9 @@ export default function InventoryCard({ car }: { car: CarEntry }) {
     e.preventDefault();
     e.stopPropagation();
     
-    if (!isComparing) {
+    if (isComparing) {
+      removeFromCompare(car.id);
+    } else {
       addToCompare(car);
       if (compareItems.length === 1) {
         // If there was 1 item before adding this one, we now have 2. Redirect!

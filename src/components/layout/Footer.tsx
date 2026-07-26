@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const NAV_LINKS = [
   { name: "Inventory", href: "/shop" },
@@ -74,10 +75,14 @@ export default function Footer() {
         {/* Brand & Mission Statement */}
         <div className="lg:col-span-5 space-y-8 pr-8">
           <div className="flex flex-col gap-2">
-            <h3 className="text-3xl font-display text-accent tracking-wide">
-              GreenRev Motors
-            </h3>
-            <div className="h-[1px] w-12 bg-accent/50" />
+            <Image 
+              src="/logo.png" 
+              alt="GreenRev Motors" 
+              width={160} 
+              height={40} 
+              className="object-contain"
+            />
+            <div className="h-[1px] w-12 bg-accent/50 mt-2" />
           </div>
           <p className="text-subtle max-w-sm text-sm md:text-base leading-relaxed font-light">
             Curated performance machines for those who move differently. Elevate
@@ -179,7 +184,7 @@ export default function Footer() {
         -------------------------------------------
       */}
       <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-white/40 tracking-[0.25em] uppercase">
-        <p>© {new Date().getFullYear()} 2026 GreenRev Motors. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} GreenRev Motors. All rights reserved.</p>
         <p className="mt-6 md:mt-0 flex items-center gap-2">
           Designed for Excellence{" "}
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />

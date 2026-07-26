@@ -17,12 +17,14 @@ import {
   X,
   CheckCircle2,
   Send,
+  Star,
+  MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import InventoryCard from "@/components/shared/InventoryCard";
 import { cn } from "@/lib/utils";
 import { useCompare } from "@/context/CompareContext";
-import { getProduct, getAllProducts } from "@/lib/apiProduct";
+import { getProduct, getAllProducts, getProductReviews, createProductReview } from "@/lib/apiProduct";
 import { transformProductToCarEntry } from "@/lib/transformProduct";
 import type { CarEntry } from "@/components/shared/InventoryCard";
 import { useAuth } from "@/context/AuthContext";
@@ -32,7 +34,7 @@ function CarDetailsContent() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { addToCompare, compareItems } = useCompare();
+  const { addToCompare, removeFromCompare, compareItems } = useCompare();
   const { user } = useAuth();
 
   const [car, setCar] = useState<CarEntry | null>(null);
@@ -159,7 +161,7 @@ function CarDetailsContent() {
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => router.back()}
+          onClick={() => router.push("/shop")}
           className="flex items-center gap-2 text-subtle hover:text-white transition-colors mb-12 group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -281,7 +283,9 @@ function CarDetailsContent() {
 
                 <button
                   onClick={() => {
-                    if (!isComparing) {
+                    if (isComparing) {
+                      removeFromCompare(car.id);
+                    } else {
                       addToCompare(car);
                       if (compareItems.length === 1) {
                         router.push("/compare");
@@ -328,6 +332,8 @@ function CarDetailsContent() {
             </motion.div>
           </div>
         </div>
+
+        <ProductReviews productId={car.id} />
 
         {/* Suggested Machines */}
         <div className="pt-24 border-t border-white/5">
@@ -523,3 +529,176 @@ function SpecItem({
     </div>
   );
 }
+
+function ProductReviews({ productId }: { productId: string }) {
+  const { user } = useAuth();
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [loading, setLoading] = useState(true);
+  
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [productId]);
+
+  const fetchReviews = async () => {
+    try {
+      const data = await getProductReviews(productId);
+      setReviews(data.reviews || []);
+      setAverageRating(data.averageRating || 0);
+      setTotalReviews(data.totalReviews || 0);
+    } catch (err) {
+      console.error("Failed to fetch reviews:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      await createProductReview(productId, { rating, comment });
+      setSuccess(true);
+      setComment("");
+      setRating(5);
+      fetchReviews();
+    } catch (err: any) {
+      setError(err.message || "Failed to submit review");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return null;
+
+  return (
+    <div className="pt-24 border-t border-white/5 mb-24">
+      <div className="flex items-center justify-between mb-12">
+        <div>
+          <h2 className="text-accent text-[10px] tracking-[0.3em] uppercase mb-4">
+            Customer Feedback
+          </h2>
+          <h3 className="text-4xl font-display text-white">
+            Reviews.
+          </h3>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 text-accent">
+             <Star className="w-5 h-5 fill-current" />
+             <span className="text-2xl font-display text-white ml-2">{averageRating}</span>
+          </div>
+          <span className="text-subtle text-sm">({totalReviews} reviews)</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Review List */}
+        <div className="lg:col-span-2 space-y-6">
+          {reviews.length === 0 ? (
+            <div className="p-8 border border-white/5 bg-white/[0.02] rounded-3xl text-center">
+               <MessageSquare className="w-8 h-8 text-white/20 mx-auto mb-4" />
+               <p className="text-white/60">No reviews yet. Be the first to share your thoughts!</p>
+            </div>
+          ) : (
+            reviews.map((r) => (
+              <div key={r._id} className="p-6 border border-white/5 bg-white/[0.02] rounded-3xl">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-medium text-white">{r.customerName}</span>
+                  <div className="flex items-center gap-1 text-accent">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className={`w-3 h-3 ${i < r.rating ? "fill-current" : "text-white/10"}`} />
+                    ))}
+                  </div>
+                </div>
+                {r.comment && <p className="text-sm text-white/70 leading-relaxed">{r.comment}</p>}
+                <p className="text-[10px] text-white/30 uppercase tracking-widest mt-4">
+                  {new Date(r.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Review Form */}
+        <div>
+          <div className="p-8 border border-white/10 bg-white/5 rounded-3xl sticky top-32">
+            <h4 className="text-lg font-display text-white mb-6">Write a Review</h4>
+            {!user ? (
+              <div className="text-center">
+                <p className="text-sm text-white/60 mb-6">You must be logged in to leave a review.</p>
+                <Link href="/login" className="block w-full py-3 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition-colors">
+                  Log In
+                </Link>
+              </div>
+            ) : success ? (
+              <div className="text-center py-6">
+                <CheckCircle2 className="w-8 h-8 text-green-400 mx-auto mb-4" />
+                <p className="text-white">Thank you for your review!</p>
+                <button onClick={() => setSuccess(false)} className="text-[10px] uppercase tracking-widest text-accent mt-4 hover:underline">
+                  Write Another
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold block mb-3">
+                    Rating
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        onClick={() => setRating(star)}
+                        className={`p-2 rounded-lg transition-colors ${rating >= star ? 'text-accent bg-accent/10' : 'text-white/20 hover:text-white/50 bg-white/5'}`}
+                      >
+                        <Star className={`w-5 h-5 ${rating >= star ? 'fill-current' : ''}`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold block mb-3">
+                    Comment <span className="opacity-50 normal-case">(optional)</span>
+                  </label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Share your experience..."
+                    rows={4}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 resize-none transition-all"
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-sm p-3 bg-red-400/10 border border-red-400/20 rounded-xl">
+                    {error}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-3 bg-accent text-black font-display tracking-widest uppercase text-sm rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Review"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+

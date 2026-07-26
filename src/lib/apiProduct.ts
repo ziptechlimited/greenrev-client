@@ -126,3 +126,34 @@ export async function bulkDeleteProducts(
 
   return response.data;
 }
+
+export async function getProductReviews(productId: string): Promise<any> {
+  const response = await apiRequest<any>(`/api/v1/products/${productId}/reviews`, {
+    method: "GET",
+  });
+
+  if (!response.success) {
+    throw new Error(response.error.message);
+  }
+
+  return response.data;
+}
+
+export async function createProductReview(
+  productId: string,
+  data: { rating: number; comment?: string },
+): Promise<any> {
+  const response = await apiRequest<{ review: any }>(
+    `/api/v1/products/${productId}/reviews`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (!response.success) {
+    throw new Error(response.error.message);
+  }
+
+  return response.data.review;
+}

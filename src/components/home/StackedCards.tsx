@@ -29,7 +29,7 @@ const CARDS = [
     description:
       "Experience a seamless and discreet transition. Our expert appraisers provide accurate valuations that reflect true pedigree.",
     cta: "Get Valuation",
-    href: "/sell",
+    href: "/acquisitions",
     image: "/images/home/relinquish.jpeg",
   }
 ];
