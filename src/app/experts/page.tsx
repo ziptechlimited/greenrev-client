@@ -18,7 +18,9 @@ interface Expert {
   specialization: string[];
   phone: string;
   email: string;
-  image: string;
+  image: string | null;
+  averageRating: number | null;
+  reviewCount: number;
 }
 
 export default function ExpertsPage() {

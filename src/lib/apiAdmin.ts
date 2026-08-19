@@ -156,3 +156,29 @@ export async function adminDeleteProduct(productId: string) {
   if (!res.success) throw new Error(res.error.message);
   return res.data;
 }
+
+// --- Customer: own expert service bookings ---
+export interface ExpertBooking {
+  _id: string;
+  vehicleDetails: { make: string; model: string; year: string };
+  issueDescription: string;
+  requestedDate: string;
+  status: "PENDING" | "CONFIRMED" | "REJECTED" | "COMPLETED";
+  createdAt: string;
+  mechanicId: {
+    _id: string;
+    name: string | null;
+    email: string;
+    phone?: string;
+    garageName?: string;
+  } | null;
+}
+
+export async function getMyExpertBookings(): Promise<ExpertBooking[]> {
+  const res = await apiRequest<{ bookings: ExpertBooking[] }>("/api/v1/bookings/my", {
+    method: "GET",
+  });
+  if (!res.success) throw new Error(res.error.message);
+  return res.data.bookings;
+}
+

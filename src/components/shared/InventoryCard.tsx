@@ -16,6 +16,8 @@ export type CarEntry = {
   year: number;
   mileage: string;
   price: string;
+  /** Numeric price for filtering/sorting — derived from priceValue in the DB */
+  priceValue?: number;
   color: {
     name: string;
     hex: string;

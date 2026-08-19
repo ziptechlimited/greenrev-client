@@ -53,13 +53,41 @@ export async function getVendorProducts(): Promise<Product[]> {
   return response.data.products;
 }
 
+export interface ProductFilters {
+  category?: "vehicle" | "part";
+  name?: string;
+  make?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minYear?: number;
+  maxYear?: number;
+  color?: string;
+  inStock?: boolean;
+}
+
 export async function getAllProducts(
-  category?: "vehicle" | "part",
+  categoryOrFilters?: "vehicle" | "part" | ProductFilters,
 ): Promise<Product[]> {
-  let url = "/api/v1/products";
-  if (category) {
-    url += `?category=${category}`;
+  const params = new URLSearchParams();
+
+  if (typeof categoryOrFilters === "string") {
+    // Backwards-compatible: accept a plain category string
+    params.set("category", categoryOrFilters);
+  } else if (categoryOrFilters) {
+    const f = categoryOrFilters;
+    if (f.category) params.set("category", f.category);
+    if (f.name)     params.set("name", f.name);
+    if (f.make)     params.set("make", f.make);
+    if (f.minPrice !== undefined) params.set("minPrice", f.minPrice.toString());
+    if (f.maxPrice !== undefined) params.set("maxPrice", f.maxPrice.toString());
+    if (f.minYear  !== undefined) params.set("minYear", f.minYear.toString());
+    if (f.maxYear  !== undefined) params.set("maxYear", f.maxYear.toString());
+    if (f.color)    params.set("color", f.color);
+    if (f.inStock !== undefined) params.set("inStock", f.inStock.toString());
   }
+
+  const qs = params.toString();
+  const url = `/api/v1/products${qs ? `?${qs}` : ""}`;
 
   const response = await apiRequest<{ products: Product[] }>(url, {
     method: "GET",
@@ -71,6 +99,7 @@ export async function getAllProducts(
 
   return response.data.products;
 }
+
 
 export async function getProduct(id: string): Promise<Product> {
   const response = await apiRequest<Product>(`/api/v1/products/${id}`, {

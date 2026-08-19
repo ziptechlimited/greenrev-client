@@ -25,8 +25,14 @@ export default function LoginPage() {
     setVerificationHint(false);
     try {
       const user = await login(email, password);
-      if (user.role === "admin") router.push("/admin/dashboard");
-      else if (user.role === "vendor") router.push("/vendor/dashboard");
+      if (user.role === "admin") {
+        // Admin accounts must use the dedicated admin login portal
+        setErrorMessage(
+          "Administrator accounts must sign in via the Admin Portal. Please use /admin/login."
+        );
+        return;
+      }
+      if (user.role === "vendor") router.push("/vendor/dashboard");
       else if (user.role === "mechanic") router.push("/mechanic/dashboard");
       else router.push("/shop");
     } catch (err) {

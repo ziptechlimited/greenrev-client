@@ -1,212 +1,388 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, User, MapPin, Calendar, Settings, Star, Clock, Check, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  User,
+  MapPin,
+  Calendar,
+  Settings,
+  Star,
+  Clock,
+  Check,
+  X,
+  TrendingUp,
+  Loader2,
+} from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { mockReviews } from "@/data/mechanicMockData";
-import { VerificationBadge } from "@/components/VerificationBadge";
 import { apiRequest } from "@/lib/apiClient";
+import { useAuth } from "@/context/AuthContext";
 
 const MECHANIC_NAV = [
-  { name: "Overview", href: "/mechanic/dashboard", icon: LayoutDashboard },
-  { name: "My Profile", href: "/mechanic/profile", icon: User },
-  { name: "Location", href: "/mechanic/location", icon: MapPin },
-  { name: "Availability", href: "/mechanic/availability", icon: Calendar },
-  { name: "Settings", href: "/mechanic/settings", icon: Settings },
+  { name: "Overview",    href: "/mechanic/dashboard",    icon: LayoutDashboard },
+  { name: "My Profile",  href: "/mechanic/profile",      icon: User },
+  { name: "Location",    href: "/mechanic/location",     icon: MapPin },
+  { name: "Availability",href: "/mechanic/availability", icon: Calendar },
+  { name: "Settings",    href: "/mechanic/settings",     icon: Settings },
 ];
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface Booking {
+  _id: string;
+  userId: { _id: string; name: string; email: string; phone?: string } | null;
+  vehicleDetails: { make: string; model: string; year: string };
+  issueDescription: string;
+  requestedDate: string;
+  status: "PENDING" | "CONFIRMED" | "REJECTED" | "COMPLETED";
+  createdAt: string;
+}
+
+interface Review {
+  _id: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+interface Profile {
+  name: string;
+  hourlyRate: number;
+  specialization: string[];
+  profileImage: string | null;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={`w-3 h-3 ${s <= rating ? "text-amber-400 fill-amber-400" : "text-white/20"}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  PENDING:   "bg-yellow-500/15 text-yellow-400",
+  CONFIRMED: "bg-emerald-500/15 text-emerald-400",
+  REJECTED:  "bg-red-500/15 text-red-400",
+  COMPLETED: "bg-white/10 text-white/50",
+};
+
+// ─── Dashboard ─────────────────────────────────────────────────────────────────
+
 export default function MechanicDashboardPage() {
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const [bookings,  setBookings]  = useState<Booking[]>([]);
+  const [reviews,   setReviews]   = useState<Review[]>([]);
+  const [profile,   setProfile]   = useState<Profile | null>(null);
+  const [loading,   setLoading]   = useState(true);
 
-  const fetchBookings = async () => {
+  // ── Fetch everything in parallel ──────────────────────────────────────────
+  const load = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await apiRequest<{ bookings: any[] }>("/api/v1/bookings/mechanic");
-      if (res.success) {
-        setBookings(res.data.bookings);
+      const [bookingRes, profileRes] = await Promise.all([
+        apiRequest<{ bookings: Booking[] }>("/api/v1/bookings/mechanic"),
+        apiRequest<{ profile: Profile }>("/api/v1/mechanic/profile"),
+      ]);
+
+      if (bookingRes.success)  setBookings(bookingRes.data.bookings);
+      if (profileRes.success)  setProfile(profileRes.data.profile);
+
+      // Fetch reviews using the authenticated user's id
+      if (user?.id) {
+        const reviewRes = await apiRequest<{ reviews: Review[] }>(
+          `/api/v1/experts/${user.id}/reviews`,
+        );
+        if (reviewRes.success) setReviews(reviewRes.data.reviews);
       }
     } catch (err) {
-      console.error("Failed to fetch bookings", err);
+      console.error("Dashboard load error:", err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
+  }, [user?.id]);
 
+  useEffect(() => { load(); }, [load]);
+
+  // ── Derived stats ──────────────────────────────────────────────────────────
+  const totalBookings    = bookings.length;
+  const pending          = bookings.filter((b) => b.status === "PENDING").length;
+  const completed        = bookings.filter((b) => b.status === "COMPLETED").length;
+
+  const avgRating =
+    reviews.length > 0
+      ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+      : null;
+
+  // Estimate service hours: completed bookings × hourly rate from profile (or flat 2h each)
+  const serviceHours = completed * 2; // 2h per completed job as a sensible default
+
+  // ── Status change ──────────────────────────────────────────────────────────
   const handleStatusChange = async (id: string, status: string) => {
     try {
       const res = await apiRequest(`/api/v1/bookings/${id}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
       });
-      if (res.success) {
-        fetchBookings(); // Refresh list
-      }
+      if (res.success) load();
     } catch (err) {
-      console.error("Failed to update status", err);
+      console.error("Status update error:", err);
     }
   };
 
+  // ── Stats cards ────────────────────────────────────────────────────────────
   const stats = [
-    { label: "Total Bookings", value: bookings.length.toString(), trend: "All Time", positive: true },
-    { label: "Profile Rating", value: "4.9", trend: "0", positive: true },
-    { label: "Pending Requests", value: bookings.filter(b => b.status === "PENDING").length.toString(), trend: "Needs Action", positive: true },
-    { label: "Service Hours", value: "120", trend: "+12", positive: true },
+    {
+      label: "Total Bookings",
+      value: totalBookings.toString(),
+      sub: `${completed} completed`,
+      icon: TrendingUp,
+      accent: false,
+    },
+    {
+      label: "Profile Rating",
+      value: avgRating !== null ? avgRating.toFixed(1) : "—",
+      sub: `${reviews.length} review${reviews.length !== 1 ? "s" : ""}`,
+      icon: Star,
+      accent: avgRating !== null,
+    },
+    {
+      label: "Pending Requests",
+      value: pending.toString(),
+      sub: pending > 0 ? "Needs your action" : "All clear",
+      icon: Clock,
+      accent: pending > 0,
+    },
+    {
+      label: "Est. Service Hours",
+      value: serviceHours.toString(),
+      sub: `${completed} sessions`,
+      icon: Clock,
+      accent: false,
+    },
   ];
 
   return (
     <DashboardLayout navItems={MECHANIC_NAV} role="mechanic" title="Expert Portal">
       <div className="space-y-8">
+
+        {/* Header */}
         <header>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-display text-white">Expert Overview</h1>
-          </div>
-          <p className="text-subtle text-sm">Manage your service requests, schedule, and profile visibility.</p>
+          <h1 className="text-3xl font-display text-white mb-1">Expert Overview</h1>
+          <p className="text-subtle text-sm">
+            Manage your service requests, schedule, and profile visibility.
+          </p>
         </header>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl"
+              transition={{ delay: i * 0.08 }}
+              className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex flex-col gap-3"
             >
-              <p className="text-subtle text-xs font-bold uppercase tracking-widest mb-4">{stat.label}</p>
-              <div className="flex items-end justify-between">
-                <span className="text-3xl font-display text-white">{stat.value}</span>
-                <span className={`text-xs font-medium ${stat.positive ? "text-accent" : "text-white/40"}`}>
-                  {stat.trend}
-                </span>
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                  {stat.label}
+                </p>
+                <stat.icon className="w-4 h-4 text-white/20" />
               </div>
+              <div>
+                <span className={`text-3xl font-display ${stat.accent ? "text-accent" : "text-white"}`}>
+                  {loading ? <Loader2 className="w-6 h-6 animate-spin text-white/30" /> : stat.value}
+                </span>
+                <p className="text-xs text-white/30 mt-0.5">{stat.sub}</p>
+              </div>
+              {stat.label === "Profile Rating" && avgRating !== null && !loading && (
+                <StarRow rating={Math.round(avgRating)} />
+              )}
             </motion.div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div 
+
+          {/* Bookings panel */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px] flex flex-col"
+            transition={{ delay: 0.35 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col"
           >
-             <h2 className="text-white font-medium flex items-center gap-2 mb-6">
+            <h2 className="text-white font-medium flex items-center gap-2 mb-6">
               <Calendar className="w-4 h-4 text-accent" />
-              Upcoming Schedule
+              Service Requests
+              {pending > 0 && (
+                <span className="ml-auto text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                  {pending} pending
+                </span>
+              )}
             </h2>
-            {isLoading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <p className="text-subtle text-sm">Loading bookings...</p>
+
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-white/30" />
               </div>
-            ) : bookings.length > 0 ? (
-              <div className="space-y-4 flex-1">
+            ) : bookings.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <p className="text-subtle text-sm">No service requests yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
                 {bookings.map((booking) => (
-                  <div key={booking._id} className="flex flex-col p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <p className="text-white font-medium">{booking.userId?.name || "Unknown User"}</p>
-                        <p className="text-subtle text-sm">
-                          {booking.vehicleDetails.make} {booking.vehicleDetails.model} ({booking.vehicleDetails.year})
+                  <div
+                    key={booking._id}
+                    className="rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors p-4"
+                  >
+                    {/* Top row */}
+                    <div className="flex justify-between items-start gap-2 mb-3">
+                      <div className="min-w-0">
+                        <p className="text-white font-medium text-sm truncate">
+                          {booking.userId?.name ?? "Unknown client"}
+                        </p>
+                        <p className="text-subtle text-xs mt-0.5 truncate">
+                          {booking.vehicleDetails.make} {booking.vehicleDetails.model} · {booking.vehicleDetails.year}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-white text-sm">
-                          {new Date(booking.requestedDate).toLocaleDateString()}
+                      <div className="text-right shrink-0">
+                        <p className="text-white/70 text-xs">
+                          {new Date(booking.requestedDate).toLocaleDateString("en-GB", {
+                            day: "numeric", month: "short", year: "numeric",
+                          })}
                         </p>
-                        <p className="text-accent text-sm flex items-center justify-end gap-1 mt-1">
-                          <Clock className="w-3 h-3" /> 
-                          {new Date(booking.requestedDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <p className="text-accent text-[10px] mt-0.5 flex items-center justify-end gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(booking.requestedDate).toLocaleTimeString([], {
+                            hour: "2-digit", minute: "2-digit",
+                          })}
                         </p>
                       </div>
-                    </div>
-                    
-                    <div className="bg-black/20 p-3 rounded-lg mb-4">
-                      <p className="text-sm text-white/80">{booking.issueDescription}</p>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
-                        booking.status === "PENDING" ? "bg-yellow-500/20 text-yellow-500" :
-                        booking.status === "CONFIRMED" ? "bg-green-500/20 text-green-500" :
-                        booking.status === "REJECTED" ? "bg-red-500/20 text-red-500" :
-                        "bg-white/10 text-white/50"
-                      }`}>
+                    {/* Issue */}
+                    <p className="text-sm text-white/60 bg-black/20 rounded-lg px-3 py-2 mb-3 leading-relaxed">
+                      {booking.issueDescription}
+                    </p>
+
+                    {/* Status + actions */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
+                          STATUS_STYLES[booking.status] ?? "bg-white/10 text-white/40"
+                        }`}
+                      >
                         {booking.status}
                       </span>
 
-                      {booking.status === "PENDING" && (
-                        <div className="flex gap-2">
-                          <button 
-                            onClick={() => handleStatusChange(booking._id, "REJECTED")}
-                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
-                            title="Reject"
+                      <div className="flex gap-1.5">
+                        {booking.status === "PENDING" && (
+                          <>
+                            <button
+                              onClick={() => handleStatusChange(booking._id, "REJECTED")}
+                              className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"
+                              title="Reject"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleStatusChange(booking._id, "CONFIRMED")}
+                              className="p-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors"
+                              title="Accept"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                        {booking.status === "CONFIRMED" && (
+                          <button
+                            onClick={() => handleStatusChange(booking._id, "COMPLETED")}
+                            className="text-xs text-white/50 hover:text-white transition-colors border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg"
                           >
-                            <X className="w-4 h-4" />
+                            Mark Completed
                           </button>
-                          <button 
-                            onClick={() => handleStatusChange(booking._id, "CONFIRMED")}
-                            className="p-2 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors"
-                            title="Accept"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                      
-                      {booking.status === "CONFIRMED" && (
-                        <button 
-                          onClick={() => handleStatusChange(booking._id, "COMPLETED")}
-                          className="text-xs text-white/60 hover:text-white transition-colors border border-white/10 px-3 py-1.5 rounded-lg"
-                        >
-                          Mark Completed
-                        </button>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                  <p className="text-subtle text-sm">No service requests yet.</p>
               </div>
             )}
           </motion.div>
-          <motion.div 
+
+          {/* Reviews panel */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[300px] flex flex-col"
+            transition={{ delay: 0.45 }}
+            className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col"
           >
-             <h2 className="text-white font-medium flex items-center gap-2 mb-6">
+            <h2 className="text-white font-medium flex items-center gap-2 mb-1">
               <Star className="w-4 h-4 text-accent" />
-              Recent Reviews
+              Reviews
+              {avgRating !== null && (
+                <span className="ml-auto text-sm font-display text-amber-400">
+                  {avgRating.toFixed(1)}
+                  <span className="text-white/30 text-xs font-sans ml-1">/ 5</span>
+                </span>
+              )}
             </h2>
-            {mockReviews.length > 0 ? (
-              <div className="space-y-4 flex-1">
-                {mockReviews.map((review) => (
-                  <div key={review.id} className="p-4 rounded-xl bg-white/5 border border-white/5">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-white font-medium">{review.client}</p>
-                      <span className="text-subtle text-xs">{review.date}</span>
-                    </div>
-                    <div className="flex items-center gap-1 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "text-yellow-500 fill-yellow-500" : "text-white/20"}`} />
-                      ))}
-                    </div>
-                    <p className="text-subtle text-sm italic">"{review.comment}"</p>
-                  </div>
-                ))}
+
+            {avgRating !== null && (
+              <div className="flex items-center gap-2 mb-6">
+                <StarRow rating={Math.round(avgRating)} />
+                <span className="text-xs text-white/30">
+                  {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            )}
+            {avgRating === null && <div className="mb-6" />}
+
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center py-12">
+                <p className="text-subtle text-sm">No reviews yet.</p>
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                  <p className="text-subtle text-sm">No recent reviews.</p>
+              <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
+                {reviews.map((review) => (
+                  <div
+                    key={review._id}
+                    className="p-4 rounded-xl bg-white/[0.03] border border-white/5"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-white font-medium text-sm truncate">
+                        {review.authorName}
+                      </p>
+                      <span className="text-white/30 text-[10px] shrink-0 ml-2">
+                        {new Date(review.createdAt).toLocaleDateString("en-GB", {
+                          day: "numeric", month: "short", year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <StarRow rating={review.rating} />
+                    {review.comment && (
+                      <p className="text-subtle text-sm italic mt-2 leading-relaxed">
+                        "{review.comment}"
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </motion.div>

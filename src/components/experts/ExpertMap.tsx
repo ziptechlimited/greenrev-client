@@ -18,7 +18,7 @@ interface Expert {
   specialization: string[];
   phone: string;
   email: string;
-  image: string;
+  image: string | null;
 }
 
 interface ExpertMapProps {
@@ -182,12 +182,16 @@ export default function ExpertMap({ experts, selectedExpert, onSelectExpert }: E
             className="absolute bottom-4 right-4 md:bottom-12 md:right-12 w-[calc(100vw-2rem)] md:w-[400px] bg-black/80 backdrop-blur-3xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl z-40"
           >
             <div className="relative h-48">
-              <Image 
-                src={selectedExpert.image} 
-                alt={selectedExpert.name} 
-                fill 
-                className="object-cover opacity-60"
-              />
+              {selectedExpert.image ? (
+                <Image
+                  src={selectedExpert.image}
+                  alt={selectedExpert.name}
+                  fill
+                  className="object-cover opacity-60"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-600/40 to-yellow-500/20 flex items-end" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
               <div className="absolute bottom-6 left-8 right-8">
                 <div className="text-accent text-[10px] font-bold uppercase tracking-[0.3em] mb-1">Certified Center</div>

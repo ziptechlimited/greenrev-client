@@ -16,6 +16,8 @@ const wrap = (min: number, max: number, v: number) => {
   return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
 };
 
+// TODO: Replace with authenticated client testimonials before launch.
+// These are placeholder entries — source real quotes from verified customers post-launch.
 const testimonials = [
   {
     quote: "GreenRev Motors secured the exact G63 AMG specification I've been chasing for months. Flawless execution. Discretion paramount.",

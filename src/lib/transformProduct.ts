@@ -2,6 +2,12 @@ import type { Product } from "@/types/product";
 import type { CarEntry } from "@/components/shared/InventoryCard";
 
 export function transformProductToCarEntry(product: Product): CarEntry {
+  // Derive a reliable numeric price for filtering
+  const priceValue =
+    typeof product.priceValue === "number"
+      ? product.priceValue
+      : parseFloat(product.price.replace(/[^0-9.]/g, "")) || 0;
+
   return {
     id: product._id?.toString() || product.id || "",
     name: product.name,
@@ -9,6 +15,7 @@ export function transformProductToCarEntry(product: Product): CarEntry {
     year: product.year || 0,
     mileage: product.mileage || "N/A",
     price: product.price,
+    priceValue,
     color: product.color || { name: "Default", hex: "#000000" },
     image: product.image,
     specs: {

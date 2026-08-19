@@ -24,6 +24,8 @@ export default function ShopPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
 
+  // Price range: null = unset (use data-derived bounds)
+  const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [minYear, setMinYear] = useState<number | null>(null);
   const [priceExpanded, setPriceExpanded] = useState(false);
@@ -48,15 +50,24 @@ export default function ShopPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [activeMake, activeColor, searchQuery, maxPrice, minYear]);
+  }, [activeMake, activeColor, searchQuery, maxPrice, minPrice, minYear]);
 
-  const allCars = useMemo(() => {
-    return vendorVehicles;
-  }, [vendorVehicles]);
+  const allCars = useMemo(() => vendorVehicles, [vendorVehicles]);
 
-  const maxInventoryPrice = 500000000;
-  const minInventoryYear = 2015;
-  const maxInventoryYear = 2030;
+  // Derive price + year bounds dynamically from actual inventory
+  const { dataMinPrice, dataMaxPrice, dataMinYear, dataMaxYear } = useMemo(() => {
+    if (allCars.length === 0) {
+      return { dataMinPrice: 0, dataMaxPrice: 500_000_000, dataMinYear: 2015, dataMaxYear: 2030 };
+    }
+    const prices = allCars.map((c) => c.priceValue ?? 0).filter((p) => p > 0);
+    const years  = allCars.map((c) => c.year).filter((y) => y > 0);
+    return {
+      dataMinPrice: prices.length ? Math.min(...prices) : 0,
+      dataMaxPrice: prices.length ? Math.max(...prices) : 500_000_000,
+      dataMinYear:  years.length  ? Math.min(...years)  : 2015,
+      dataMaxYear:  years.length  ? Math.max(...years)  : 2030,
+    };
+  }, [allCars]);
 
   const makes = useMemo(() => {
     const allMakes = allCars.map((car) => car.make);
@@ -77,17 +88,19 @@ export default function ShopPage() {
         car.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         car.make.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const p = parseFloat(car.price.replace(/[^0-9.]/g, ""));
-      const currentMaxPrice = maxPrice === null ? maxInventoryPrice : maxPrice;
-      const matchesMaxPrice = p <= currentMaxPrice;
+      // Use the reliable numeric priceValue for comparison
+      const p = car.priceValue ?? parseFloat(car.price.replace(/[^0-9.]/g, "")) ?? 0;
+      const effectiveMin = minPrice ?? dataMinPrice;
+      const effectiveMax = maxPrice ?? dataMaxPrice;
+      const matchesPrice = p >= effectiveMin && p <= effectiveMax;
 
       const y = car.year;
-      const currentMinYear = minYear === null ? minInventoryYear : minYear;
-      const matchesMinYear = y >= currentMinYear;
+      const effectiveMinYear = minYear ?? dataMinYear;
+      const matchesYear = y >= effectiveMinYear;
 
-      return matchesMake && matchesColor && matchesSearch && matchesMaxPrice && matchesMinYear;
+      return matchesMake && matchesColor && matchesSearch && matchesPrice && matchesYear;
     });
-  }, [activeMake, activeColor, searchQuery, allCars, maxPrice, maxInventoryPrice, minYear, minInventoryYear]);
+  }, [activeMake, activeColor, searchQuery, allCars, minPrice, maxPrice, minYear, dataMinPrice, dataMaxPrice, dataMinYear]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCars.length / itemsPerPage));
   const pageSafe = Math.min(page, totalPages);
@@ -95,6 +108,26 @@ export default function ShopPage() {
     const start = (pageSafe - 1) * itemsPerPage;
     return filteredCars.slice(start, start + itemsPerPage);
   }, [filteredCars, pageSafe]);
+
+  // Count active filters for badge
+  const activeFilterCount = [
+    activeMake !== "All",
+    activeColor !== "All",
+    searchQuery.length > 0,
+    minPrice !== null || maxPrice !== null,
+    minYear !== null,
+  ].filter(Boolean).length;
+
+  const resetAllFilters = () => {
+    setActiveMake("All");
+    setActiveColor("All");
+    setSearchQuery("");
+    setMinPrice(null);
+    setMaxPrice(null);
+    setMinYear(null);
+  };
+
+
 
   return (
     <main className="min-h-screen bg-background pt-32 pb-20 px-6 md:px-12">
@@ -214,34 +247,66 @@ export default function ShopPage() {
                   Filters
                 </h4>
                 <div className="space-y-4">
-                  {/* Price Filter (Max) */}
+                  {/* Price Range */}
                   <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
                     <div
                       onClick={() => setPriceExpanded(!priceExpanded)}
                       className="p-4 flex justify-between items-center group cursor-pointer"
                     >
                       <span className="text-sm text-subtle group-hover:text-white transition-colors">
-                        Max Price
+                        Price Range
+                        {(minPrice !== null || maxPrice !== null) && (
+                          <span className="ml-2 text-accent text-[10px]">●</span>
+                        )}
                       </span>
                       <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", priceExpanded && "rotate-180")} />
                     </div>
                     {priceExpanded && (
-                      <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
-                        <input
-                          type="range"
-                          min={0}
-                          max={maxInventoryPrice}
-                          step={1000}
-                          value={maxPrice === null ? maxInventoryPrice : maxPrice}
-                          onChange={(e) => setMaxPrice(Number(e.target.value))}
-                          className="w-full accent-accent"
-                        />
-                        <div className="flex justify-between text-xs text-subtle">
-                          <span>$0</span>
-                          <span className="text-white font-medium">
-                            ${(maxPrice === null ? maxInventoryPrice : maxPrice).toLocaleString()}
+                      <div className="p-4 pt-0 space-y-4">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-white/30">Min Price</label>
+                          <input
+                            type="range"
+                            min={dataMinPrice}
+                            max={dataMaxPrice}
+                            step={Math.max(1000, Math.round((dataMaxPrice - dataMinPrice) / 100))}
+                            value={minPrice ?? dataMinPrice}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              setMinPrice(v === dataMinPrice ? null : v);
+                            }}
+                            className="w-full accent-accent"
+                          />
+                          <span className="text-xs text-white font-medium">
+                            ₦{(minPrice ?? dataMinPrice).toLocaleString()}
                           </span>
                         </div>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[10px] uppercase tracking-widest text-white/30">Max Price</label>
+                          <input
+                            type="range"
+                            min={dataMinPrice}
+                            max={dataMaxPrice}
+                            step={Math.max(1000, Math.round((dataMaxPrice - dataMinPrice) / 100))}
+                            value={maxPrice ?? dataMaxPrice}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              setMaxPrice(v === dataMaxPrice ? null : v);
+                            }}
+                            className="w-full accent-accent"
+                          />
+                          <span className="text-xs text-white font-medium">
+                            ₦{(maxPrice ?? dataMaxPrice).toLocaleString()}
+                          </span>
+                        </div>
+                        {(minPrice !== null || maxPrice !== null) && (
+                          <button
+                            onClick={() => { setMinPrice(null); setMaxPrice(null); }}
+                            className="text-[10px] text-accent uppercase tracking-widest font-bold hover:underline"
+                          >
+                            Clear price filter
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -254,6 +319,9 @@ export default function ShopPage() {
                     >
                       <span className="text-sm text-subtle group-hover:text-white transition-colors">
                         Min Year
+                        {minYear !== null && (
+                          <span className="ml-2 text-accent text-[10px]">●</span>
+                        )}
                       </span>
                       <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", yearExpanded && "rotate-180")} />
                     </div>
@@ -261,18 +329,21 @@ export default function ShopPage() {
                       <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
                         <input
                           type="range"
-                          min={minInventoryYear}
-                          max={maxInventoryYear}
+                          min={dataMinYear}
+                          max={dataMaxYear}
                           step={1}
-                          value={minYear === null ? minInventoryYear : minYear}
-                          onChange={(e) => setMinYear(Number(e.target.value))}
+                          value={minYear ?? dataMinYear}
+                          onChange={(e) => {
+                            const v = Number(e.target.value);
+                            setMinYear(v === dataMinYear ? null : v);
+                          }}
                           className="w-full accent-accent"
                         />
                         <div className="flex justify-between text-xs text-subtle">
                           <span className="text-white font-medium">
-                            {minYear === null ? minInventoryYear : minYear}
+                            {minYear ?? dataMinYear}
                           </span>
-                          <span>{maxInventoryYear}</span>
+                          <span>{dataMaxYear}</span>
                         </div>
                       </div>
                     )}
@@ -298,6 +369,69 @@ export default function ShopPage() {
 
           {/* Main Content */}
           <div className="flex-grow">
+            {/* Active filter bar — always visible when filters are set */}
+            <AnimatePresence>
+              {activeFilterCount > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-wrap items-center gap-2 mb-6"
+                >
+                  {activeMake !== "All" && (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold">
+                      Make: {activeMake}
+                      <button onClick={() => setActiveMake("All")} className="hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {activeColor !== "All" && (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold">
+                      Color: {activeColor}
+                      <button onClick={() => setActiveColor("All")} className="hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {searchQuery && (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold">
+                      "{searchQuery}"
+                      <button onClick={() => setSearchQuery("")} className="hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {(minPrice !== null || maxPrice !== null) && (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold">
+                      ₦{(minPrice ?? dataMinPrice).toLocaleString()} – ₦{(maxPrice ?? dataMaxPrice).toLocaleString()}
+                      <button onClick={() => { setMinPrice(null); setMaxPrice(null); }} className="hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  {minYear !== null && (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent rounded-full text-xs font-bold">
+                      From {minYear}
+                      <button onClick={() => setMinYear(null)} className="hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  )}
+                  <button
+                    onClick={resetAllFilters}
+                    className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white border border-white/10 hover:border-white/30 rounded-full transition-all"
+                  >
+                    Clear all
+                  </button>
+                  <span className="text-xs text-white/30 ml-1">
+                    {filteredCars.length} result{filteredCars.length !== 1 ? "s" : ""}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {filteredCars.length > 0 ? (
               <div className="space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-12">
@@ -359,13 +493,7 @@ export default function ShopPage() {
                   match.
                 </p>
                 <button
-                  onClick={() => {
-                    setActiveMake("All");
-                    setActiveColor("All");
-                    setSearchQuery("");
-                    setMaxPrice(null);
-                    setMinYear(null);
-                  }}
+                  onClick={resetAllFilters}
                   className="text-accent underline underline-offset-8 uppercase tracking-widest text-[10px] font-bold hover:text-white transition-colors"
                 >
                   Clear All Filters
@@ -469,32 +597,56 @@ export default function ShopPage() {
                     Filters
                   </h4>
                   <div className="space-y-4">
-                    {/* Price Filter (Max) */}
+                    {/* Price Range */}
                     <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden transition-colors hover:border-white/20">
                       <div
                         onClick={() => setPriceExpanded(!priceExpanded)}
                         className="p-4 flex justify-between items-center group cursor-pointer"
                       >
                         <span className="text-sm text-subtle group-hover:text-white transition-colors">
-                          Max Price
+                          Price Range
+                          {(minPrice !== null || maxPrice !== null) && (
+                            <span className="ml-2 text-accent text-[10px]">●</span>
+                          )}
                         </span>
                         <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", priceExpanded && "rotate-180")} />
                       </div>
                       {priceExpanded && (
-                        <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
-                          <input
-                            type="range"
-                            min={0}
-                            max={maxInventoryPrice}
-                            step={1000}
-                            value={maxPrice === null ? maxInventoryPrice : maxPrice}
-                            onChange={(e) => setMaxPrice(Number(e.target.value))}
-                            className="w-full accent-accent"
-                          />
-                          <div className="flex justify-between text-xs text-subtle">
-                            <span>$0</span>
-                            <span className="text-white font-medium">
-                              ${(maxPrice === null ? maxInventoryPrice : maxPrice).toLocaleString()}
+                        <div className="p-4 pt-0 space-y-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/30">Min Price</label>
+                            <input
+                              type="range"
+                              min={dataMinPrice}
+                              max={dataMaxPrice}
+                              step={Math.max(1000, Math.round((dataMaxPrice - dataMinPrice) / 100))}
+                              value={minPrice ?? dataMinPrice}
+                              onChange={(e) => {
+                                const v = Number(e.target.value);
+                                setMinPrice(v === dataMinPrice ? null : v);
+                              }}
+                              className="w-full accent-accent"
+                            />
+                            <span className="text-xs text-white font-medium">
+                              ₦{(minPrice ?? dataMinPrice).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-[10px] uppercase tracking-widest text-white/30">Max Price</label>
+                            <input
+                              type="range"
+                              min={dataMinPrice}
+                              max={dataMaxPrice}
+                              step={Math.max(1000, Math.round((dataMaxPrice - dataMinPrice) / 100))}
+                              value={maxPrice ?? dataMaxPrice}
+                              onChange={(e) => {
+                                const v = Number(e.target.value);
+                                setMaxPrice(v === dataMaxPrice ? null : v);
+                              }}
+                              className="w-full accent-accent"
+                            />
+                            <span className="text-xs text-white font-medium">
+                              ₦{(maxPrice ?? dataMaxPrice).toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -509,6 +661,9 @@ export default function ShopPage() {
                       >
                         <span className="text-sm text-subtle group-hover:text-white transition-colors">
                           Min Year
+                          {minYear !== null && (
+                            <span className="ml-2 text-accent text-[10px]">●</span>
+                          )}
                         </span>
                         <ChevronDown className={cn("w-4 h-4 text-white/20 group-hover:text-white/60 transition-transform", yearExpanded && "rotate-180")} />
                       </div>
@@ -516,18 +671,21 @@ export default function ShopPage() {
                         <div className="p-4 pt-0 mt-2 flex flex-col gap-3">
                           <input
                             type="range"
-                            min={minInventoryYear}
-                            max={maxInventoryYear}
+                            min={dataMinYear}
+                            max={dataMaxYear}
                             step={1}
-                            value={minYear === null ? minInventoryYear : minYear}
-                            onChange={(e) => setMinYear(Number(e.target.value))}
+                            value={minYear ?? dataMinYear}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              setMinYear(v === dataMinYear ? null : v);
+                            }}
                             className="w-full accent-accent"
                           />
                           <div className="flex justify-between text-xs text-subtle">
                             <span className="text-white font-medium">
-                              {minYear === null ? minInventoryYear : minYear}
+                              {minYear ?? dataMinYear}
                             </span>
-                            <span>{maxInventoryYear}</span>
+                            <span>{dataMaxYear}</span>
                           </div>
                         </div>
                       )}
@@ -536,18 +694,12 @@ export default function ShopPage() {
                 </div>
 
                 <button
-                  onClick={() => {
-                    setActiveMake("All");
-                    setActiveColor("All");
-                    setSearchQuery("");
-                    setMaxPrice(null);
-                    setMinYear(null);
-                    setIsFilterOpen(false);
-                  }}
+                  onClick={() => { resetAllFilters(); setIsFilterOpen(false); }}
                   className="w-full py-4 text-xs font-bold tracking-widest uppercase border border-white/10 rounded-2xl text-white hover:bg-white/5 transition-all"
                 >
                   Reset All
                 </button>
+
               </div>
             </motion.div>
           </>

@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useScroll, useTransform, motion, useSpring } from "framer-motion";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
-
+import Link from "next/link";
 
 const FRAME_COUNT = 219;
 
@@ -166,6 +166,15 @@ export default function HeroScroll() {
             GreenRev <span className="text-accent">Motors</span>
           </h1>
           <div className="mt-4 w-24 h-[1px] bg-accent/50" />
+          <Link
+            href="/shop"
+            className="pointer-events-auto mt-8 inline-flex items-center gap-3 px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-[11px] rounded-full hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_0_40px_rgba(199,164,61,0.3)]"
+          >
+            Explore the Showroom
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
         </motion.div>
 
         <motion.div
