@@ -17,9 +17,9 @@ export default function Home() {
       <StackedCards />
 
       <CarMorph />
+      <MobileAppCTA />
       <Testimonials />
       <GlobalPresence />
-      <MobileAppCTA />
       <Footer />
     </main>
   );
