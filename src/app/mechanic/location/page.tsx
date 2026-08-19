@@ -60,30 +60,81 @@ export default function MechanicLocationPage() {
     setHasChanges(true);
   };
 
+  // ── Geocode an address string → { lat, lng } using Google Geocoding REST API ──
+  const geocodeAddress = async (address: string, city: string, country: string) => {
+    const query = [address, city, country].filter(Boolean).join(", ");
+    if (!query) return null;
+    const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!key) return null;
+    try {
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${key}`,
+      );
+      const json = await res.json();
+      if (json.status === "OK" && json.results?.[0]) {
+        const { lat, lng } = json.results[0].geometry.location;
+        return { lat: lat as number, lng: lng as number };
+      }
+    } catch {
+      // swallow — caller handles null
+    }
+    return null;
+  };
+
+  // ── Let the browser detect the expert's current GPS position ──────────────
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation((prev) => ({
+          ...prev,
+          lat: parseFloat(pos.coords.latitude.toFixed(6)),
+          lng: parseFloat(pos.coords.longitude.toFixed(6)),
+        }));
+        setHasChanges(true);
+      },
+      (err) => console.warn("Geolocation error:", err),
+    );
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Try to geocode if we don't already have valid coordinates
+      let lat = location.lat;
+      let lng = location.lng;
+
+      if (!lat || !lng) {
+        const coords = await geocodeAddress(location.address, location.city, location.country);
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+          // Update local state so the map reflects it immediately
+          setLocation((prev) => ({ ...prev, lat, lng }));
+        }
+      }
+
       const res = await apiRequest("/api/v1/mechanic/location", {
         method: "PATCH",
         body: JSON.stringify({
           address: location.address,
           city: location.city,
-          country: location.country, // Just mapping for now
-          // Could use a geocoding API here, but we will mock lat/lng
-          lat: location.lat || (37.7749 + (Math.random() - 0.5) * 0.1),
-          lng: location.lng || (-122.4194 + (Math.random() - 0.5) * 0.1),
+          country: location.country,
+          lat,
+          lng,
         }),
       });
       if (res.success) {
-        setOriginalLocation(location);
+        setOriginalLocation({ ...location, lat, lng });
         setHasChanges(false);
       }
     } catch (err) {
-      console.error("Failed to save location", err);
+      console.error("Failed to save location:", err);
     } finally {
       setIsSaving(false);
     }
   };
+
 
   return (
     <DashboardLayout navItems={MECHANIC_NAV} role="mechanic" title="Expert Portal">
@@ -124,8 +175,18 @@ export default function MechanicLocationPage() {
 
           {/* Form */}
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 space-y-6">
-            <h3 className="text-xl font-medium text-white mb-4">Address Details</h3>
-            
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-medium text-white">Address Details</h3>
+              <button
+                type="button"
+                onClick={handleUseCurrentLocation}
+                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-accent border border-accent/20 bg-accent/5 hover:bg-accent/10 px-4 py-2 rounded-full transition-all"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                Use my location
+              </button>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-white">Street Address</label>
               <input
@@ -133,7 +194,8 @@ export default function MechanicLocationPage() {
                 name="address"
                 value={location.address}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
+                placeholder="e.g. 12 Victoria Island Road"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-accent transition-colors"
               />
             </div>
 
@@ -145,7 +207,8 @@ export default function MechanicLocationPage() {
                   name="city"
                   value={location.city}
                   onChange={handleChange}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
+                  placeholder="e.g. Lagos"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-accent transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -156,7 +219,8 @@ export default function MechanicLocationPage() {
                     name="country"
                     value={location.country}
                     onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
+                    placeholder="e.g. Nigeria"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
@@ -166,13 +230,53 @@ export default function MechanicLocationPage() {
                     name="state"
                     value={location.state}
                     onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
+                    placeholder="e.g. Lagos State"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/25 focus:outline-none focus:border-accent transition-colors"
                   />
                 </div>
               </div>
             </div>
 
-            <hr className="border-white/10 my-6" />
+            {/* Coordinates — shown so expert can verify / override */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/60">Latitude</label>
+                <input
+                  type="number"
+                  name="lat"
+                  step="0.000001"
+                  value={location.lat || ""}
+                  onChange={(e) => {
+                    setLocation((prev) => ({ ...prev, lat: parseFloat(e.target.value) || 0 }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Auto-detected on save"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white/60">Longitude</label>
+                <input
+                  type="number"
+                  name="lng"
+                  step="0.000001"
+                  value={location.lng || ""}
+                  onChange={(e) => {
+                    setLocation((prev) => ({ ...prev, lng: parseFloat(e.target.value) || 0 }));
+                    setHasChanges(true);
+                  }}
+                  placeholder="Auto-detected on save"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-sm"
+                />
+              </div>
+            </div>
+            {(!location.lat || !location.lng) && (
+              <p className="text-[11px] text-white/30 -mt-2">
+                Coordinates will be resolved automatically from your address when you save. Or click "Use my location" to detect them now.
+              </p>
+            )}
+
+            <hr className="border-white/10" />
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-white block mb-2">Service Radius (Miles)</label>
@@ -188,29 +292,26 @@ export default function MechanicLocationPage() {
                 <option value="100">100 Miles</option>
                 <option value="any">Anywhere</option>
               </select>
-              <div className="pt-4 border-t border-white/10 flex justify-end gap-3">
-                {hasChanges && (
-                  <button
-                    onClick={() => {
-                      setLocation(originalLocation);
-                      setHasChanges(false);
-                    }}
-                    disabled={isSaving}
-                    className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
-                  >
-                    Discard
-                  </button>
-                )}
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving || !hasChanges}
-                  className="bg-accent text-white px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Save Location
-                </button>
-              </div>
+            </div>
 
+            <div className="pt-2 border-t border-white/10 flex justify-end gap-3">
+              {hasChanges && (
+                <button
+                  onClick={() => { setLocation(originalLocation); setHasChanges(false); }}
+                  disabled={isSaving}
+                  className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
+                >
+                  Discard
+                </button>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !hasChanges}
+                className="bg-accent text-black px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                {isSaving ? "Geocoding & saving…" : "Save Location"}
+              </button>
             </div>
           </div>
           </>
