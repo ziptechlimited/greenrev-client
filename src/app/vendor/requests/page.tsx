@@ -308,6 +308,12 @@ export default function VendorRequestsPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<AcquisitionStatus | "all">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   useEffect(() => {
     async function load() {
@@ -354,6 +360,11 @@ export default function VendorRequestsPage() {
   const filtered = filter === "all"
     ? requests
     : requests.filter((r) => r.status === filter);
+
+  const paginated = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const filterTabs: { label: string; value: AcquisitionStatus | "all" }[] = [
     { label: "All", value: "all" },
@@ -424,7 +435,7 @@ export default function VendorRequestsPage() {
         ) : (
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
-              {filtered.map((req) => (
+              {paginated.map((req) => (
                 <RequestCard
                   key={req._id}
                   request={req}
@@ -434,6 +445,28 @@ export default function VendorRequestsPage() {
                 />
               ))}
             </AnimatePresence>
+
+            {Math.ceil(filtered.length / ITEMS_PER_PAGE) > 1 && (
+              <div className="flex items-center justify-between mt-8 pt-4 border-t border-white/5">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                >
+                  Previous
+                </button>
+                <span className="text-sm md:text-base text-subtle font-medium">
+                  Page {currentPage} of {Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(Math.ceil(filtered.length / ITEMS_PER_PAGE), p + 1))}
+                  disabled={currentPage === Math.ceil(filtered.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

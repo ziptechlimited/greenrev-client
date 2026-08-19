@@ -9,9 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#050505",
+        background: "#050606",
         foreground: "#ffffff",
-        subtle: "#b3b3b3",
+        subtle: "#A0AAB2",
+        obsidian: "#030404",
+        forest: "#0B2B1B",
+        emerald: "#10B981",
         accent: {
           DEFAULT: "#A3E635",
           dark: "#4e7a06",
@@ -20,6 +23,7 @@ const config: Config = {
       fontFamily: {
         sans: ["bauserif", "sans-serif"],
         display: ["bauserif", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       letterSpacing: {
         wide: "0.05em",
@@ -31,6 +35,15 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      animation: {
+        'ambient-pulse': 'ambient-pulse 10s ease-in-out infinite alternate',
+      },
+      keyframes: {
+        'ambient-pulse': {
+          '0%': { opacity: '0.4', transform: 'scale(1)' },
+          '100%': { opacity: '0.8', transform: 'scale(1.1)' },
+        }
+      }
     },
   },
   plugins: [],

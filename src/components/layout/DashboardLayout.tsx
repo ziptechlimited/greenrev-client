@@ -48,8 +48,14 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background text-foreground flex relative font-sans">
       <ProfileAlertModal />
+      
+      {/* Ambient Animated Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest blur-[120px] mix-blend-screen opacity-50 animate-ambient-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-emerald/10 blur-[100px] mix-blend-screen opacity-30 animate-ambient-pulse" style={{ animationDelay: '2s' }} />
+      </div>
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isOpen && (
@@ -65,7 +71,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
 
       {/* Sidebar */}
       <motion.aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-[#050505] border-r border-white/5 z-50 flex flex-col transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed lg:sticky lg:top-6 lg:ml-6 h-screen lg:h-[calc(100vh-3rem)] w-72 bg-obsidian/90 lg:bg-white/[0.02] backdrop-blur-3xl lg:border border-r lg:border-r-white/5 border-white/5 lg:rounded-3xl z-50 flex flex-col transition-transform duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
       >
         <div className="p-8 flex items-center justify-between">
@@ -130,9 +136,9 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen relative z-10">
         {/* Mobile Header */}
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#050505] sticky top-0 z-30">
+        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-obsidian/50 backdrop-blur-xl sticky top-0 z-30">
           <div>
             <span className="text-lg font-display text-white">GreenRev</span>
             <span className="text-accent text-[10px] md:text-xs font-bold uppercase tracking-widest ml-2">{title}</span>

@@ -122,6 +122,10 @@ export default function VendorProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isSelectMode, setIsSelectMode] = useState(false);
@@ -373,19 +377,24 @@ export default function VendorProductsPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {products.map((product, i) => {
-                const Icon = product.category === "vehicle" ? Car : Wrench;
-                const id = getProductId(product, i);
-                const inStock = product.inStock !== false;
-                const isSelected = selectedIds.has(id);
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((product, index) => {
+                    // index here is relative to the sliced array. For getProductId, we should pass the original index if it's used for unique ID generation, but getProductId falls back to `${p.name}-${i}`. Let's compute actual index.
+                    const actualIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
+                    const Icon = product.category === "vehicle" ? Car : Wrench;
+                    const id = getProductId(product, actualIndex);
+                    const inStock = product.inStock !== false;
+                    const isSelected = selectedIds.has(id);
 
                 return (
                   <motion.div
                     key={id}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
+                    transition={{ delay: index * 0.04 }}
                     onClick={() => isSelectMode && toggleOne(id)}
                     className={`relative bg-black/20 border rounded-2xl overflow-hidden transition-all duration-200 ${
                       isSelectMode ? "cursor-pointer" : ""
@@ -496,6 +505,29 @@ export default function VendorProductsPage() {
                 );
               })}
             </div>
+            
+            {Math.ceil(products.length / ITEMS_PER_PAGE) > 1 && (
+              <div className="flex items-center justify-between mt-8 pt-4 border-t border-white/5">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                >
+                  Previous
+                </button>
+                <span className="text-sm md:text-base text-subtle font-medium">
+                  Page {currentPage} of {Math.ceil(products.length / ITEMS_PER_PAGE)}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(Math.ceil(products.length / ITEMS_PER_PAGE), p + 1))}
+                  disabled={currentPage === Math.ceil(products.length / ITEMS_PER_PAGE)}
+                  className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
           )}
         </div>
       </div>

@@ -33,32 +33,37 @@ import { ADMIN_NAV } from "@/lib/adminNav";
 
 const STATUS_CONFIG: Record<
   AcquisitionStatus,
-  { label: string; color: string; bg: string }
+  { label: string; color: string; bg: string; shadow: string }
 > = {
   pending: {
     label: "Pending",
-    color: "text-yellow-400",
-    bg: "bg-yellow-400/10 border-yellow-400/20",
+    color: "text-yellow-300",
+    bg: "bg-yellow-400/5 border-yellow-400/20 backdrop-blur-md",
+    shadow: "shadow-[0_0_15px_rgba(250,204,21,0.1)]",
   },
   accepted: {
     label: "Accepted",
-    color: "text-blue-400",
-    bg: "bg-blue-400/10 border-blue-400/20",
+    color: "text-blue-300",
+    bg: "bg-blue-400/5 border-blue-400/20 backdrop-blur-md",
+    shadow: "shadow-[0_0_15px_rgba(96,165,250,0.1)]",
   },
   receipt_uploaded: {
-    label: "Receipt Uploaded",
+    label: "Receipt",
     color: "text-purple-300",
-    bg: "bg-purple-500/10 border-purple-500/20",
+    bg: "bg-purple-500/5 border-purple-500/20 backdrop-blur-md",
+    shadow: "shadow-[0_0_15px_rgba(168,85,247,0.1)]",
   },
   payment_confirmed: {
-    label: "Payment Confirmed",
+    label: "Confirmed",
     color: "text-emerald-300",
-    bg: "bg-emerald-500/10 border-emerald-500/20",
+    bg: "bg-emerald-500/5 border-emerald-500/20 backdrop-blur-md",
+    shadow: "shadow-[0_0_15px_rgba(16,185,129,0.1)]",
   },
   completed: {
     label: "Completed",
-    color: "text-green-400",
-    bg: "bg-green-400/10 border-green-400/20",
+    color: "text-green-300",
+    bg: "bg-green-400/5 border-green-400/20 backdrop-blur-md",
+    shadow: "shadow-[0_0_15px_rgba(74,222,128,0.1)]",
   },
 };
 
@@ -67,9 +72,10 @@ function StatusBadge({ status }: { status: AcquisitionStatus }) {
   return (
     <span
       className={cn(
-        "text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+        "text-[10px] md:text-xs font-mono font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border",
         cfg.bg,
         cfg.color,
+        cfg.shadow
       )}
     >
       {cfg.label}
@@ -264,16 +270,18 @@ export default function AdminDashboardPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl"
+              className="relative bg-obsidian/60 backdrop-blur-2xl border border-white/5 p-6 rounded-3xl overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)] group hover:bg-white/[0.04] transition-colors"
             >
-              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-3">
+              {/* Subtle background glow */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald/10 blur-[50px] rounded-full pointer-events-none group-hover:bg-emerald/20 transition-colors" />
+              
+              <p className="text-subtle text-[10px] md:text-xs font-mono font-bold uppercase tracking-widest mb-4">
                 {stat.label}
               </p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-display text-white">
+              <div className="flex items-end justify-between relative z-10">
+                <span className="text-4xl lg:text-5xl font-mono text-white tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                   {stat.value}
                 </span>
-                <ShoppingCart className="w-4 h-4 text-white/20" />
               </div>
             </motion.div>
           ))}
@@ -349,8 +357,8 @@ export default function AdminDashboardPage() {
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={cn(
-                        "bg-white/[0.02] border rounded-2xl overflow-hidden",
-                        expanded ? "border-white/20" : "border-white/5",
+                        "bg-obsidian/60 backdrop-blur-2xl border rounded-3xl overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all",
+                        expanded ? "border-white/20 shadow-[0_8px_32px_rgba(16,185,129,0.1)]" : "border-white/5 hover:bg-white/[0.04]",
                       )}
                     >
                       <button
@@ -360,11 +368,11 @@ export default function AdminDashboardPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-3 flex-wrap">
                             <div>
-                              <p className="text-white font-medium text-base md:text-lg">
+                              <p className="text-white font-display text-xl md:text-2xl mb-1">
                                 {req.productName}
                               </p>
-                              <p className="text-subtle text-sm md:text-base">
-                                {req.customerName} → {req.vendorName}
+                              <p className="text-subtle text-sm md:text-base font-mono">
+                                {req.customerName} <span className="text-white/20 mx-2">→</span> {req.vendorName}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
@@ -433,7 +441,7 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[400px]">
+            <div className="bg-obsidian/60 backdrop-blur-3xl border border-white/5 rounded-3xl p-8 min-h-[500px] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_8px_32px_rgba(0,0,0,0.4)]">
               {!selectedRequest ? (
                 <div className="h-full flex items-center justify-center text-center">
                   <p className="text-subtle text-base md:text-lg">
@@ -444,14 +452,14 @@ export default function AdminDashboardPage() {
                 <div className="space-y-6">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
-                      <p className="text-white font-medium">
+                      <p className="text-white font-display text-3xl mb-1">
                         {selectedRequest.productName}
                       </p>
-                      <p className="text-subtle text-base md:text-lg">
-                        {selectedRequest.customerName} → {selectedRequest.vendorName}
+                      <p className="text-subtle text-base md:text-lg font-mono">
+                        {selectedRequest.customerName} <span className="text-white/20 mx-2">→</span> {selectedRequest.vendorName}
                       </p>
-                      <p className="text-subtle text-sm md:text-base mt-1">
-                        {selectedRequest._id}
+                      <p className="text-white/20 text-xs md:text-sm font-mono mt-2">
+                        ID: {selectedRequest._id}
                       </p>
                     </div>
                     <StatusBadge status={selectedRequest.status} />
