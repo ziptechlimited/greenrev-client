@@ -13,6 +13,7 @@ import {
   Star,
   Send,
   Loader2,
+  Navigation,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/apiClient";
@@ -549,11 +550,20 @@ export default function ExpertList({
                         <p className="text-sm text-subtle mb-4 leading-relaxed">
                           {expert.address}
                         </p>
-                        <div className="flex gap-2">
-                          <button className="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
+                        <div className="flex flex-wrap gap-2">
+                          <button className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
                             <Phone className="w-3.5 h-3.5" /> Call
                           </button>
-                          <button className="flex-1 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
+                          <a 
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${expert.lat},${expert.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium"
+                          >
+                            <Navigation className="w-3.5 h-3.5" /> Directions
+                          </a>
+                          <button className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
                             <Mail className="w-3.5 h-3.5" /> Message
                           </button>
                           <button
@@ -561,7 +571,7 @@ export default function ExpertList({
                               e.stopPropagation();
                               setReviewExpert(expert);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-black py-2.5 rounded-xl transition-colors text-xs font-bold"
+                            className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-black py-2.5 rounded-xl transition-colors text-xs font-bold"
                           >
                             <Star className="w-3.5 h-3.5" /> Reviews
                           </button>
