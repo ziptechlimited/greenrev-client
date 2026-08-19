@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, Menu, X, LucideIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth, UserRole } from "@/context/AuthContext";
 import ProfileAlertModal from "@/components/mechanic/ProfileAlertModal";
@@ -53,6 +54,9 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
       
       {/* Ambient Animated Background */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] mix-blend-overlay">
+          <Image src="/logo.png" alt="GreenRev Background" width={800} height={800} className="object-contain" priority />
+        </div>
         <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-forest blur-[120px] mix-blend-screen opacity-50 animate-ambient-pulse" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-emerald/10 blur-[100px] mix-blend-screen opacity-30 animate-ambient-pulse" style={{ animationDelay: '2s' }} />
       </div>
