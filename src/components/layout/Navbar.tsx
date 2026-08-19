@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Handbag, Menu, X, User as UserIcon, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
+import { Handbag, Menu, X, User as UserIcon, LogOut, LayoutDashboard, ChevronDown, MessageSquare } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
 import { useAuth } from "@/context/AuthContext";
@@ -342,6 +342,18 @@ function UserDropdown({
               >
                 <LayoutDashboard className="w-4 h-4 text-accent" />
                 <span>Browse Boutique</span>
+              </Link>
+            )}
+
+            {/* My Messages Link for customers */}
+            {user.role === "customer" && (
+              <Link
+                href="/messages"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+              >
+                <MessageSquare className="w-4 h-4 text-accent" />
+                <span>My Messages</span>
               </Link>
             )}
 

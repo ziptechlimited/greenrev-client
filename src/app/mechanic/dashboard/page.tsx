@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Loader2,
   MessageSquare,
+  Send,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { apiRequest } from "@/lib/apiClient";
@@ -61,6 +62,9 @@ interface ExpertMessage {
   senderEmail: string;
   senderPhone?: string;
   message: string;
+  reply?: string;
+  replyDate?: string;
+  status: string;
   createdAt: string;
 }
 
@@ -96,6 +100,11 @@ export default function MechanicDashboardPage() {
   const [messages,  setMessages]  = useState<ExpertMessage[]>([]);
   const [profile,   setProfile]   = useState<Profile | null>(null);
   const [loading,   setLoading]   = useState(true);
+
+  // Reply state
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
 
   // ── Fetch everything in parallel ──────────────────────────────────────────
   const load = useCallback(async () => {
@@ -150,6 +159,26 @@ export default function MechanicDashboardPage() {
       if (res.success) load();
     } catch (err) {
       console.error("Status update error:", err);
+    }
+  };
+
+  const handleReply = async (messageId: string) => {
+    if (!replyText.trim()) return;
+    setIsReplying(true);
+    try {
+      const res = await apiRequest(`/api/v1/mechanic/messages/${messageId}/reply`, {
+        method: "PATCH",
+        body: JSON.stringify({ reply: replyText }),
+      });
+      if (res.success) {
+        setReplyText("");
+        setReplyingTo(null);
+        load();
+      }
+    } catch (err) {
+      console.error("Reply error:", err);
+    } finally {
+      setIsReplying(false);
     }
   };
 
@@ -459,6 +488,58 @@ export default function MechanicDashboardPage() {
                   <p className="text-subtle text-sm mt-3 leading-relaxed bg-black/20 rounded-lg p-3">
                     {msg.message}
                   </p>
+
+                  {/* Reply Section */}
+                  {msg.status === "REPLIED" && msg.reply ? (
+                    <div className="mt-3 pl-4 border-l-2 border-accent/30">
+                      <p className="text-xs text-accent font-bold uppercase tracking-widest mb-1">
+                        Your Reply
+                      </p>
+                      <p className="text-sm text-white/80 leading-relaxed">
+                        {msg.reply}
+                      </p>
+                    </div>
+                  ) : replyingTo === msg._id ? (
+                    <div className="mt-3">
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Write your reply..."
+                        className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-accent/50 transition-colors resize-none h-24 mb-2"
+                      />
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setReplyText("");
+                          }}
+                          className="text-xs text-white/50 hover:text-white px-3 py-1.5 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => handleReply(msg._id)}
+                          disabled={isReplying || !replyText.trim()}
+                          className="text-xs bg-accent hover:bg-accent/90 text-black font-medium px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          {isReplying ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Send className="w-3 h-3" />
+                          )}
+                          Send Reply
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setReplyingTo(msg._id)}
+                      className="mt-3 text-xs text-accent hover:text-white transition-colors flex items-center gap-1"
+                    >
+                      <MessageSquare className="w-3 h-3" />
+                      Reply
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
