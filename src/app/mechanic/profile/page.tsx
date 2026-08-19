@@ -15,8 +15,8 @@ const MECHANIC_NAV = [
 ];
 
 export default function MechanicProfilePage() {
-  const [profile, setProfile] = useState({ name: "", bio: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
-  const [originalProfile, setOriginalProfile] = useState({ name: "", bio: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
+  const [profile, setProfile] = useState({ name: "", bio: "", phone: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
+  const [originalProfile, setOriginalProfile] = useState({ name: "", bio: "", phone: "", specialties: [] as string[], hourlyRate: 0, profileImage: "" });
   const [profileImageBase64, setProfileImageBase64] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [newSpecialty, setNewSpecialty] = useState("");
@@ -28,13 +28,14 @@ export default function MechanicProfilePage() {
       try {
         const res = await apiRequest<{ profile: any }>("/api/v1/mechanic/profile");
         if (res.success && res.data && res.data.profile) {
-          const p = {
-            name: res.data.profile.name || "",
-            bio: res.data.profile.bio || "",
-            specialties: res.data.profile.specialization || [],
-            hourlyRate: res.data.profile.hourlyRate || 0,
-            profileImage: res.data.profile.profileImage || "",
-          };
+            const p = {
+              name: res.data.profile.name || "",
+              bio: res.data.profile.bio || "",
+              phone: res.data.profile.phone || "",
+              specialties: res.data.profile.specialization || [],
+              hourlyRate: res.data.profile.hourlyRate || 0,
+              profileImage: res.data.profile.profileImage || "",
+            };
           setProfile(p);
           setOriginalProfile(p);
           setProfileImageBase64(null);
@@ -89,6 +90,7 @@ export default function MechanicProfilePage() {
         body: JSON.stringify({
           name: profile.name,
           bio: profile.bio,
+          phone: profile.phone,
           specialization: profile.specialties,
           hourlyRate: Number(profile.hourlyRate),
           ...(profileImageBase64 && { profileImageBase64 }),
@@ -161,6 +163,17 @@ export default function MechanicProfilePage() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <label className="text-sm font-medium text-white">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={profile.phone}
+                    onChange={handleChange}
+                    placeholder="+1 (555) 000-0000"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent transition-colors"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-medium text-white">Hourly Rate ($)</label>
                   <input
                     type="number"
