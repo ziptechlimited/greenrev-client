@@ -65,12 +65,12 @@ export default function AdminRolesPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Role Management (RBAC)</h1>
-          <p className="text-subtle text-sm">Manage internal staff roles and access permissions.</p>
+          <p className="text-subtle text-base md:text-lg">Manage internal staff roles and access permissions.</p>
         </header>
 
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+            <p className="text-red-400 text-base md:text-lg font-medium">{error}</p>
           </div>
         )}
 
@@ -83,14 +83,14 @@ export default function AdminRolesPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-white/40 text-[10px] uppercase tracking-widest bg-white/[0.01]">
+                  <tr className="border-b border-white/5 text-white/40 text-xs md:text-sm uppercase tracking-widest bg-white/[0.01]">
                     <th className="p-4 font-bold">Staff Member</th>
                     <th className="p-4 font-bold">Role Level</th>
                     <th className="p-4 font-bold">Status</th>
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-base md:text-lg">
                   {admins.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="p-8 text-center text-subtle">
@@ -114,20 +114,20 @@ export default function AdminRolesPage() {
                             <div>
                               <p className="text-white font-medium">
                                 {u.name || "Unnamed Admin"}{" "}
-                                {currentUser?.id === u._id && <span className="text-[10px] text-accent ml-2">(You)</span>}
+                                {currentUser?.id === u._id && <span className="text-xs md:text-sm text-accent ml-2">(You)</span>}
                               </p>
-                              <p className="text-subtle text-xs">{u.email}</p>
+                              <p className="text-subtle text-sm md:text-base">{u.email}</p>
                             </div>
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className="text-white/60 bg-white/5 px-3 py-1 rounded-full text-xs font-mono">
+                          <span className="text-white/60 bg-white/5 px-3 py-1 rounded-full text-sm md:text-base font-mono">
                             Super Admin
                           </span>
                         </td>
                         <td className="p-4">
                           <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+                            "text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
                             u.status === "active" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-red-500/10 border-red-500/20 text-red-300"
                           )}>
                             {u.status}

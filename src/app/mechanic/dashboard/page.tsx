@@ -221,7 +221,7 @@ export default function MechanicDashboardPage() {
         {/* Header */}
         <header>
           <h1 className="text-3xl font-display text-white mb-1">Expert Overview</h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             Manage your service requests, schedule, and profile visibility.
           </p>
         </header>
@@ -237,7 +237,7 @@ export default function MechanicDashboardPage() {
               className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex flex-col gap-3"
             >
               <div className="flex items-center justify-between">
-                <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                   {stat.label}
                 </p>
                 <stat.icon className="w-4 h-4 text-white/20" />
@@ -246,7 +246,7 @@ export default function MechanicDashboardPage() {
                 <span className={`text-3xl font-display ${stat.accent ? "text-accent" : "text-white"}`}>
                   {loading ? <Loader2 className="w-6 h-6 animate-spin text-white/30" /> : stat.value}
                 </span>
-                <p className="text-xs text-white/30 mt-0.5">{stat.sub}</p>
+                <p className="text-sm md:text-base text-white/30 mt-0.5">{stat.sub}</p>
               </div>
               {stat.label === "Profile Rating" && avgRating !== null && !loading && (
                 <StarRow rating={Math.round(avgRating)} />
@@ -268,7 +268,7 @@ export default function MechanicDashboardPage() {
               <Calendar className="w-4 h-4 text-accent" />
               Service Requests
               {pending > 0 && (
-                <span className="ml-auto text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
+                <span className="ml-auto text-xs md:text-sm bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">
                   {pending} pending
                 </span>
               )}
@@ -280,7 +280,7 @@ export default function MechanicDashboardPage() {
               </div>
             ) : bookings.length === 0 ? (
               <div className="flex-1 flex items-center justify-center py-12">
-                <p className="text-subtle text-sm">No service requests yet.</p>
+                <p className="text-subtle text-base md:text-lg">No service requests yet.</p>
               </div>
             ) : (
               <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
@@ -292,20 +292,20 @@ export default function MechanicDashboardPage() {
                     {/* Top row */}
                     <div className="flex justify-between items-start gap-2 mb-3">
                       <div className="min-w-0">
-                        <p className="text-white font-medium text-sm truncate">
+                        <p className="text-white font-medium text-base md:text-lg truncate">
                           {booking.userId?.name ?? "Unknown client"}
                         </p>
-                        <p className="text-subtle text-xs mt-0.5 truncate">
+                        <p className="text-subtle text-sm md:text-base mt-0.5 truncate">
                           {booking.vehicleDetails.make} {booking.vehicleDetails.model} · {booking.vehicleDetails.year}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-white/70 text-xs">
+                        <p className="text-white/70 text-sm md:text-base">
                           {new Date(booking.requestedDate).toLocaleDateString("en-GB", {
                             day: "numeric", month: "short", year: "numeric",
                           })}
                         </p>
-                        <p className="text-accent text-[10px] mt-0.5 flex items-center justify-end gap-1">
+                        <p className="text-accent text-xs md:text-sm mt-0.5 flex items-center justify-end gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(booking.requestedDate).toLocaleTimeString([], {
                             hour: "2-digit", minute: "2-digit",
@@ -315,14 +315,14 @@ export default function MechanicDashboardPage() {
                     </div>
 
                     {/* Issue */}
-                    <p className="text-sm text-white/60 bg-black/20 rounded-lg px-3 py-2 mb-3 leading-relaxed">
+                    <p className="text-base md:text-lg text-white/60 bg-black/20 rounded-lg px-3 py-2 mb-3 leading-relaxed">
                       {booking.issueDescription}
                     </p>
 
                     {/* Status + actions */}
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
+                        className={`text-xs md:text-sm uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
                           STATUS_STYLES[booking.status] ?? "bg-white/10 text-white/40"
                         }`}
                       >
@@ -351,7 +351,7 @@ export default function MechanicDashboardPage() {
                         {booking.status === "CONFIRMED" && (
                           <button
                             onClick={() => handleStatusChange(booking._id, "COMPLETED")}
-                            className="text-xs text-white/50 hover:text-white transition-colors border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg"
+                            className="text-sm md:text-base text-white/50 hover:text-white transition-colors border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-lg"
                           >
                             Mark Completed
                           </button>
@@ -375,9 +375,9 @@ export default function MechanicDashboardPage() {
               <Star className="w-4 h-4 text-accent" />
               Reviews
               {avgRating !== null && (
-                <span className="ml-auto text-sm font-display text-amber-400">
+                <span className="ml-auto text-base md:text-lg font-display text-amber-400">
                   {avgRating.toFixed(1)}
-                  <span className="text-white/30 text-xs font-sans ml-1">/ 5</span>
+                  <span className="text-white/30 text-sm md:text-base font-sans ml-1">/ 5</span>
                 </span>
               )}
             </h2>
@@ -385,7 +385,7 @@ export default function MechanicDashboardPage() {
             {avgRating !== null && (
               <div className="flex items-center gap-2 mb-6">
                 <StarRow rating={Math.round(avgRating)} />
-                <span className="text-xs text-white/30">
+                <span className="text-sm md:text-base text-white/30">
                   {reviews.length} review{reviews.length !== 1 ? "s" : ""}
                 </span>
               </div>
@@ -398,7 +398,7 @@ export default function MechanicDashboardPage() {
               </div>
             ) : reviews.length === 0 ? (
               <div className="flex-1 flex items-center justify-center py-12">
-                <p className="text-subtle text-sm">No reviews yet.</p>
+                <p className="text-subtle text-base md:text-lg">No reviews yet.</p>
               </div>
             ) : (
               <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
@@ -408,10 +408,10 @@ export default function MechanicDashboardPage() {
                     className="p-4 rounded-xl bg-white/[0.03] border border-white/5"
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-white font-medium text-sm truncate">
+                      <p className="text-white font-medium text-base md:text-lg truncate">
                         {review.authorName}
                       </p>
-                      <span className="text-white/30 text-[10px] shrink-0 ml-2">
+                      <span className="text-white/30 text-xs md:text-sm shrink-0 ml-2">
                         {new Date(review.createdAt).toLocaleDateString("en-GB", {
                           day: "numeric", month: "short", year: "numeric",
                         })}
@@ -419,7 +419,7 @@ export default function MechanicDashboardPage() {
                     </div>
                     <StarRow rating={review.rating} />
                     {review.comment && (
-                      <p className="text-subtle text-sm italic mt-2 leading-relaxed">
+                      <p className="text-subtle text-base md:text-lg italic mt-2 leading-relaxed">
                         "{review.comment}"
                       </p>
                     )}
@@ -448,7 +448,7 @@ export default function MechanicDashboardPage() {
             </div>
           ) : messages.length === 0 ? (
             <div className="flex-1 flex items-center justify-center py-12">
-              <p className="text-subtle text-sm">No messages yet.</p>
+              <p className="text-subtle text-base md:text-lg">No messages yet.</p>
             </div>
           ) : (
             <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
@@ -459,10 +459,10 @@ export default function MechanicDashboardPage() {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-white font-medium text-sm truncate">
+                      <p className="text-white font-medium text-base md:text-lg truncate">
                         {msg.senderName}
                       </p>
-                      <p className="text-subtle text-xs mt-0.5">
+                      <p className="text-subtle text-sm md:text-base mt-0.5">
                         <a href={`mailto:${msg.senderEmail}`} className="hover:text-accent transition-colors">
                           {msg.senderEmail}
                         </a>
@@ -475,7 +475,7 @@ export default function MechanicDashboardPage() {
                         )}
                       </p>
                     </div>
-                    <span className="text-white/30 text-[10px] shrink-0 ml-2 text-right">
+                    <span className="text-white/30 text-xs md:text-sm shrink-0 ml-2 text-right">
                       {new Date(msg.createdAt).toLocaleDateString("en-GB", {
                         day: "numeric", month: "short", year: "numeric",
                       })}
@@ -485,17 +485,17 @@ export default function MechanicDashboardPage() {
                       })}
                     </span>
                   </div>
-                  <p className="text-subtle text-sm mt-3 leading-relaxed bg-black/20 rounded-lg p-3">
+                  <p className="text-subtle text-base md:text-lg mt-3 leading-relaxed bg-black/20 rounded-lg p-3">
                     {msg.message}
                   </p>
 
                   {/* Reply Section */}
                   {msg.status === "REPLIED" && msg.reply ? (
                     <div className="mt-3 pl-4 border-l-2 border-accent/30">
-                      <p className="text-xs text-accent font-bold uppercase tracking-widest mb-1">
+                      <p className="text-sm md:text-base text-accent font-bold uppercase tracking-widest mb-1">
                         Your Reply
                       </p>
-                      <p className="text-sm text-white/80 leading-relaxed">
+                      <p className="text-base md:text-lg text-white/80 leading-relaxed">
                         {msg.reply}
                       </p>
                     </div>
@@ -505,7 +505,7 @@ export default function MechanicDashboardPage() {
                         value={replyText}
                         onChange={(e) => setReplyText(e.target.value)}
                         placeholder="Write your reply..."
-                        className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-accent/50 transition-colors resize-none h-24 mb-2"
+                        className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-base md:text-lg text-white focus:outline-none focus:border-accent/50 transition-colors resize-none h-24 mb-2"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -513,14 +513,14 @@ export default function MechanicDashboardPage() {
                             setReplyingTo(null);
                             setReplyText("");
                           }}
-                          className="text-xs text-white/50 hover:text-white px-3 py-1.5 transition-colors"
+                          className="text-sm md:text-base text-white/50 hover:text-white px-3 py-1.5 transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={() => handleReply(msg._id)}
                           disabled={isReplying || !replyText.trim()}
-                          className="text-xs bg-accent hover:bg-accent/90 text-black font-medium px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                          className="text-sm md:text-base bg-accent hover:bg-accent/90 text-black font-medium px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50"
                         >
                           {isReplying ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
@@ -534,7 +534,7 @@ export default function MechanicDashboardPage() {
                   ) : (
                     <button
                       onClick={() => setReplyingTo(msg._id)}
-                      className="mt-3 text-xs text-accent hover:text-white transition-colors flex items-center gap-1"
+                      className="mt-3 text-sm md:text-base text-accent hover:text-white transition-colors flex items-center gap-1"
                     >
                       <MessageSquare className="w-3 h-3" />
                       Reply

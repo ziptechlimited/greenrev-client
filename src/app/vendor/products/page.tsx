@@ -79,7 +79,7 @@ function ConfirmDeleteModal({
         <h2 className="text-white font-display text-xl text-center mb-2">
           Delete {count} {count === 1 ? "product" : "products"}?
         </h2>
-        <p className="text-subtle text-sm text-center mb-8 leading-relaxed">
+        <p className="text-subtle text-base md:text-lg text-center mb-8 leading-relaxed">
           This action cannot be undone. The selected{" "}
           {count === 1 ? "product" : "products"} will be permanently removed
           from your inventory and the public showroom.
@@ -89,14 +89,14 @@ function ConfirmDeleteModal({
           <button
             onClick={onCancel}
             disabled={isDeleting}
-            className="flex-1 py-3 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium disabled:opacity-50"
+            className="flex-1 py-3 rounded-full border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all text-base md:text-lg font-medium disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="flex-1 py-3 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 py-3 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-base md:text-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isDeleting ? (
               <>
@@ -216,7 +216,7 @@ export default function VendorProductsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">My Products</h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             Manage your vehicle and parts inventory.
           </p>
         </header>
@@ -225,13 +225,13 @@ export default function VendorProductsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full sm:w-auto">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-              <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
+              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-2">
                 Total
               </p>
               <p className="text-white text-2xl font-display">{stats.total}</p>
             </div>
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-              <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
+              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-2">
                 Vehicles
               </p>
               <p className="text-white text-2xl font-display">
@@ -239,13 +239,13 @@ export default function VendorProductsPage() {
               </p>
             </div>
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-              <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
+              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-2">
                 Parts
               </p>
               <p className="text-white text-2xl font-display">{stats.parts}</p>
             </div>
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
-              <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-2">
+              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-2">
                 In Stock
               </p>
               <p className="text-white text-2xl font-display">
@@ -258,7 +258,7 @@ export default function VendorProductsPage() {
             {products.length > 0 && (
               <button
                 onClick={toggleSelectMode}
-                className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full border font-bold uppercase tracking-widest text-xs transition-all ${
+                className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full border font-bold uppercase tracking-widest text-sm md:text-base transition-all ${
                   isSelectMode
                     ? "border-white/20 bg-white/5 text-white"
                     : "border-white/10 text-white/60 hover:text-white hover:bg-white/5"
@@ -279,7 +279,7 @@ export default function VendorProductsPage() {
             )}
             <Link
               href="/vendor/products/add"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-accent transition-all"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-sm md:text-base hover:bg-accent transition-all"
             >
               <PlusCircle className="w-4 h-4" />
               Add Product
@@ -290,8 +290,8 @@ export default function VendorProductsPage() {
         {/* Errors */}
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
-            <p className="text-red-200 text-sm font-medium">Error</p>
-            <p className="text-red-300/80 text-xs mt-1">{error}</p>
+            <p className="text-red-200 text-base md:text-lg font-medium">Error</p>
+            <p className="text-red-300/80 text-sm md:text-base mt-1">{error}</p>
           </div>
         )}
 
@@ -299,10 +299,10 @@ export default function VendorProductsPage() {
           <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-red-200 text-sm font-medium">
+              <p className="text-red-200 text-base md:text-lg font-medium">
                 Bulk delete failed
               </p>
-              <p className="text-red-300/80 text-xs mt-0.5">{deleteError}</p>
+              <p className="text-red-300/80 text-sm md:text-base mt-0.5">{deleteError}</p>
             </div>
           </div>
         )}
@@ -320,7 +320,7 @@ export default function VendorProductsPage() {
               {/* Select-all */}
               <button
                 onClick={toggleAll}
-                className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors"
+                className="flex items-center gap-2 text-base md:text-lg text-white/80 hover:text-white transition-colors"
               >
                 {allSelected ? (
                   <CheckSquare className="w-4 h-4 text-accent" />
@@ -331,7 +331,7 @@ export default function VendorProductsPage() {
               </button>
 
               {/* Count */}
-              <span className="text-subtle text-xs tabular-nums">
+              <span className="text-subtle text-sm md:text-base tabular-nums">
                 {selectedIds.size} of {products.length} selected
               </span>
 
@@ -342,7 +342,7 @@ export default function VendorProductsPage() {
                   setShowConfirm(true);
                 }}
                 disabled={!someSelected}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-xs uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-red-500 hover:bg-red-400 text-white font-bold text-sm md:text-base uppercase tracking-widest transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete ({selectedIds.size})
@@ -355,18 +355,18 @@ export default function VendorProductsPage() {
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
           {isLoading ? (
             <div className="min-h-[280px] flex items-center justify-center">
-              <p className="text-subtle text-sm">Loading products…</p>
+              <p className="text-subtle text-base md:text-lg">Loading products…</p>
             </div>
           ) : products.length === 0 ? (
             <div className="min-h-[280px] flex flex-col items-center justify-center text-center gap-4">
               <p className="text-white font-medium">No products yet</p>
-              <p className="text-subtle text-sm max-w-md">
+              <p className="text-subtle text-base md:text-lg max-w-md">
                 Create your first vehicle or performance part to see it here and
                 in the public showroom.
               </p>
               <Link
                 href="/vendor/products/add"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/5 transition-all text-base md:text-lg font-medium"
               >
                 <PlusCircle className="w-4 h-4" />
                 Add Product
@@ -447,12 +447,12 @@ export default function VendorProductsPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                       <div className="absolute top-3 left-3 flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-white/10 text-white/80 text-xs">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-white/10 text-white/80 text-sm md:text-base">
                           <Icon className="w-3.5 h-3.5" />
                           {product.category === "vehicle" ? "Vehicle" : "Part"}
                         </span>
                         <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full border text-xs ${
+                          className={`inline-flex items-center px-3 py-1 rounded-full border text-sm md:text-base ${
                             inStock
                               ? "bg-accent/10 border-accent/30 text-accent"
                               : "bg-red-500/10 border-red-500/30 text-red-300"
@@ -469,7 +469,7 @@ export default function VendorProductsPage() {
                         <p className="text-white font-medium leading-tight">
                           {product.name}
                         </p>
-                        <p className="text-subtle text-xs mt-1">
+                        <p className="text-subtle text-sm md:text-base mt-1">
                           {product.make}
                         </p>
                       </div>
@@ -477,7 +477,7 @@ export default function VendorProductsPage() {
                         <p className="text-white font-display text-xl">
                           {product.price}
                         </p>
-                        <p className="text-subtle text-xs">
+                        <p className="text-subtle text-sm md:text-base">
                           Qty: {product.stockQuantity ?? 0}
                         </p>
                       </div>
@@ -485,7 +485,7 @@ export default function VendorProductsPage() {
                         <div className="pt-2">
                           <Link
                             href={`/vendor/products/add?edit=${encodeURIComponent(id)}`}
-                            className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/10 text-white/80 hover:text-white hover:bg-white/5 transition-all text-[10px] font-bold uppercase tracking-widest w-full"
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-full border border-white/10 text-white/80 hover:text-white hover:bg-white/5 transition-all text-xs md:text-sm font-bold uppercase tracking-widest w-full"
                           >
                             Edit
                           </Link>

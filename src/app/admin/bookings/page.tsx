@@ -49,12 +49,12 @@ export default function AdminBookingsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Bookings Overview</h1>
-          <p className="text-subtle text-sm">Monitor all platform service bookings globally.</p>
+          <p className="text-subtle text-base md:text-lg">Monitor all platform service bookings globally.</p>
         </header>
 
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+            <p className="text-red-400 text-base md:text-lg font-medium">{error}</p>
           </div>
         )}
 
@@ -67,7 +67,7 @@ export default function AdminBookingsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-white/40 text-[10px] uppercase tracking-widest bg-white/[0.01]">
+                  <tr className="border-b border-white/5 text-white/40 text-xs md:text-sm uppercase tracking-widest bg-white/[0.01]">
                     <th className="p-4 font-bold">Booking ID</th>
                     <th className="p-4 font-bold">Customer</th>
                     <th className="p-4 font-bold">Mechanic</th>
@@ -76,7 +76,7 @@ export default function AdminBookingsPage() {
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-base md:text-lg">
                   {bookings.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-8 text-center text-subtle">
@@ -92,23 +92,23 @@ export default function AdminBookingsPage() {
                         key={b._id}
                         className="border-b border-white/5 hover:bg-white/[0.02] transition-colors"
                       >
-                        <td className="p-4 text-xs font-mono text-white/60">
+                        <td className="p-4 text-sm md:text-base font-mono text-white/60">
                           {b._id.slice(-6)}
                         </td>
                         <td className="p-4">
                           <p className="text-white font-medium">{b.userId?.name || "Unknown"}</p>
-                          <p className="text-subtle text-xs">{b.userId?.email}</p>
+                          <p className="text-subtle text-sm md:text-base">{b.userId?.email}</p>
                         </td>
                         <td className="p-4">
                           <p className="text-white font-medium">{b.mechanicId?.name || "Unknown"}</p>
-                          <p className="text-subtle text-xs">{b.mechanicId?.email}</p>
+                          <p className="text-subtle text-sm md:text-base">{b.mechanicId?.email}</p>
                         </td>
-                        <td className="p-4 text-subtle text-xs">
+                        <td className="p-4 text-subtle text-sm md:text-base">
                           {new Date(b.requestedDate).toLocaleDateString()}
                         </td>
                         <td className="p-4">
                           <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+                            "text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
                             b.status === "CONFIRMED" ? "bg-blue-500/10 border-blue-500/20 text-blue-400" :
                             b.status === "COMPLETED" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" :
                             b.status === "REJECTED" ? "bg-red-500/10 border-red-500/20 text-red-400" :
@@ -122,7 +122,7 @@ export default function AdminBookingsPage() {
                             value={b.status}
                             disabled={actionLoading === b._id}
                             onChange={(e) => handleStatusChange(b._id, e.target.value)}
-                            className="bg-white/5 border border-white/10 text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
+                            className="bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
                           >
                             <option value="PENDING">Pending</option>
                             <option value="CONFIRMED">Confirmed</option>

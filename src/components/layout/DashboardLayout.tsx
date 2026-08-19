@@ -40,7 +40,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
         <h1 className="text-4xl font-display text-white mb-4">Access Denied</h1>
         <p className="text-subtle mb-8">You do not have the required permissions to view this portal.</p>
-        <Link href="/login" className="px-8 py-4 border border-white/20 text-white rounded-full uppercase tracking-widest text-[10px] font-bold hover:bg-white hover:text-black transition-colors">
+        <Link href="/login" className="px-8 py-4 border border-white/20 text-white rounded-full uppercase tracking-widest text-xs md:text-sm font-bold hover:bg-white hover:text-black transition-colors">
           Return to Login
         </Link>
       </div>
@@ -71,7 +71,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         <div className="p-8 flex items-center justify-between">
           <div>
             <Link href="/" className="text-xl font-display text-white">GreenRev</Link>
-            <p className="text-accent text-[8px] font-bold uppercase tracking-widest mt-1">{title}</p>
+            <p className="text-accent text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">{title}</p>
           </div>
           <button className="lg:hidden text-white/60 hover:text-white" onClick={() => setIsOpen(false)}>
             <X className="w-5 h-5" />
@@ -79,8 +79,8 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         </div>
 
         <div className="px-8 py-4 border-b border-white/5 mb-4 space-y-1">
-          <p className="text-white text-sm font-medium">{user.name ?? "Account"}</p>
-          <p className="text-white/40 text-xs">{user.email}</p>
+          <p className="text-white text-base md:text-lg font-medium">{user.name ?? "Account"}</p>
+          <p className="text-white/40 text-sm md:text-base">{user.email}</p>
           <div className="pt-1">
             <VerificationBadge />
           </div>
@@ -107,9 +107,9 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
                   }`}
               >
                 <item.icon className={`w-5 h-5 ${isActive ? "text-accent" : ""}`} />
-                <span className="text-sm flex-1">{item.name}</span>
+                <span className="text-base md:text-lg flex-1">{item.name}</span>
                 {item.badge != null && item.badge > 0 && (
-                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-accent text-black text-[10px] font-bold flex items-center justify-center">
+                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-accent text-black text-xs md:text-sm font-bold flex items-center justify-center">
                     {item.badge > 99 ? "99+" : item.badge}
                   </span>
                 )}
@@ -124,7 +124,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
             className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-white/60 hover:text-red-400 hover:bg-red-400/10 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span className="text-sm">Sign Out</span>
+            <span className="text-base md:text-lg">Sign Out</span>
           </button>
         </div>
       </motion.aside>
@@ -135,7 +135,7 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#050505] sticky top-0 z-30">
           <div>
             <span className="text-lg font-display text-white">GreenRev</span>
-            <span className="text-accent text-[8px] font-bold uppercase tracking-widest ml-2">{title}</span>
+            <span className="text-accent text-[10px] md:text-xs font-bold uppercase tracking-widest ml-2">{title}</span>
           </div>
           <button className="text-white/60 hover:text-white" onClick={() => setIsOpen(true)}>
             <Menu className="w-6 h-6" />

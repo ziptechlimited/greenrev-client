@@ -67,7 +67,7 @@ function StatusBadge({ status }: { status: AcquisitionStatus }) {
   return (
     <span
       className={cn(
-        "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+        "text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
         cfg.bg,
         cfg.color,
       )}
@@ -245,7 +245,7 @@ export default function AdminDashboardPage() {
           <h1 className="text-3xl font-display text-white mb-2">
             Transaction Monitoring
           </h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             Review every acquisition step, receipt evidence, and admin actions.
           </p>
         </header>
@@ -266,7 +266,7 @@ export default function AdminDashboardPage() {
               transition={{ delay: i * 0.03 }}
               className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl"
             >
-              <p className="text-subtle text-[10px] font-bold uppercase tracking-widest mb-3">
+              <p className="text-subtle text-xs md:text-sm font-bold uppercase tracking-widest mb-3">
                 {stat.label}
               </p>
               <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ export default function AdminDashboardPage() {
                     key={tab.value}
                     onClick={() => setStatusFilter(tab.value)}
                     className={cn(
-                      "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
+                      "px-4 py-2 rounded-full text-sm md:text-base font-bold uppercase tracking-widest transition-all border",
                       statusFilter === tab.value
                         ? "bg-white/10 text-white border-white/20"
                         : "text-white/40 border-white/5 hover:text-white hover:border-white/20",
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
                   key={tab.value}
                   onClick={() => setFlagFilter(tab.value)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
+                    "px-4 py-2 rounded-full text-sm md:text-base font-bold uppercase tracking-widest transition-all border",
                     flagFilter === tab.value
                       ? "bg-white/10 text-white border-white/20"
                       : "text-white/40 border-white/5 hover:text-white hover:border-white/20",
@@ -334,7 +334,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : filteredRequests.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-subtle text-sm">No transactions found.</p>
+            <p className="text-subtle text-base md:text-lg">No transactions found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -360,16 +360,16 @@ export default function AdminDashboardPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-3 flex-wrap">
                             <div>
-                              <p className="text-white font-medium text-sm">
+                              <p className="text-white font-medium text-base md:text-lg">
                                 {req.productName}
                               </p>
-                              <p className="text-subtle text-xs">
+                              <p className="text-subtle text-sm md:text-base">
                                 {req.customerName} → {req.vendorName}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
                               {req.adminFlaggedAt ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border bg-red-500/10 border-red-500/20 text-red-300">
+                                <span className="inline-flex items-center gap-1 text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border bg-red-500/10 border-red-500/20 text-red-300">
                                   <Flag className="w-3 h-3" />
                                   Flagged
                                 </span>
@@ -378,7 +378,7 @@ export default function AdminDashboardPage() {
                             </div>
                           </div>
 
-                          <div className="mt-3 flex items-center gap-4 text-xs text-subtle">
+                          <div className="mt-3 flex items-center gap-4 text-sm md:text-base text-subtle">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {new Date(req.createdAt).toLocaleDateString(
@@ -415,17 +415,17 @@ export default function AdminDashboardPage() {
                   <button
                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                    className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
                   >
                     Previous
                   </button>
-                  <span className="text-xs text-subtle font-medium">
+                  <span className="text-sm md:text-base text-subtle font-medium">
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                    className="px-4 py-2 text-sm md:text-base font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
                   >
                     Next
                   </button>
@@ -436,7 +436,7 @@ export default function AdminDashboardPage() {
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[400px]">
               {!selectedRequest ? (
                 <div className="h-full flex items-center justify-center text-center">
-                  <p className="text-subtle text-sm">
+                  <p className="text-subtle text-base md:text-lg">
                     Select a transaction to view its timeline and take action.
                   </p>
                 </div>
@@ -447,10 +447,10 @@ export default function AdminDashboardPage() {
                       <p className="text-white font-medium">
                         {selectedRequest.productName}
                       </p>
-                      <p className="text-subtle text-sm">
+                      <p className="text-subtle text-base md:text-lg">
                         {selectedRequest.customerName} → {selectedRequest.vendorName}
                       </p>
-                      <p className="text-subtle text-xs mt-1">
+                      <p className="text-subtle text-sm md:text-base mt-1">
                         {selectedRequest._id}
                       </p>
                     </div>
@@ -459,7 +459,7 @@ export default function AdminDashboardPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                      <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                         Evidence
                       </p>
                       {selectedRequest.receiptUrl ? (
@@ -467,16 +467,16 @@ export default function AdminDashboardPage() {
                           href={selectedRequest.receiptUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-accent text-sm inline-block mt-2"
+                          className="text-accent text-base md:text-lg inline-block mt-2"
                         >
                           View Receipt
                         </a>
                       ) : (
-                        <p className="text-sm text-white/60 mt-2">
+                        <p className="text-base md:text-lg text-white/60 mt-2">
                           No receipt uploaded.
                         </p>
                       )}
-                      <p className="text-[11px] text-white/40 mt-3">
+                      <p className="text-sm md:text-base text-white/40 mt-3">
                         Vendor amount:{" "}
                         {typeof selectedRequest.vendorPaymentAmount === "number"
                           ? selectedRequest.vendorPaymentAmount
@@ -485,20 +485,20 @@ export default function AdminDashboardPage() {
                     </div>
 
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                      <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                         Dispute
                       </p>
                       {selectedRequest.adminFlaggedAt ? (
-                        <p className="text-sm text-red-300 mt-2">
+                        <p className="text-base md:text-lg text-red-300 mt-2">
                           Flagged: {selectedRequest.adminFlagReason ?? "—"}
                         </p>
                       ) : (
-                        <p className="text-sm text-white/60 mt-2">
+                        <p className="text-base md:text-lg text-white/60 mt-2">
                           Not flagged.
                         </p>
                       )}
                       {selectedRequest.adminResolvedAt ? (
-                        <div className="mt-3 flex items-center gap-2 text-emerald-300 text-xs">
+                        <div className="mt-3 flex items-center gap-2 text-emerald-300 text-sm md:text-base">
                           <CheckCircle2 className="w-4 h-4" />
                           Resolved: {selectedRequest.adminResolution ?? "—"}
                         </div>
@@ -507,16 +507,16 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                    <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                       Timeline
                     </p>
                     {eventsLoading ? (
-                      <div className="flex items-center gap-2 text-subtle text-sm">
+                      <div className="flex items-center gap-2 text-subtle text-base md:text-lg">
                         <Loader2 className="w-4 h-4 animate-spin text-accent" />
                         Loading events…
                       </div>
                     ) : events.length === 0 ? (
-                      <p className="text-subtle text-sm">No events recorded.</p>
+                      <p className="text-subtle text-base md:text-lg">No events recorded.</p>
                     ) : (
                       <div className="space-y-2">
                         {events.map((e) => (
@@ -526,13 +526,13 @@ export default function AdminDashboardPage() {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div>
-                                <p className="text-sm text-white/80">
+                                <p className="text-base md:text-lg text-white/80">
                                   {e.action}
                                   {e.fromStatus || e.toStatus
                                     ? ` (${e.fromStatus ?? "—"} → ${e.toStatus ?? "—"})`
                                     : ""}
                                 </p>
-                                <p className="text-[10px] text-white/40 mt-1">
+                                <p className="text-xs md:text-sm text-white/40 mt-1">
                                   {new Date(e.createdAt).toLocaleString()} · {e.actorRole}
                                 </p>
                               </div>
@@ -545,7 +545,7 @@ export default function AdminDashboardPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-3">
-                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                      <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                         Flag
                       </p>
                       <textarea
@@ -553,20 +553,20 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setFlagReason(e.target.value)}
                         rows={3}
                         placeholder="Reason (min 3 chars)"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 resize-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base md:text-lg text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 resize-none"
                       />
                       <button
                         type="button"
                         onClick={handleFlag}
                         disabled={actionLoading || flagReason.trim().length < 3}
-                        className="w-full py-3 bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                        className="w-full py-3 bg-red-500/10 border border-red-500/20 text-red-300 text-sm md:text-base font-bold uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-colors disabled:opacity-50"
                       >
                         {actionLoading ? "Working…" : "Flag Transaction"}
                       </button>
                     </div>
 
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl space-y-3">
-                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                      <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                         Resolve
                       </p>
                       <textarea
@@ -574,13 +574,13 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setResolution(e.target.value)}
                         rows={3}
                         placeholder="Resolution (min 3 chars)"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 resize-none"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base md:text-lg text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50 resize-none"
                       />
                       <button
                         type="button"
                         onClick={handleResolve}
                         disabled={actionLoading || resolution.trim().length < 3}
-                        className="w-full py-3 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-50"
+                        className="w-full py-3 bg-accent text-black text-sm md:text-base font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors disabled:opacity-50"
                       >
                         {actionLoading ? "Working…" : "Mark Resolved"}
                       </button>

@@ -18,7 +18,7 @@ export default function VendorSettingsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Settings</h1>
-          <p className="text-subtle text-sm">Configure your account and notification preferences.</p>
+          <p className="text-subtle text-base md:text-lg">Configure your account and notification preferences.</p>
         </header>
 
         <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[400px] flex items-center justify-center">

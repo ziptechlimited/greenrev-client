@@ -141,7 +141,7 @@ export default function MechanicLocationPage() {
       <div className="space-y-8 relative pb-24">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Service Location</h1>
-          <p className="text-subtle text-sm">Set your active service area and garage location.</p>
+          <p className="text-subtle text-base md:text-lg">Set your active service area and garage location.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -155,7 +155,7 @@ export default function MechanicLocationPage() {
           <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 h-[400px] lg:h-auto min-h-[400px] relative overflow-hidden group">
             <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center backdrop-blur-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity">
               <Navigation className="w-8 h-8 text-white mb-2" />
-              <p className="text-white text-sm">Map Integration (Google Maps API)</p>
+              <p className="text-white text-base md:text-lg">Map Integration (Google Maps API)</p>
             </div>
             {/* Fake Map UI */}
             <div className="absolute inset-0 bg-[#1e1e1e]">
@@ -166,8 +166,8 @@ export default function MechanicLocationPage() {
               <div className="absolute top-4 left-4 right-4 bg-black/60 backdrop-blur-md rounded-xl p-3 border border-white/10 flex items-center gap-3">
                 <div className="bg-white/10 p-2 rounded-lg"><Navigation className="w-4 h-4 text-white" /></div>
                 <div>
-                  <p className="text-white text-sm font-medium">Service Area</p>
-                  <p className="text-subtle text-xs">{location.radius} mile radius from {location.city}</p>
+                  <p className="text-white text-base md:text-lg font-medium">Service Area</p>
+                  <p className="text-subtle text-sm md:text-base">{location.radius} mile radius from {location.city}</p>
                 </div>
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function MechanicLocationPage() {
               <button
                 type="button"
                 onClick={handleUseCurrentLocation}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-accent border border-accent/20 bg-accent/5 hover:bg-accent/10 px-4 py-2 rounded-full transition-all"
+                className="flex items-center gap-2 text-sm md:text-base font-bold uppercase tracking-widest text-accent border border-accent/20 bg-accent/5 hover:bg-accent/10 px-4 py-2 rounded-full transition-all"
               >
                 <Navigation className="w-3.5 h-3.5" />
                 Use my location
@@ -188,7 +188,7 @@ export default function MechanicLocationPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white">Street Address</label>
+              <label className="text-base md:text-lg font-medium text-white">Street Address</label>
               <input
                 type="text"
                 name="address"
@@ -201,7 +201,7 @@ export default function MechanicLocationPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white">City</label>
+                <label className="text-base md:text-lg font-medium text-white">City</label>
                 <input
                   type="text"
                   name="city"
@@ -213,7 +213,7 @@ export default function MechanicLocationPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">Country</label>
+                  <label className="text-base md:text-lg font-medium text-white">Country</label>
                   <input
                     type="text"
                     name="country"
@@ -224,7 +224,7 @@ export default function MechanicLocationPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">State/Region</label>
+                  <label className="text-base md:text-lg font-medium text-white">State/Region</label>
                   <input
                     type="text"
                     name="state"
@@ -240,7 +240,7 @@ export default function MechanicLocationPage() {
             {/* Coordinates — shown so expert can verify / override */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/60">Latitude</label>
+                <label className="text-base md:text-lg font-medium text-white/60">Latitude</label>
                 <input
                   type="number"
                   name="lat"
@@ -251,11 +251,11 @@ export default function MechanicLocationPage() {
                     setHasChanges(true);
                   }}
                   placeholder="Auto-detected on save"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-base md:text-lg"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white/60">Longitude</label>
+                <label className="text-base md:text-lg font-medium text-white/60">Longitude</label>
                 <input
                   type="number"
                   name="lng"
@@ -266,12 +266,12 @@ export default function MechanicLocationPage() {
                     setHasChanges(true);
                   }}
                   placeholder="Auto-detected on save"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-sm"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 placeholder:text-white/20 focus:outline-none focus:border-accent/50 transition-colors text-base md:text-lg"
                 />
               </div>
             </div>
             {(!location.lat || !location.lng) && (
-              <p className="text-[11px] text-white/30 -mt-2">
+              <p className="text-sm md:text-base text-white/30 -mt-2">
                 Coordinates will be resolved automatically from your address when you save. Or click "Use my location" to detect them now.
               </p>
             )}
@@ -279,7 +279,7 @@ export default function MechanicLocationPage() {
             <hr className="border-white/10" />
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white block mb-2">Service Radius (Miles)</label>
+              <label className="text-base md:text-lg font-medium text-white block mb-2">Service Radius (Miles)</label>
               <select
                 name="radius"
                 value={location.radius}
@@ -299,7 +299,7 @@ export default function MechanicLocationPage() {
                 <button
                   onClick={() => { setLocation(originalLocation); setHasChanges(false); }}
                   disabled={isSaving}
-                  className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
+                  className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-base md:text-lg font-medium disabled:opacity-50"
                 >
                   Discard
                 </button>
@@ -307,7 +307,7 @@ export default function MechanicLocationPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving || !hasChanges}
-                className="bg-accent text-black px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-accent text-black px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-base md:text-lg font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 {isSaving ? "Geocoding & saving…" : "Save Location"}

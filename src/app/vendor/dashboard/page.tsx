@@ -52,7 +52,7 @@ export default function VendorDashboardPage() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-display text-white">Vendor Overview</h1>
           </div>
-          <p className="text-subtle text-sm">Manage your inventory, track requests, and monitor performance.</p>
+          <p className="text-subtle text-base md:text-lg">Manage your inventory, track requests, and monitor performance.</p>
         </header>
 
         {/* Quick Stats */}
@@ -65,10 +65,10 @@ export default function VendorDashboardPage() {
               transition={{ delay: i * 0.1 }}
               className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl"
             >
-              <p className="text-subtle text-xs font-bold uppercase tracking-widest mb-4">{stat.label}</p>
+              <p className="text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-4">{stat.label}</p>
               <div className="flex items-end justify-between">
                 <span className="text-3xl font-display text-white">{stat.value}</span>
-                <span className="text-xs font-medium text-white/40">{stat.trend}</span>
+                <span className="text-sm md:text-base font-medium text-white/40">{stat.trend}</span>
               </div>
             </motion.div>
           ))}
@@ -93,20 +93,20 @@ export default function VendorDashboardPage() {
                     {pendingCount}
                   </span>
                   <div>
-                    <p className="text-white text-sm font-medium">New pending {pendingCount === 1 ? "request" : "requests"}</p>
-                    <p className="text-subtle text-xs">Customers are waiting to hear from you</p>
+                    <p className="text-white text-base md:text-lg font-medium">New pending {pendingCount === 1 ? "request" : "requests"}</p>
+                    <p className="text-subtle text-sm md:text-base">Customers are waiting to hear from you</p>
                   </div>
                 </div>
                 <a
                   href="/vendor/requests"
-                  className="px-5 py-2.5 bg-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors"
+                  className="px-5 py-2.5 bg-accent text-black text-sm md:text-base font-bold uppercase tracking-widest rounded-xl hover:bg-accent/90 transition-colors"
                 >
                   View Requests →
                 </a>
               </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-subtle text-sm">No pending requests right now.</p>
+                <p className="text-subtle text-base md:text-lg">No pending requests right now.</p>
               </div>
             )}
           </motion.div>
@@ -126,10 +126,10 @@ export default function VendorDashboardPage() {
               {completedCount > 0 ? (
                 <div className="text-center">
                   <p className="text-5xl font-display text-white mb-2">{completedCount}</p>
-                  <p className="text-subtle text-xs uppercase tracking-widest">Successful deals</p>
+                  <p className="text-subtle text-sm md:text-base uppercase tracking-widest">Successful deals</p>
                 </div>
               ) : (
-                <p className="text-subtle text-sm">No completed transactions yet.</p>
+                <p className="text-subtle text-base md:text-lg">No completed transactions yet.</p>
               )}
             </div>
           </motion.div>

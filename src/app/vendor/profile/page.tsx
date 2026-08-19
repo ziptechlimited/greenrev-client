@@ -111,7 +111,7 @@ export default function VendorProfilePage() {
           <h1 className="text-3xl font-display text-white mb-2">
             Vendor Profile
           </h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             Update your dealership or company details.
           </p>
         </header>
@@ -119,14 +119,14 @@ export default function VendorProfilePage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-accent animate-spin mb-4" />
-            <p className="text-[10px] uppercase tracking-widest text-subtle">
+            <p className="text-xs md:text-sm uppercase tracking-widest text-subtle">
               Loading Profile...
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">
             {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl">
+              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-base md:text-lg rounded-xl">
                 {error}
               </div>
             )}
@@ -156,7 +156,7 @@ export default function VendorProfilePage() {
                     ) : (
                       <div className="text-center">
                         <Upload className="w-6 h-6 text-white/40 mx-auto mb-2" />
-                        <span className="text-[10px] uppercase tracking-widest text-white/40">
+                        <span className="text-xs md:text-sm uppercase tracking-widest text-white/40">
                           Upload
                         </span>
                       </div>
@@ -169,14 +169,14 @@ export default function VendorProfilePage() {
                     accept="image/*"
                     className="hidden"
                   />
-                  <p className="text-[10px] text-white/40 text-center max-w-[120px]">
+                  <p className="text-xs md:text-sm text-white/40 text-center max-w-[120px]">
                     Recommended: 500x500px, Max 5MB
                   </p>
                 </div>
 
                 <div className="flex-1 space-y-6 w-full">
                   <div>
-                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest mb-2">
                       Company / Dealership Name
                     </label>
                     <input
@@ -194,7 +194,7 @@ export default function VendorProfilePage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">
+                    <label className="block text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest mb-2">
                       Contact Name
                     </label>
                     <input
@@ -217,7 +217,7 @@ export default function VendorProfilePage() {
               </h2>
 
               <div>
-                <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">
+                <label className="block text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest mb-2">
                   Email Address
                 </label>
                 <input
@@ -226,14 +226,14 @@ export default function VendorProfilePage() {
                   disabled
                   className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-white/40 cursor-not-allowed"
                 />
-                <p className="text-[10px] text-white/40 mt-2">
+                <p className="text-xs md:text-sm text-white/40 mt-2">
                   Email address cannot be changed directly. Contact support if
                   needed.
                 </p>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">
+                <label className="block text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest mb-2">
                   Phone Number
                 </label>
                 <input
@@ -248,7 +248,7 @@ export default function VendorProfilePage() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">
+                <label className="block text-xs md:text-sm font-bold text-white/40 uppercase tracking-widest mb-2">
                   Dealership Bio / Description
                 </label>
                 <textarea
@@ -266,7 +266,7 @@ export default function VendorProfilePage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-xs rounded-full hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+                className="px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-sm md:text-base rounded-full hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
               >
                 {isSaving ? (
                   <>

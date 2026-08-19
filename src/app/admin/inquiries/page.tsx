@@ -68,12 +68,12 @@ export default function AdminInquiriesPage() {
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       {inquiry.name}
                       {inquiry.status === "NEW" && (
-                        <span className="px-2 py-0.5 bg-accent/20 text-accent text-[10px] uppercase tracking-widest rounded-full">
+                        <span className="px-2 py-0.5 bg-accent/20 text-accent text-xs md:text-sm uppercase tracking-widest rounded-full">
                           New
                         </span>
                       )}
                     </h3>
-                    <div className="text-sm text-subtle mt-1 space-x-4">
+                    <div className="text-base md:text-lg text-subtle mt-1 space-x-4">
                       <span>{inquiry.email}</span>
                       {inquiry.phone && <span>{inquiry.phone}</span>}
                     </div>
@@ -88,7 +88,7 @@ export default function AdminInquiriesPage() {
                           e.target.value as "NEW" | "READ" | "REPLIED"
                         )
                       }
-                      className="bg-black border border-white/20 text-white text-sm rounded-lg px-3 py-2 focus:border-accent outline-none disabled:opacity-50"
+                      className="bg-black border border-white/20 text-white text-base md:text-lg rounded-lg px-3 py-2 focus:border-accent outline-none disabled:opacity-50"
                     >
                       <option value="NEW">New</option>
                       <option value="READ">Read</option>
@@ -101,12 +101,12 @@ export default function AdminInquiriesPage() {
                 </div>
                 
                 <div className="p-4 bg-black/40 rounded-xl">
-                  <p className="text-white/80 whitespace-pre-wrap text-sm">
+                  <p className="text-white/80 whitespace-pre-wrap text-base md:text-lg">
                     {inquiry.message}
                   </p>
                 </div>
                 
-                <div className="mt-4 text-xs text-subtle text-right">
+                <div className="mt-4 text-sm md:text-base text-subtle text-right">
                   {new Date(inquiry.createdAt).toLocaleString()}
                 </div>
               </div>

@@ -65,7 +65,7 @@ const STATUS_CONFIG: Record<
 function StatusBadge({ status }: { status: AcquisitionStatus }) {
   const cfg = STATUS_CONFIG[status];
   return (
-    <span className={cn("text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border", cfg.bg, cfg.color)}>
+    <span className={cn("text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border", cfg.bg, cfg.color)}>
       {cfg.label}
     </span>
   );
@@ -131,16 +131,16 @@ function RequestCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-white font-medium text-sm truncate">
+              <p className="text-white font-medium text-base md:text-lg truncate">
                 {request.productName}
                 {request.quantity > 1 ? ` (x${request.quantity})` : ""}
               </p>
-              <p className="text-subtle text-xs">{request.productPrice} · {request.productMake}</p>
+              <p className="text-subtle text-sm md:text-base">{request.productPrice} · {request.productMake}</p>
             </div>
             <StatusBadge status={request.status} />
           </div>
 
-          <div className="mt-3 flex items-center gap-4 text-xs text-subtle">
+          <div className="mt-3 flex items-center gap-4 text-sm md:text-base text-subtle">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formattedDate}
@@ -170,11 +170,11 @@ function RequestCard({
             <div className="px-5 pb-5 border-t border-white/5 pt-4 space-y-5">
               {/* Customer Contact */}
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-3">Customer Contact</p>
+                <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold mb-3">Customer Contact</p>
                 <div className="flex flex-wrap gap-3">
                   <a
                     href={`mailto:${request.customerEmail}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-base md:text-lg text-white hover:border-accent/40 hover:text-accent transition-colors"
                   >
                     <Mail className="w-3.5 h-3.5" />
                     {request.customerEmail}
@@ -182,7 +182,7 @@ function RequestCard({
                   {request.customerPhone && (
                     <a
                       href={`tel:${request.customerPhone}`}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white hover:border-accent/40 hover:text-accent transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-base md:text-lg text-white hover:border-accent/40 hover:text-accent transition-colors"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       {request.customerPhone}
@@ -194,10 +194,10 @@ function RequestCard({
               {/* Customer Message */}
               {request.message && (
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2">Message</p>
+                  <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold mb-2">Message</p>
                   <div className="flex gap-2 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
                     <MessageSquare className="w-4 h-4 text-white/30 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-white/70 leading-relaxed">{request.message}</p>
+                    <p className="text-base md:text-lg text-white/70 leading-relaxed">{request.message}</p>
                   </div>
                 </div>
               )}
@@ -209,7 +209,7 @@ function RequestCard({
                     <button
                       onClick={handleAccept}
                       disabled={loading}
-                      className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-blue-500/20 transition-colors disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm md:text-base font-bold uppercase tracking-widest rounded-xl hover:bg-blue-500/20 transition-colors disabled:opacity-50"
                     >
                       {loading ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -220,7 +220,7 @@ function RequestCard({
 
                   {request.status === "accepted" && (
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-sm text-white/70">
+                      <p className="text-base md:text-lg text-white/70">
                         Waiting for the customer to upload a payment receipt.
                       </p>
                     </div>
@@ -228,7 +228,7 @@ function RequestCard({
 
                   {request.status === "receipt_uploaded" && (
                     <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold">
+                      <p className="text-xs md:text-sm uppercase tracking-widest text-white/40 font-bold">
                         Confirm Payment
                       </p>
                       {request.receiptUrl ? (
@@ -236,7 +236,7 @@ function RequestCard({
                           href={request.receiptUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-[10px] uppercase tracking-widest font-bold text-accent inline-block"
+                          className="text-xs md:text-sm uppercase tracking-widest font-bold text-accent inline-block"
                         >
                           View Receipt
                         </a>
@@ -246,7 +246,7 @@ function RequestCard({
                         onChange={(e) => setAmount(e.target.value)}
                         inputMode="decimal"
                         placeholder="Enter exact amount"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base md:text-lg text-white placeholder:text-white/30 focus:outline-none focus:border-accent/50"
                       />
                       <button
                         type="button"
@@ -256,7 +256,7 @@ function RequestCard({
                           !Number.isFinite(Number(amount)) ||
                           Number(amount) <= 0
                         }
-                        className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-accent/20 transition-colors disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-accent/10 border border-accent/20 text-accent text-sm md:text-base font-bold uppercase tracking-widest rounded-xl hover:bg-accent/20 transition-colors disabled:opacity-50"
                       >
                         {loading ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -268,7 +268,7 @@ function RequestCard({
 
                   {request.status === "payment_confirmed" && (
                     <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
-                      <p className="text-sm text-white/70">
+                      <p className="text-base md:text-lg text-white/70">
                         Payment confirmed
                         {typeof request.vendorPaymentAmount === "number"
                           ? ` (${request.vendorPaymentAmount})`
@@ -288,7 +288,7 @@ function RequestCard({
               )}
 
               {request.status === "completed" && (
-                <div className="flex items-center gap-2 text-green-400 text-xs">
+                <div className="flex items-center gap-2 text-green-400 text-sm md:text-base">
                   <CheckCircle2 className="w-4 h-4" />
                   Completed {request.completedAt ? new Date(request.completedAt).toLocaleDateString() : ""}
                   {request.hasReview && <span className="ml-2 text-white/40">· Customer left a review</span>}
@@ -369,7 +369,7 @@ export default function VendorRequestsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Acquisition Requests</h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             {requests.length === 0
               ? "No requests yet — your listings are live."
               : `${requests.length} total request${requests.length !== 1 ? "s" : ""}, ${pendingCount} pending`}
@@ -389,7 +389,7 @@ export default function VendorRequestsPage() {
                   key={tab.value}
                   onClick={() => setFilter(tab.value)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
+                    "px-4 py-2 rounded-full text-sm md:text-base font-bold uppercase tracking-widest transition-all border",
                     filter === tab.value
                       ? "bg-white/10 text-white border-white/20"
                       : "text-white/40 border-white/5 hover:text-white hover:border-white/20"
@@ -413,13 +413,13 @@ export default function VendorRequestsPage() {
               <Car className="w-8 h-8 text-white/20" />
             </div>
             <h2 className="text-xl font-display text-white mb-3">No requests yet</h2>
-            <p className="text-subtle text-sm max-w-xs">
+            <p className="text-subtle text-base md:text-lg max-w-xs">
               When customers express interest in your listings, their requests will appear here.
             </p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-subtle text-sm">No requests match this filter.</p>
+            <p className="text-subtle text-base md:text-lg">No requests match this filter.</p>
           </div>
         ) : (
           <div className="space-y-4">

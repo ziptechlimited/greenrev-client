@@ -234,7 +234,7 @@ export default function VendorAddProductPage() {
           <h1 className="text-3xl font-display text-white mb-2">
             {isEditMode ? "Edit Product" : "Add New Product"}
           </h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             {isEditMode
               ? "Update your listing details."
               : "List a new vehicle or performance part."}
@@ -248,7 +248,7 @@ export default function VendorAddProductPage() {
         >
           {isLoadingProduct ? (
             <div className="min-h-[320px] flex items-center justify-center">
-              <p className="text-subtle text-sm">Loading product...</p>
+              <p className="text-subtle text-base md:text-lg">Loading product...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -270,7 +270,7 @@ export default function VendorAddProductPage() {
                       className={`w-8 h-8 mb-2 ${category === "vehicle" ? "text-accent" : "text-white/60"}`}
                     />
                     <p className="text-white font-medium">Vehicle</p>
-                    <p className="text-subtle text-xs mt-1">
+                    <p className="text-subtle text-sm md:text-base mt-1">
                       Add a car or motorcycle
                     </p>
                   </button>
@@ -287,7 +287,7 @@ export default function VendorAddProductPage() {
                       className={`w-8 h-8 mb-2 ${category === "part" ? "text-accent" : "text-white/60"}`}
                     />
                     <p className="text-white font-medium">Part</p>
-                    <p className="text-subtle text-xs mt-1">
+                    <p className="text-subtle text-sm md:text-base mt-1">
                       Add performance parts
                     </p>
                   </button>
@@ -301,7 +301,7 @@ export default function VendorAddProductPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                    <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                       Product Name *
                     </label>
                     <input
@@ -321,7 +321,7 @@ export default function VendorAddProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                    <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                       Make/Brand *
                     </label>
                     <input
@@ -341,7 +341,7 @@ export default function VendorAddProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                    <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                       Price *
                     </label>
                     <input
@@ -359,7 +359,7 @@ export default function VendorAddProductPage() {
                   {category === "vehicle" && (
                     <>
                       <div>
-                        <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                        <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                           Year
                         </label>
                         <input
@@ -376,7 +376,7 @@ export default function VendorAddProductPage() {
                       </div>
 
                       <div>
-                        <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                        <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                           Mileage
                         </label>
                         <input
@@ -391,7 +391,7 @@ export default function VendorAddProductPage() {
                       </div>
 
                       <div>
-                        <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                        <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                           Color Name
                         </label>
                         <input
@@ -406,7 +406,7 @@ export default function VendorAddProductPage() {
                       </div>
 
                       <div>
-                        <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                        <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                           Color Hex
                         </label>
                         <div className="flex gap-3">
@@ -434,7 +434,7 @@ export default function VendorAddProductPage() {
                 </div>
 
                 <div>
-                  <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                  <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                     Product Image *
                   </label>
                   <div className="flex flex-col gap-4">
@@ -462,14 +462,14 @@ export default function VendorAddProductPage() {
                               className="w-full h-full object-cover rounded-xl"
                             />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                              <p className="text-white text-xs font-medium">Change Image</p>
+                              <p className="text-white text-sm md:text-base font-medium">Change Image</p>
                             </div>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <PlusCircle className="w-8 h-8 text-white/40 mb-2" />
-                            <p className="text-white/60 text-sm">Click to upload</p>
-                            <p className="text-subtle text-xs mt-1">
+                            <p className="text-white/60 text-base md:text-lg">Click to upload</p>
+                            <p className="text-subtle text-sm md:text-base mt-1">
                               JPG, PNG, AVIF, WEBP, GLB, GLTF (Max 10MB)
                             </p>
                           </div>
@@ -477,7 +477,7 @@ export default function VendorAddProductPage() {
                       </label>
                     </div>
                     {isUploadingImage && (
-                      <p className="text-accent text-xs animate-pulse">
+                      <p className="text-accent text-sm md:text-base animate-pulse">
                         Uploading image to Cloudinary...
                       </p>
                     )}
@@ -485,7 +485,7 @@ export default function VendorAddProductPage() {
                 </div>
 
                 <div>
-                  <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                  <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                     Description
                   </label>
                   <textarea
@@ -508,7 +508,7 @@ export default function VendorAddProductPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                         Horsepower (HP)
                       </label>
                       <input
@@ -523,7 +523,7 @@ export default function VendorAddProductPage() {
                     </div>
 
                     <div>
-                      <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                         Torque
                       </label>
                       <input
@@ -538,7 +538,7 @@ export default function VendorAddProductPage() {
                     </div>
 
                     <div>
-                      <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                         Transmission
                       </label>
                       <input
@@ -553,7 +553,7 @@ export default function VendorAddProductPage() {
                     </div>
 
                     <div>
-                      <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                         Top Speed
                       </label>
                       <input
@@ -568,7 +568,7 @@ export default function VendorAddProductPage() {
                     </div>
 
                     <div>
-                      <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                         0-100 km/h (seconds)
                       </label>
                       <input
@@ -591,7 +591,7 @@ export default function VendorAddProductPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                    <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                       Stock Quantity
                     </label>
                     <input
@@ -606,7 +606,7 @@ export default function VendorAddProductPage() {
                   </div>
 
                   <div>
-                    <label className="block text-subtle text-xs font-bold uppercase tracking-widest mb-2">
+                    <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
                       Availability
                     </label>
                     <div className="flex gap-4">
@@ -641,8 +641,8 @@ export default function VendorAddProductPage() {
                 <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-red-200 text-sm font-medium">Error</p>
-                    <p className="text-red-300/80 text-xs mt-1">{error}</p>
+                    <p className="text-red-200 text-base md:text-lg font-medium">Error</p>
+                    <p className="text-red-300/80 text-sm md:text-base mt-1">{error}</p>
                   </div>
                 </div>
               )}
@@ -651,10 +651,10 @@ export default function VendorAddProductPage() {
                 <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-green-200 text-sm font-medium">
+                    <p className="text-green-200 text-base md:text-lg font-medium">
                       Success!
                     </p>
-                    <p className="text-green-300/80 text-xs mt-1">
+                    <p className="text-green-300/80 text-sm md:text-base mt-1">
                       Product has been created successfully.
                     </p>
                   </div>
@@ -690,14 +690,14 @@ export default function VendorAddProductPage() {
                     setError(null);
                     setSuccess(false);
                   }}
-                  className="px-6 py-3 border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm font-medium"
+                  className="px-6 py-3 border border-white/10 rounded-full text-white/80 hover:text-white hover:bg-white/5 transition-all text-base md:text-lg font-medium"
                 >
                   {isEditMode ? "Cancel" : "Clear Form"}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-sm md:text-base hover:bg-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting
                     ? isEditMode

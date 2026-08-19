@@ -15,6 +15,8 @@ export default function AdminMechanicsPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -90,12 +92,12 @@ export default function AdminMechanicsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Mechanic Network</h1>
-          <p className="text-subtle text-sm">View and manage registered expert mechanics.</p>
+          <p className="text-subtle text-base md:text-lg">View and manage registered expert mechanics.</p>
         </header>
 
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+            <p className="text-red-400 text-base md:text-lg font-medium">{error}</p>
           </div>
         )}
 
@@ -108,7 +110,7 @@ export default function AdminMechanicsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-white/40 text-[10px] uppercase tracking-widest bg-white/[0.01]">
+                  <tr className="border-b border-white/5 text-white/40 text-xs md:text-sm uppercase tracking-widest bg-white/[0.01]">
                     <th className="p-4 font-bold">Mechanic</th>
                     <th className="p-4 font-bold">Role</th>
                     <th className="p-4 font-bold">Tier</th>
@@ -117,7 +119,7 @@ export default function AdminMechanicsPage() {
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-base md:text-lg">
                   {users.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="p-8 text-center text-subtle">
@@ -125,7 +127,13 @@ export default function AdminMechanicsPage() {
                       </td>
                     </tr>
                   ) : (
-                    users.map((u, i) => (
+                    (() => {
+                      const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
+                      const paginatedUsers = users.slice(
+                        (currentPage - 1) * ITEMS_PER_PAGE,
+                        currentPage * ITEMS_PER_PAGE
+                      );
+                      return paginatedUsers.map((u, i) => (
                       <motion.tr
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -140,7 +148,7 @@ export default function AdminMechanicsPage() {
                             </div>
                             <div>
                               <p className="text-white font-medium">{u.name || "Unnamed User"}</p>
-                              <p className="text-subtle text-xs">{u.email}</p>
+                              <p className="text-subtle text-sm md:text-base">{u.email}</p>
                             </div>
                           </div>
                         </td>
@@ -149,7 +157,7 @@ export default function AdminMechanicsPage() {
                             value={u.role}
                             disabled={actionLoading === u._id || currentUser?.id === u._id}
                             onChange={(e) => handleRoleChange(u._id, e.target.value as any)}
-                            className="bg-white/5 border border-white/10 text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
+                            className="bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
                           >
                             <option value="customer">Customer</option>
                             <option value="vendor">Vendor</option>
@@ -162,7 +170,7 @@ export default function AdminMechanicsPage() {
                             value={u.verificationLevel}
                             disabled={actionLoading === u._id || currentUser?.id === u._id}
                             onChange={(e) => handleTierChange(u._id, e.target.value as any)}
-                            className="bg-white/5 border border-white/10 text-white text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
+                            className="bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-lg px-2 py-1 focus:outline-none focus:border-accent"
                           >
                             <option value="basic">Level 1</option>
                             <option value="individual">Level 2</option>
@@ -171,13 +179,13 @@ export default function AdminMechanicsPage() {
                         </td>
                         <td className="p-4">
                           <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+                            "text-xs md:text-sm font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
                             u.status === "active" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-300" : "bg-red-500/10 border-red-500/20 text-red-300"
                           )}>
                             {u.status}
                           </span>
                         </td>
-                        <td className="p-4 text-subtle text-xs">
+                        <td className="p-4 text-subtle text-sm md:text-base">
                           {new Date(u.createdAt).toLocaleDateString()}
                         </td>
                         <td className="p-4 text-right space-x-2">
@@ -199,10 +207,33 @@ export default function AdminMechanicsPage() {
                           </button>
                         </td>
                       </motion.tr>
-                    ))
+                    ));
+                  })()
                   )}
                 </tbody>
               </table>
+
+              {Math.ceil(users.length / ITEMS_PER_PAGE) > 1 && (
+                <div className="flex items-center justify-between p-4 border-t border-white/5">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-xs md:text-sm text-subtle font-medium">
+                    Page {currentPage} of {Math.ceil(users.length / ITEMS_PER_PAGE)}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(Math.ceil(users.length / ITEMS_PER_PAGE), p + 1))}
+                    disabled={currentPage === Math.ceil(users.length / ITEMS_PER_PAGE)}
+                    className="px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

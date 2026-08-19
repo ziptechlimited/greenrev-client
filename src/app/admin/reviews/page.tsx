@@ -49,12 +49,12 @@ export default function AdminReviewsPage() {
       <div className="space-y-8">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">Review Moderation</h1>
-          <p className="text-subtle text-sm">Monitor platform reviews and remove inappropriate content.</p>
+          <p className="text-subtle text-base md:text-lg">Monitor platform reviews and remove inappropriate content.</p>
         </header>
 
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+            <p className="text-red-400 text-base md:text-lg font-medium">{error}</p>
           </div>
         )}
 
@@ -67,7 +67,7 @@ export default function AdminReviewsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-white/40 text-[10px] uppercase tracking-widest bg-white/[0.01]">
+                  <tr className="border-b border-white/5 text-white/40 text-xs md:text-sm uppercase tracking-widest bg-white/[0.01]">
                     <th className="p-4 font-bold">Rating</th>
                     <th className="p-4 font-bold">Content</th>
                     <th className="p-4 font-bold">Author</th>
@@ -75,7 +75,7 @@ export default function AdminReviewsPage() {
                     <th className="p-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-sm">
+                <tbody className="text-base md:text-lg">
                   {reviews.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-8 text-center text-subtle">
@@ -103,20 +103,20 @@ export default function AdminReviewsPage() {
                               />
                             ))}
                           </div>
-                          <p className="text-[10px] text-white/40 mt-1">{new Date(r.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xs md:text-sm text-white/40 mt-1">{new Date(r.createdAt).toLocaleDateString()}</p>
                         </td>
                         <td className="p-4 max-w-[300px]">
-                          <p className="text-white text-sm truncate" title={r.comment}>
+                          <p className="text-white text-base md:text-lg truncate" title={r.comment}>
                             {r.comment || <span className="italic text-white/30">No comment</span>}
                           </p>
                         </td>
                         <td className="p-4">
                           <p className="text-white font-medium">{r.customerName}</p>
-                          <p className="text-subtle text-[10px]">{r.customerId?.email}</p>
+                          <p className="text-subtle text-xs md:text-sm">{r.customerId?.email}</p>
                         </td>
                         <td className="p-4">
                           <p className="text-white font-medium truncate max-w-[150px]">{r.productName}</p>
-                          <p className="text-subtle text-[10px] uppercase">Vendor: {r.vendorId?.name || "Unknown"}</p>
+                          <p className="text-subtle text-xs md:text-sm uppercase">Vendor: {r.vendorId?.name || "Unknown"}</p>
                         </td>
                         <td className="p-4 text-right">
                           <button

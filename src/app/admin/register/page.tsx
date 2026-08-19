@@ -46,7 +46,7 @@ export default function AdminRegisterPage() {
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-display text-white mb-2">Admin Portal</h1>
-          <p className="text-subtle text-sm">
+          <p className="text-subtle text-base md:text-lg">
             Enter your activation code to create an admin account.
           </p>
         </div>
@@ -57,13 +57,13 @@ export default function AdminRegisterPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
           >
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+            <p className="text-red-400 text-base md:text-lg font-medium">{error}</p>
           </motion.div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
+            <label className="text-sm md:text-base font-bold uppercase tracking-widest text-white/40 ml-1">
               Full Name
             </label>
             <div className="relative group">
@@ -80,7 +80,7 @@ export default function AdminRegisterPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
+            <label className="text-sm md:text-base font-bold uppercase tracking-widest text-white/40 ml-1">
               Email Address
             </label>
             <div className="relative group">
@@ -97,7 +97,7 @@ export default function AdminRegisterPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
+            <label className="text-sm md:text-base font-bold uppercase tracking-widest text-white/40 ml-1">
               Password
             </label>
             <div className="relative group">
@@ -121,7 +121,7 @@ export default function AdminRegisterPage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
+            <label className="text-sm md:text-base font-bold uppercase tracking-widest text-white/40 ml-1">
               Activation Code
             </label>
             <div className="relative group">
@@ -139,7 +139,7 @@ export default function AdminRegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-accent text-black font-bold text-sm uppercase tracking-widest py-4 rounded-xl hover:bg-accent/90 transition-all flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
+            className="w-full bg-accent text-black font-bold text-base md:text-lg uppercase tracking-widest py-4 rounded-xl hover:bg-accent/90 transition-all flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />

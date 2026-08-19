@@ -113,7 +113,7 @@ export default function MechanicProfilePage() {
       <div className="space-y-8 relative pb-24">
         <header>
           <h1 className="text-3xl font-display text-white mb-2">My Profile</h1>
-          <p className="text-subtle text-sm">Update your public expert profile.</p>
+          <p className="text-subtle text-base md:text-lg">Update your public expert profile.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -137,13 +137,13 @@ export default function MechanicProfilePage() {
                 <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <div className="flex flex-col items-center">
                     <Camera className="w-6 h-6 text-white mb-1" />
-                    <span className="text-xs text-white">Change</span>
+                    <span className="text-sm md:text-base text-white">Change</span>
                   </div>
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                 </label>
               </div>
               <h3 className="text-xl font-medium text-white mb-1">{profile.name}</h3>
-              <p className="text-accent text-sm">Expert Mechanic</p>
+              <p className="text-accent text-base md:text-lg">Expert Mechanic</p>
             </div>
           </div>
 
@@ -153,7 +153,7 @@ export default function MechanicProfilePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">Full Name</label>
+                  <label className="text-base md:text-lg font-medium text-white">Full Name</label>
                   <input
                     type="text"
                     name="name"
@@ -163,7 +163,7 @@ export default function MechanicProfilePage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white">Phone Number</label>
+                  <label className="text-base md:text-lg font-medium text-white">Phone Number</label>
                   <input
                     type="tel"
                     name="phone"
@@ -174,7 +174,7 @@ export default function MechanicProfilePage() {
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-medium text-white">Hourly Rate ($)</label>
+                  <label className="text-base md:text-lg font-medium text-white">Hourly Rate ($)</label>
                   <input
                     type="number"
                     name="hourlyRate"
@@ -186,7 +186,7 @@ export default function MechanicProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-white">Bio</label>
+                <label className="text-base md:text-lg font-medium text-white">Bio</label>
                 <textarea
                   name="bio"
                   value={profile.bio}
@@ -197,12 +197,12 @@ export default function MechanicProfilePage() {
               </div>
 
               <div className="space-y-4">
-                <label className="text-sm font-medium text-white block mb-2">Specialties</label>
+                <label className="text-base md:text-lg font-medium text-white block mb-2">Specialties</label>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {profile.specialties.map((specialty) => (
                     <span
                       key={specialty}
-                      className="inline-flex items-center gap-1 bg-white/10 text-white px-3 py-1.5 rounded-lg text-sm"
+                      className="inline-flex items-center gap-1 bg-white/10 text-white px-3 py-1.5 rounded-lg text-base md:text-lg"
                     >
                       {specialty}
                       <button
@@ -241,7 +241,7 @@ export default function MechanicProfilePage() {
                       setHasChanges(false);
                     }}
                     disabled={isSaving}
-                    className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-sm font-medium disabled:opacity-50"
+                    className="px-6 py-3 rounded-xl text-white/60 hover:text-white transition-colors text-base md:text-lg font-medium disabled:opacity-50"
                   >
                     Discard
                   </button>
@@ -249,7 +249,7 @@ export default function MechanicProfilePage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !hasChanges}
-                  className="bg-accent text-white px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-accent text-white px-8 py-3 rounded-xl hover:bg-accent/90 transition-colors text-base md:text-lg font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   Save Profile
