@@ -5,6 +5,7 @@ import Testimonials from "@/components/home/Testimonials";
 import GlobalPresence from "@/components/home/GlobalPresence";
 import Footer from "@/components/layout/Footer";
 import CarMorph from "@/components/home/CarMorph";
+import MobileAppCTA from "@/components/home/MobileAppCTA";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <CarMorph />
       <Testimonials />
       <GlobalPresence />
+      <MobileAppCTA />
       <Footer />
     </main>
   );

@@ -52,28 +52,94 @@ function getPhase(i: number, total: number) {
   return { enterStart, enterEnd, shrinkStart, shrinkEnd, isLast };
 }
 
+// ─── Scroll-based character animation ────────────────────────────────────────
+function ScrollCharAnim({ 
+  text, 
+  progress, 
+  range, 
+  className = "" 
+}: { 
+  text: string; 
+  progress: MotionValue<number>; 
+  range: [number, number]; 
+  className?: string; 
+}) {
+  const chars = text.split("");
+  const step = (range[1] - range[0]) / Math.max(chars.length, 1);
+
+  return (
+    <span className={className}>
+      {chars.map((char, i) => {
+        const start = range[0] + i * step * 0.5;
+        const end = Math.min(range[1], start + (range[1] - range[0]) * 0.5);
+        
+        const opacity = useTransform(progress, [start, end], [0.1, 1]);
+        const y = useTransform(progress, [start, end], [12, 0]);
+        
+        return (
+          <motion.span 
+            key={i} 
+            style={{ opacity, y, display: "inline-block", whiteSpace: char === " " ? "pre" : "normal" }}
+          >
+            {char}
+          </motion.span>
+        );
+      })}
+    </span>
+  );
+}
+
 // ─── Intro heading ─────────────────────────────────────────────────────────────
-function IntroHeading({ progress }: { progress: MotionValue<number> }) {
+function IntroHeading({ progress, containerRef }: { progress: MotionValue<number>; containerRef: React.RefObject<HTMLDivElement | null> }) {
   // Visible as it scrolls into view naturally, then fades out and scales up as scroll progresses
-  const opacity = useTransform(
+  const fadeOutOpacity = useTransform(
     progress,
     [0, 0.05, 0.15],
     [1, 1, 0]
   );
-  const scale = useTransform(
+  const fadeOutScale = useTransform(
     progress,
     [0, 0.05, 0.15],
     [1, 1, 1.06]
   );
+  const fadeOutY = useTransform(
+    progress,
+    [0, 0.05, 0.15],
+    [0, 0, -40]
+  );
+
+  const { scrollYProgress: enterProgress } = useScroll({
+    target: containerRef as React.RefObject<HTMLElement>,
+    offset: ["start 80%", "start 20%"],
+  });
 
   return (
     <motion.div
-      style={{ opacity, scale }}
+      style={{ opacity: fadeOutOpacity, scale: fadeOutScale, y: fadeOutY }}
       className="absolute inset-0 flex flex-col items-center justify-start pt-24 md:pt-32 z-50 pointer-events-none"
     >
-      <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-black tracking-tight text-center leading-tight">
-        Experience Highlights
-      </h2>
+      <div className="flex flex-col items-center">
+        <ScrollCharAnim 
+          text="The GreenRev Edge" 
+          progress={enterProgress} 
+          range={[0, 0.4]} 
+          className="text-[10px] font-bold tracking-[0.4em] uppercase text-black/40 mb-6"
+        />
+        <h2 className="text-5xl md:text-7xl lg:text-8xl font-display font-black text-black tracking-tighter text-center leading-[0.9]">
+          <ScrollCharAnim 
+            text="Experience" 
+            progress={enterProgress} 
+            range={[0.2, 0.7]} 
+          />
+          <br/> 
+          <ScrollCharAnim 
+            text="Highlights" 
+            progress={enterProgress} 
+            range={[0.5, 1.0]} 
+            className="text-transparent bg-clip-text bg-gradient-to-r from-black to-black/40"
+          />
+        </h2>
+      </div>
     </motion.div>
   );
 }
@@ -167,7 +233,7 @@ function Card({
   const parallaxY = useTransform(
     progress,
     [parallaxStart, parallaxEnd],
-    [50, -50]
+    [150, -150]
   );
 
   const sx = useSpring(x, { stiffness: 150, damping: 25, restDelta: 0.5 });
@@ -192,7 +258,7 @@ function Card({
       {/* Parallax image layer — oversized so shift doesn't clip */}
       <motion.div
         style={{ y: spy }}
-        className="absolute inset-x-0 -top-[10%] h-[120%] will-change-transform"
+        className="absolute inset-x-0 -top-[20%] h-[140%] will-change-transform"
       >
         <Image
           src={card.image}
@@ -228,6 +294,9 @@ function Card({
 
 // ─── Right-side descriptor (one per card, separate component for hook rules) ──
 function Descriptor({
+  index,
+  total,
+  title,
   text,
   href,
   cta,
@@ -235,6 +304,9 @@ function Descriptor({
   rangeOut,
   progress,
 }: {
+  index: number;
+  total: number;
+  title: string;
   text: string;
   href: string;
   cta: string;
@@ -243,25 +315,52 @@ function Descriptor({
   progress: MotionValue<number>;
 }) {
   const opacityInput = rangeOut
-    ? [rangeIn[0], rangeIn[1], rangeOut[0], rangeOut[1]]
-    : [rangeIn[0], rangeIn[1]];
+    ? [rangeIn[0], rangeIn[0] + 0.01, rangeOut[0], rangeOut[1]]
+    : [rangeIn[0], rangeIn[0] + 0.01];
   const opacityOutput = rangeOut ? [0, 1, 1, 0] : [0, 1];
 
   const opacity = useTransform(progress, opacityInput, opacityOutput);
-  const y = useTransform(progress, [rangeIn[0], rangeIn[1]], [16, 0]);
+  const y = useTransform(progress, [rangeIn[0], rangeIn[1]], [10, 0]);
+  const lineScale = useTransform(progress, [rangeIn[0], rangeIn[1]], [0, 1]);
+
+  const num = (index + 1).toString().padStart(2, "0");
+  const tot = total.toString().padStart(2, "0");
+  const plainTitle = title.replace("\n", " ");
 
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-0 space-y-3 pointer-events-auto"
+      className="absolute inset-0 flex flex-col justify-center pointer-events-auto w-[280px]"
     >
-      <p className="text-black/85 text-lg md:text-xl font-light leading-relaxed">{text}</p>
-      <Link
-        href={href}
-        className="inline-flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.2em] hover:text-black transition-colors mt-1"
-      >
-        {cta} <ArrowUpRight className="w-3.5 h-3.5" />
-      </Link>
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-[10px] font-bold tracking-[0.3em] text-black/40">
+          [{num}/{tot}]
+        </span>
+        <motion.div style={{ scaleX: lineScale, originX: 0 }} className="h-[1px] flex-1 bg-black/10" />
+      </div>
+      
+      <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-black mb-3">
+        <ScrollCharAnim text={plainTitle} progress={progress} range={rangeIn} />
+      </h3>
+      
+      <p className="text-black/60 text-sm md:text-base font-light leading-[1.8] mb-6">
+        <ScrollCharAnim text={text} progress={progress} range={rangeIn} />
+      </p>
+      
+      <motion.div style={{ opacity: lineScale }}>
+        <Link
+          href={href}
+          className="group inline-flex items-center gap-3 text-black text-[10px] font-bold uppercase tracking-[0.25em] transition-all"
+        >
+          <span className="relative overflow-hidden pb-1">
+            {cta}
+            <span className="absolute bottom-0 left-0 w-full h-[1px] bg-accent -translate-x-[101%] group-hover:translate-x-0 transition-transform duration-500 ease-out" />
+          </span>
+          <span className="w-6 h-6 rounded-full border border-black/10 flex items-center justify-center group-hover:border-accent group-hover:bg-accent group-hover:text-white transition-all duration-500">
+            <ArrowUpRight className="w-3 h-3 transition-transform duration-500 group-hover:rotate-45" />
+          </span>
+        </Link>
+      </motion.div>
     </motion.div>
   );
 }
@@ -328,12 +427,24 @@ export default function StackedCards() {
   // Scroll height: give ~200vh per card
   const scrollHeight = `${total * 200 + 100}vh`;
 
+  const bgY = useTransform(progress, [0, 1], ["0%", "-50%"]);
+
   return (
     <div ref={containerRef} style={{ height: scrollHeight }} className="relative bg-white">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#fafafa]">
+        
+        {/* Background Parallax Typography */}
+        <motion.div
+          style={{ y: bgY }}
+          className="absolute top-0 left-0 w-full h-[200vh] flex flex-col justify-around pointer-events-none opacity-[0.03] overflow-hidden whitespace-nowrap z-0 select-none pt-20"
+        >
+          <span className="text-[25vw] font-display font-black text-black leading-none text-center">GREENREV</span>
+          <span className="text-[25vw] font-display font-black text-black leading-none text-center translate-x-20">EXPERIENCE</span>
+          <span className="text-[25vw] font-display font-black text-black leading-none text-center -translate-x-20">MACHINES</span>
+        </motion.div>
 
         {/* Cinematic intro heading — fades in as section enters, fades before cards appear */}
-        <IntroHeading progress={progress} />
+        <IntroHeading progress={progress} containerRef={containerRef} />
 
         {/* Card stage — centered, fixed aspect */}
         <div
@@ -365,16 +476,19 @@ export default function StackedCards() {
 
         {/* Right-side descriptors — pinned just outside the card's right edge */}
         <div
-          className="hidden md:block absolute top-1/2 -translate-y-1/2 w-[220px] pointer-events-none z-50"
+          className="hidden md:block absolute top-1/2 -translate-y-1/2 w-[280px] pointer-events-none z-50"
           style={{ left: "calc(50% + min(32.5vw, 450px) + 28px)" }}
         >
-          <div className="relative h-36">
+          <div className="relative h-[240px]">
             {CARDS.map((card, i) => {
               const phase = getPhase(i, total);
               const isLast = i === total - 1;
               return (
                 <Descriptor
                   key={card.id}
+                  index={i}
+                  total={total}
+                  title={card.title}
                   text={card.description}
                   href={card.href}
                   cta="Discover the Experience"

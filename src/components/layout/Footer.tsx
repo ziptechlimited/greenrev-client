@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Apple, Play } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -89,6 +89,25 @@ export default function Footer() {
             your automotive experience with our exclusive concierge service and
             unmatched global network.
           </p>
+
+          {/* App CTA */}
+          <div className="pt-6 border-t border-white/10 mt-8">
+            <p className="text-xs tracking-[0.2em] uppercase text-white/30 font-semibold mb-4">
+              Get The App
+            </p>
+            <div className="flex items-center gap-3">
+              <Link href="#" className="flex items-center justify-center w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-accent/30 transition-all group">
+                <Apple className="w-5 h-5 text-white/70 group-hover:text-accent transition-colors" />
+              </Link>
+              <Link href="#" className="flex items-center justify-center w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-accent/30 transition-all group">
+                <Play className="w-4 h-4 text-white/70 group-hover:text-accent transition-colors fill-current" />
+              </Link>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">Download for iOS & Android</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Exclusive mobile access</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Links Grid */}

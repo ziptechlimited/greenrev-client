@@ -166,7 +166,16 @@ export default function HeroScroll() {
             GreenRev <span className="text-accent">Motors</span>
           </h1>
           <div className="mt-4 w-24 h-[1px] bg-accent/50" />
-          <p className="text-sm mt-2">Find It, Verify It, Own It</p>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            {["Find It", "Verify It", "Own It"].map((text, i) => (
+              <div key={text} className="flex items-center gap-3">
+                <span className="text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] text-white/80 bg-white/5 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                  {text}
+                </span>
+                {i < 2 && <span className="text-accent/50 text-xs">✦</span>}
+              </div>
+            ))}
+          </div>
           <Link
             href="/shop"
             className="pointer-events-auto mt-8 inline-flex items-center gap-3 px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-[11px] rounded-full hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_0_40px_rgba(199,164,61,0.3)]"
