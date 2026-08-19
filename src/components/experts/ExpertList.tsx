@@ -152,6 +152,128 @@ function StarPicker({
   );
 }
 
+// ── Message modal ─────────────────────────────────────────────────────────────
+function MessageModal({
+  expert,
+  onClose,
+}: {
+  expert: Expert;
+  onClose: () => void;
+}) {
+  const { user } = useAuth();
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!message.trim()) {
+      setSubmitError("Please write a message.");
+      return;
+    }
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await apiRequest(`/api/v1/experts/${expert.id}/messages`, {
+        method: "POST",
+        body: JSON.stringify({ message }),
+      });
+      if (res.success) {
+        setSubmitSuccess(true);
+        setMessage("");
+      } else {
+        setSubmitError((res as any).error?.message ?? "Something went wrong.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 60, opacity: 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+      >
+        <div className="p-6 border-b border-white/5 flex items-center gap-4 shrink-0">
+          <ExpertAvatar name={expert.name} image={expert.image} size="sm" />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-semibold truncate">Message {expert.name}</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 -mr-2 text-white/40 hover:text-white rounded-xl hover:bg-white/5 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto">
+          {submitSuccess ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-[#1f1f1f] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                <Send className="w-6 h-6 text-accent" />
+              </div>
+              <h4 className="text-lg font-semibold text-white mb-2">Message Sent!</h4>
+              <p className="text-subtle text-sm">
+                {expert.name} has been notified and will get back to you soon.
+              </p>
+              <button
+                onClick={onClose}
+                className="mt-6 px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          ) : !user ? (
+            <div className="text-center py-8">
+              <p className="text-subtle text-sm">Please log in to send a message.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              {submitError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  {submitError}
+                </div>
+              )}
+              <textarea
+                placeholder="Type your message here..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full h-32 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent resize-none transition-all"
+              />
+              <button
+                type="submit"
+                disabled={submitting || !message.trim()}
+                className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-accent/90 text-black py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm"
+              >
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" /> Send Message
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ── Review modal ──────────────────────────────────────────────────────────────
 function ReviewModal({
   expert,
@@ -369,6 +491,7 @@ export default function ExpertList({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("All");
   const [reviewExpert, setReviewExpert] = useState<Expert | null>(null);
+  const [messageExpert, setMessageExpert] = useState<Expert | null>(null);
   // Keep a local ratings cache so rating updates after submit are reflected instantly
   const [localRatings, setLocalRatings] = useState<
     Record<string, { averageRating: number | null; reviewCount: number }>
@@ -551,9 +674,9 @@ export default function ExpertList({
                           {expert.address}
                         </p>
                         <div className="flex flex-wrap gap-2">
-                          <button className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
+                          <a href={`tel:${expert.phone}`} onClick={(e) => e.stopPropagation()} className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
                             <Phone className="w-3.5 h-3.5" /> Call
-                          </button>
+                          </a>
                           <a 
                             href={`https://www.google.com/maps/dir/?api=1&destination=${expert.lat},${expert.lng}`}
                             target="_blank"
@@ -563,7 +686,13 @@ export default function ExpertList({
                           >
                             <Navigation className="w-3.5 h-3.5" /> Directions
                           </a>
-                          <button className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMessageExpert(expert);
+                            }}
+                            className="flex-1 min-w-[30%] flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-xl transition-colors text-xs font-medium"
+                          >
                             <Mail className="w-3.5 h-3.5" /> Message
                           </button>
                           <button
@@ -602,6 +731,16 @@ export default function ExpertList({
             expert={reviewExpert}
             onClose={() => setReviewExpert(null)}
             onSubmitted={() => refreshRating(reviewExpert.id)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Message modal */}
+      <AnimatePresence>
+        {messageExpert && (
+          <MessageModal
+            expert={messageExpert}
+            onClose={() => setMessageExpert(null)}
           />
         )}
       </AnimatePresence>

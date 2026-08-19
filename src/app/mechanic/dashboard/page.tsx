@@ -14,6 +14,7 @@ import {
   X,
   TrendingUp,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { apiRequest } from "@/lib/apiClient";
@@ -54,6 +55,15 @@ interface Profile {
   profileImage: string | null;
 }
 
+interface ExpertMessage {
+  _id: string;
+  senderName: string;
+  senderEmail: string;
+  senderPhone?: string;
+  message: string;
+  createdAt: string;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function StarRow({ rating }: { rating: number }) {
@@ -83,6 +93,7 @@ export default function MechanicDashboardPage() {
 
   const [bookings,  setBookings]  = useState<Booking[]>([]);
   const [reviews,   setReviews]   = useState<Review[]>([]);
+  const [messages,  setMessages]  = useState<ExpertMessage[]>([]);
   const [profile,   setProfile]   = useState<Profile | null>(null);
   const [loading,   setLoading]   = useState(true);
 
@@ -90,13 +101,15 @@ export default function MechanicDashboardPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [bookingRes, profileRes] = await Promise.all([
+      const [bookingRes, profileRes, messagesRes] = await Promise.all([
         apiRequest<{ bookings: Booking[] }>("/api/v1/bookings/mechanic"),
         apiRequest<{ profile: Profile }>("/api/v1/mechanic/profile"),
+        apiRequest<{ messages: ExpertMessage[] }>("/api/v1/mechanic/messages"),
       ]);
 
       if (bookingRes.success)  setBookings(bookingRes.data.bookings);
       if (profileRes.success)  setProfile(profileRes.data.profile);
+      if (messagesRes.success) setMessages(messagesRes.data.messages);
 
       // Fetch reviews using the authenticated user's id
       if (user?.id) {
@@ -387,6 +400,71 @@ export default function MechanicDashboardPage() {
             )}
           </motion.div>
         </div>
+
+        {/* Messages panel */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col"
+        >
+          <h2 className="text-white font-medium flex items-center gap-2 mb-6">
+            <MessageSquare className="w-4 h-4 text-accent" />
+            Recent Messages
+          </h2>
+
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center py-12">
+              <p className="text-subtle text-sm">No messages yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3 overflow-y-auto max-h-[520px] pr-1">
+              {messages.map((msg) => (
+                <div
+                  key={msg._id}
+                  className="p-4 rounded-xl bg-white/[0.03] border border-white/5"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="text-white font-medium text-sm truncate">
+                        {msg.senderName}
+                      </p>
+                      <p className="text-subtle text-xs mt-0.5">
+                        <a href={`mailto:${msg.senderEmail}`} className="hover:text-accent transition-colors">
+                          {msg.senderEmail}
+                        </a>
+                        {msg.senderPhone && (
+                          <span className="ml-2 border-l border-white/10 pl-2">
+                            <a href={`tel:${msg.senderPhone}`} className="hover:text-accent transition-colors">
+                              {msg.senderPhone}
+                            </a>
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <span className="text-white/30 text-[10px] shrink-0 ml-2 text-right">
+                      {new Date(msg.createdAt).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                      <br />
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-subtle text-sm mt-3 leading-relaxed bg-black/20 rounded-lg p-3">
+                    {msg.message}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
       </div>
     </DashboardLayout>
   );
