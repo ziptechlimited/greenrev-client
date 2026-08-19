@@ -92,33 +92,44 @@ export default function AdminDashboardPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [flagReason, setFlagReason] = useState("");
   const [resolution, setResolution] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, flagFilter]);
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (flagFilter === "flagged" && !r.adminFlaggedAt) return false;
+      if (flagFilter === "unflagged" && r.adminFlaggedAt) return false;
+      return true;
+    });
+  }, [requests, statusFilter, flagFilter]);
 
   const selectedRequest = useMemo(
-    () => requests.find((r) => r._id === selectedId) ?? null,
-    [requests, selectedId],
+    () => filteredRequests.find((r) => r._id === selectedId) ?? null,
+    [filteredRequests, selectedId],
+  );
+
+  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+  const paginatedRequests = filteredRequests.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    adminListAcquisitionRequests({
-      status: statusFilter === "all" ? undefined : statusFilter,
-      flagged:
-        flagFilter === "all" ? undefined : flagFilter === "flagged" ? true : false,
-    })
+    adminListAcquisitionRequests()
       .then((data) => {
         if (cancelled) return;
         setRequests(data);
-        if (selectedId && !data.some((r) => r._id === selectedId)) {
-          setSelectedId(null);
-          setEvents([]);
-        }
       })
       .catch(() => {
         if (cancelled) return;
         setRequests([]);
-        setSelectedId(null);
-        setEvents([]);
       })
       .finally(() => {
         if (cancelled) return;
@@ -127,7 +138,15 @@ export default function AdminDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [statusFilter, flagFilter, selectedId]);
+  }, []);
+
+  // Clear selected if it's no longer in the filtered list
+  useEffect(() => {
+    if (selectedId && !filteredRequests.some((r) => r._id === selectedId)) {
+      setSelectedId(null);
+      setEvents([]);
+    }
+  }, [filteredRequests, selectedId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,7 +332,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-7 h-7 animate-spin text-accent" />
           </div>
-        ) : requests.length === 0 ? (
+        ) : filteredRequests.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-subtle text-sm">No transactions found.</p>
           </div>
@@ -321,7 +340,7 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {requests.map((req) => {
+                {paginatedRequests.map((req) => {
                   const expanded = selectedId === req._id;
                   return (
                     <motion.div
@@ -390,6 +409,28 @@ export default function AdminDashboardPage() {
                   );
                 })}
               </AnimatePresence>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 pb-2 border-t border-white/5">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-xs text-subtle font-medium">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white disabled:opacity-30 transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 min-h-[400px]">
