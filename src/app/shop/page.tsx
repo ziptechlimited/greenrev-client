@@ -10,6 +10,7 @@ import {
   Search,
 } from "lucide-react";
 import InventoryCard from "@/components/shared/InventoryCard";
+import { ShowroomSkeleton } from "@/components/shared/Skeletons";
 import { cn } from "@/lib/utils";
 import { getAllProducts } from "@/lib/apiProduct";
 import { transformProductToCarEntry } from "@/lib/transformProduct";
@@ -433,7 +434,9 @@ export default function ShopPage() {
               )}
             </AnimatePresence>
 
-            {filteredCars.length > 0 ? (
+            {isLoading ? (
+              <ShowroomSkeleton count={9} />
+            ) : filteredCars.length > 0 ? (
               <div className="space-y-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-12">
                   <AnimatePresence mode="popLayout">

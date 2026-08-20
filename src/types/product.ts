@@ -37,6 +37,7 @@ export interface Product {
   stockQuantity?: number;
   vendorId: string;
   vendorName?: string;
+  vendorPhone?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

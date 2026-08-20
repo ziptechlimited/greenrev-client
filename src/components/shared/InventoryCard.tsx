@@ -30,6 +30,8 @@ export type CarEntry = {
     transmission: string;
     topSpeed: string;
   };
+  vendorId?: string;
+  vendorPhone?: string | null;
 };
 
 export default function InventoryCard({ car }: { car: CarEntry }) {

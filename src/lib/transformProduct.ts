@@ -25,6 +25,8 @@ export function transformProductToCarEntry(product: Product): CarEntry {
       transmission: product.specs?.transmission || "N/A",
       topSpeed: product.specs?.topSpeed || "N/A",
     },
+    vendorId: product.vendorId || "",
+    vendorPhone: product.vendorPhone ?? null,
   };
 }
 
@@ -37,6 +39,8 @@ export type PartEntry = {
   image: string;
   brand: string;
   specs: string[];
+  vendorId?: string;
+  vendorPhone?: string | null;
 };
 
 export function transformProductToPartEntry(product: Product): PartEntry {
@@ -58,5 +62,7 @@ export function transformProductToPartEntry(product: Product): PartEntry {
     image: product.image,
     brand: product.vendorName || product.make,
     specs: specs.length > 0 ? specs : ["Premium Quality"],
+    vendorId: product.vendorId || "",
+    vendorPhone: product.vendorPhone ?? null,
   };
 }
