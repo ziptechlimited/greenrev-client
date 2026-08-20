@@ -16,6 +16,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { getAllProducts } from "@/lib/apiProduct";
 import { transformProductToPartEntry, PartEntry } from "@/lib/transformProduct";
+import Footer from "@/components/layout/Footer";
 
 export default function PartsPage() {
   const { addToCart } = useCart();
@@ -391,6 +392,7 @@ export default function PartsPage() {
           </>
         )}
       </AnimatePresence>
+      <Footer />
     </main>
   );
 }

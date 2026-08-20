@@ -1,10 +1,35 @@
-import { streamText, tool, convertToModelMessages } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { z } from 'zod';
 
 export const maxDuration = 30;
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
+
+/** Fetch lightweight vehicle summaries from the backend */
+async function fetchInventory(): Promise<string> {
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`, {
+      next: { revalidate: 60 }, // cache for 60s on Vercel / Next cache
+    });
+    if (!res.ok) return '';
+    const data = await res.json();
+    if (!data.success || !data.data?.products?.length) return '';
+
+    const vehicles = data.data.products.map((p: any) => ({
+      name: p.name,
+      make: p.make,
+      price: p.price ? `₦${Number(p.price).toLocaleString()}` : 'Price on request',
+      horsepower: p.specs?.horsepower ?? 'N/A',
+      topSpeed: p.specs?.topSpeed ?? 'N/A',
+      '0_100': p.specs?.['0_100'] ?? 'N/A',
+      torque: p.specs?.torque ?? 'N/A',
+    }));
+
+    return `\n\n## GreenRev Showroom Inventory (${vehicles.length} vehicles available)\n${JSON.stringify(vehicles, null, 2)}\n\nWhen suggesting alternatives or similar vehicles, ONLY reference cars from this list.`;
+  } catch {
+    return '';
+  }
+}
 
 export async function POST(req: Request) {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -15,105 +40,66 @@ export async function POST(req: Request) {
 
   const { messages, compareData } = await req.json();
 
-  const openrouter = createOpenRouter({
-    apiKey,
-  });
+  const openrouter = createOpenRouter({ apiKey });
 
-  // Only include compare-specific context if cars are selected — keeps the base prompt tiny
-  const compareContext = compareData?.length > 0
-    ? `\n\nThe user is currently comparing these vehicles in the compare view:\n${JSON.stringify(
-      compareData.map((c: any) => ({
-        name: c.name,
-        make: c.make,
-        price: c.price,
-        horsepower: c.specs?.horsepower,
-        topSpeed: c.specs?.topSpeed,
-        '0_100': c.specs?.['0_100'],
-        torque: c.specs?.torque,
-      })),
-      null,
-      2
-    )}`
-    : '';
+  // Fetch inventory and compare context in parallel
+  const [inventoryContext] = await Promise.all([fetchInventory()]);
 
-  // Normalize UIMessages: the new SDK sends messages with `parts`, but simple
-  // user messages sent by sendMessage() may only have `content`. We need both.
-  const normalizedMessages = messages.map((m: any) => {
-    if (m.parts) return m; // already has parts (assistant / multi-turn messages)
-    // Plain user message with just a content string
-    return {
-      ...m,
-      parts: [{ type: 'text', text: m.content ?? '' }],
-    };
-  });
+  const compareContext =
+    compareData && compareData.length > 0
+      ? `\n\n## Currently Comparing\nThe user is comparing these specific vehicles:\n${JSON.stringify(
+          compareData.map((c: any) => ({
+            name: c.name,
+            make: c.make,
+            price: c.price ? `₦${Number(c.price).toLocaleString()}` : 'Price on request',
+            horsepower: c.specs?.horsepower,
+            topSpeed: c.specs?.topSpeed,
+            '0_100': c.specs?.['0_100'],
+            torque: c.specs?.torque,
+          })),
+          null,
+          2
+        )}\nAnswer all questions using this data as the primary reference.`
+      : '';
 
-  const modelMessages = await convertToModelMessages(normalizedMessages);
-  const cleanMessages = modelMessages.map((m: any) => {
-    if (Array.isArray(m.content)) {
-      m.content = m.content.map((c: any) => {
-        const { providerOptions, ...rest } = c;
-        return rest;
-      });
-    }
-    return m;
-  });
+  try {
+    const coreMessages = await convertToModelMessages(messages);
 
-  const result = await streamText({
-    model: openrouter('google/gemma-4-31b-it:free'),
-    system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership.${compareContext}
+    // Flatten array content to plain strings — OpenRouter/Google rejects array-type content
+    const cleanMessages = coreMessages.map((m: any) => {
+      if (Array.isArray(m.content)) {
+        m.content = m.content
+          .filter((c: any) => c.type === 'text')
+          .map((c: any) => c.text)
+          .join('');
+      }
+      return m;
+    });
 
-Guidelines:
-- Be sophisticated, professional, and conversational.
+    const result = await streamText({
+      model: openrouter('google/gemma-4-31b-it'),
+      system: `You are the GreenRev Moto AI Concierge, a world-class automotive expert for a premium Nigerian car dealership called GreenRev Motors.${compareContext}${inventoryContext}
+
+## Guidelines
+- Be sophisticated, professional, and conversational — like a luxury car consultant.
 - Use markdown for readability: **bold** for key specs, bullet lists for comparisons.
 - Give definitive, opinionated recommendations when asked.
-- If the user asks about what else is in the showroom, alternative cars, or anything requiring live inventory knowledge, call the search_showroom tool.
-- Do NOT make up car names or prices — only reference real vehicles from your compare context or from tool results.`,
-    messages: cleanMessages,
-    tools: {
-      search_showroom: tool({
-        description:
-          'Fetches the live showroom inventory. Call this when the user asks about what cars are available, alternatives, or wants to compare against the broader inventory.',
-        parameters: z.object({
-          reason: z
-            .string()
-            .describe('Brief reason why inventory is needed, e.g. "user asked for alternatives to Lexus LX 600"')
-        }),
-        // @ts-ignore
-        execute: async (args: any) => {
-          const { reason } = args;
-          console.log(`[Tool: search_showroom] Reason: ${reason}`);
-          try {
-            const res = await fetch(`${API_BASE}/api/v1/products?category=vehicle`);
-            if (!res.ok) return { error: 'Could not reach inventory database.' };
-            const data = await res.json();
-            if (!data.success || !data.data.products) return { vehicles: [] };
+- When suggesting similar or alternative vehicles, ONLY recommend cars from the GreenRev Showroom Inventory above.
+- If a requested car type isn't in the inventory, say so honestly and suggest the closest match from inventory.
+- Never invent prices. Always use prices from the inventory data above.`,
+      messages: cleanMessages,
+    });
 
-            // Return lightweight summary only — no images, no descriptions
-            const vehicles = data.data.products.map((p: any) => ({
-              name: p.name,
-              make: p.make,
-              price: p.price,
-              horsepower: p.specs?.horsepower,
-              topSpeed: p.specs?.topSpeed,
-              '0_100': p.specs?.['0_100'],
-              torque: p.specs?.torque,
-            }));
-
-            return { vehicles, total: vehicles.length };
-          } catch (e) {
-            return { error: 'Failed to fetch inventory from the database.' };
-          }
-        },
-      }),
-    }
-  });
-
-  // @ts-ignore
-  const response = result.toUIMessageStreamResponse();
-
-  // Disable buffering on Render / Nginx proxy to allow real-time streaming
-  response.headers.set('X-Accel-Buffering', 'no');
-  response.headers.set('Cache-Control', 'no-cache, no-transform');
-
-  return response;
+    // @ts-ignore
+    const response = result.toUIMessageStreamResponse();
+    response.headers.set('X-Accel-Buffering', 'no');
+    response.headers.set('Cache-Control', 'no-cache, no-transform');
+    return response;
+  } catch (err: any) {
+    console.error("Stream error:", err?.message ?? err);
+    return new Response(
+      JSON.stringify({ message: err.message, name: err.name }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 }

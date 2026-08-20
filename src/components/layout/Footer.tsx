@@ -7,22 +7,24 @@ import Link from "next/link";
 import Image from "next/image";
 
 const NAV_LINKS = [
-  { name: "Inventory", href: "/shop" },
-  { name: "Concierge", href: "#" },
-  { name: "Services", href: "#" },
-  { name: "About", href: "#" },
+  { name: "Showroom", href: "/shop" },
+  { name: "Parts", href: "/parts" },
+  { name: "Experts", href: "/experts" },
+  { name: "Compare", href: "/compare" },
+  { name: "Acquisitions", href: "/acquisitions" },
+  { name: "About", href: "/about" },
 ];
 
 const SOCIAL_LINKS = [
-  { name: "Instagram", href: "#" },
-  { name: "X (Twitter)", href: "#" },
-  { name: "LinkedIn", href: "#" },
+  { name: "Instagram", href: "https://instagram.com" },
+  { name: "X (Twitter)", href: "https://x.com" },
+  { name: "LinkedIn", href: "https://linkedin.com" },
 ];
 
 const LEGAL_LINKS = [
-  { name: "Privacy Policy", href: "#" },
-  { name: "Terms of Service", href: "#" },
-  { name: "Cookie Policy", href: "#" },
+  { name: "Privacy Policy", href: "/about" },
+  { name: "Terms of Service", href: "/about" },
+  { name: "Cookie Policy", href: "/about" },
 ];
 
 // Magnetic Link Component for Awwwards-style hover effects
@@ -33,6 +35,7 @@ const MagneticLink = ({
   children: React.ReactNode;
   href: string;
 }) => {
+  const isExternal = href.startsWith("http");
   return (
     <motion.div
       whileHover={{ x: 8 }}
@@ -41,6 +44,8 @@ const MagneticLink = ({
     >
       <Link
         href={href}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noopener noreferrer" : undefined}
         className="group flex items-center gap-2 text-subtle hover:text-white transition-colors py-1"
       >
         <span className="text-sm md:text-base font-medium">{children}</span>
@@ -86,7 +91,7 @@ export default function Footer() {
           </div>
           <p className="text-subtle max-w-sm text-sm md:text-base leading-relaxed font-light">
             Curated performance machines for those who move differently. Elevate
-            your automotive experience with our exclusive concierge service and
+            your automotive experience with our certified expert network and
             unmatched global network.
           </p>
 
@@ -173,13 +178,13 @@ export default function Footer() {
           viewport={{ once: true, margin: "-100px" }}
           className="group cursor-pointer relative flex flex-col items-center justify-center"
         >
-          <a href="/contact" className="block text-center">
+          <Link href="/about" className="block text-center">
             <h2 className="text-[16vw] md:text-[14vw] leading-[0.85] font-display font-black text-white tracking-tighter hover:text-accent transition-colors duration-700 select-none">
               GreenRev Motors.
             </h2>
             {/* Interactive underline expansion */}
             <motion.div className="h-[2px] bg-accent w-0 group-hover:w-full transition-all duration-700 ease-out mx-auto mt-6 md:mt-10" />
-          </a>
+          </Link>
         </motion.div>
       </div>
 

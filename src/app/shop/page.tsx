@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { getAllProducts } from "@/lib/apiProduct";
 import { transformProductToCarEntry } from "@/lib/transformProduct";
 import type { CarEntry } from "@/components/shared/InventoryCard";
+import Footer from "@/components/layout/Footer";
 
 export default function ShopPage() {
   const [activeMake, setActiveMake] = useState<string>("All");
@@ -706,7 +707,7 @@ export default function ShopPage() {
         )}
       </AnimatePresence>
 
-      {/* Main Page Layout (Already defined) */}
+      <Footer />
     </main>
   );
 }

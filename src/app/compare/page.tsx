@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import CompareAIChat from "@/components/compare/CompareAIChat";
+import Footer from "@/components/layout/Footer";
 
 export default function ComparePage() {
   const { compareItems, removeFromCompare } = useCompare();
@@ -117,6 +118,7 @@ export default function ComparePage() {
           </motion.div>
         )}
       </div>
+      <Footer />
     </main>
   );
 }

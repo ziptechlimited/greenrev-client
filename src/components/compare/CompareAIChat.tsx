@@ -1,11 +1,9 @@
 // @ts-nocheck
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
-import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "@ai-sdk/react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, Bot, User, Loader2, Trash2, Search } from "lucide-react";
+import { Send, Sparkles, Bot, User, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CarEntry } from "@/components/shared/InventoryCard";
 
@@ -58,16 +56,29 @@ function MarkdownRenderer({ content }: MarkdownRendererProps) {
   );
 }
 
+interface LocalMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  isError?: boolean;
+}
+
 export default function CompareAIChat({ compareItems }: { compareItems: CarEntry[] }) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // @ts-ignore
-  const { messages, sendMessage, isLoading, setMessages } = useChat({
-    api: "/api/chat",
-  });
+  // Local message list — source of truth for the UI.
+  // We manage this ourselves so messages are NEVER removed even if the API errors.
+  const [displayMessages, setDisplayMessages] = useState<LocalMessage[]>([]);
+
+  // Streaming assistant text — accumulated as chunks arrive
+  const [streamingText, setStreamingText] = useState<string>("");
+
+  // History of full messages to send to the API (role + content pairs)
+  const chatHistoryRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current && !isMinimized) {
@@ -76,31 +87,143 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
         behavior: "smooth",
       });
     }
-  }, [messages, isMinimized]);
+  }, [displayMessages, streamingText, isMinimized]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
+  const clearChat = () => {
+    setDisplayMessages([]);
+    setStreamingText("");
+    chatHistoryRef.current = [];
+  };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input || !input.trim() || isThinking) return;
-    if (isMinimized) setIsMinimized(false);
-    
-    const userMessage = input;
-    setInput("");
-    setIsThinking(true);
-    
-    try {
-      if (sendMessage) {
-        // Always pass the latest compareItems so context is fresh on every message
-        await sendMessage(
-          { role: 'user', content: userMessage },
-          { body: { compareData: compareItems } }
-        );
+  const onSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!input.trim() || isThinking) return;
+      if (isMinimized) setIsMinimized(false);
+
+      const userText = input.trim();
+      setInput("");
+
+      // 1. Add user message to UI immediately — this will never be removed
+      const userMsgId = `user-${Date.now()}`;
+      setDisplayMessages((prev) => [
+        ...prev,
+        { id: userMsgId, role: "user", content: userText },
+      ]);
+
+      // 2. Update history for the next API call
+      chatHistoryRef.current = [
+        ...chatHistoryRef.current,
+        { role: "user", content: userText },
+      ];
+
+      setIsThinking(true);
+      setStreamingText("");
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            // Send messages in the format the API route expects (useChat format)
+            messages: chatHistoryRef.current.map((m, i) => ({
+              id: `msg-${i}`,
+              role: m.role,
+              content: m.content,
+              parts: [{ type: "text", text: m.content }],
+            })),
+            compareData: compareItems,
+          }),
+        });
+
+        if (!res.ok || !res.body) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        // 3. Stream the response and accumulate text
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? ""; // keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const raw = line.slice(6).trim();
+            if (raw === "[DONE]") continue;
+
+            try {
+              const parsed = JSON.parse(raw);
+              if (parsed.type === "text-delta" && parsed.delta) {
+                fullText += parsed.delta;
+                setStreamingText(fullText);
+              } else if (parsed.type === "error") {
+                throw new Error(parsed.errorText || "AI returned an error");
+              }
+            } catch {
+              // ignore malformed JSON lines
+            }
+          }
+        }
+
+        // 4. Streaming complete — move streamed text into displayMessages
+        const assistantText = fullText.trim();
+        if (assistantText) {
+          const assistantMsgId = `assistant-${Date.now()}`;
+          setDisplayMessages((prev) => [
+            ...prev,
+            { id: assistantMsgId, role: "assistant", content: assistantText },
+          ]);
+          chatHistoryRef.current = [
+            ...chatHistoryRef.current,
+            { role: "assistant", content: assistantText },
+          ];
+        } else {
+          // Empty response — show a generic error bubble
+          const errorId = `error-${Date.now()}`;
+          setDisplayMessages((prev) => [
+            ...prev,
+            {
+              id: errorId,
+              role: "assistant",
+              content: "I'm having trouble responding right now. Please try again in a moment.",
+              isError: true,
+            },
+          ]);
+        }
+      } catch (err: any) {
+        console.error("Chat error:", err);
+        const errorId = `error-${Date.now()}`;
+        setDisplayMessages((prev) => [
+          ...prev,
+          {
+            id: errorId,
+            role: "assistant",
+            content: "I'm having trouble responding right now. Please try again in a moment.",
+            isError: true,
+          },
+        ]);
+        // Remove the failed user message from history so it isn't re-sent
+        chatHistoryRef.current = chatHistoryRef.current.slice(0, -1);
+      } finally {
+        setIsThinking(false);
+        setStreamingText("");
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsThinking(false);
+    },
+    [input, isThinking, isMinimized, compareItems]
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      onSubmit(e as any);
     }
   };
 
@@ -131,7 +254,7 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setMessages([]);
+              clearChat();
             }}
             className="p-2.5 hover:bg-white/5 rounded-xl text-white/40 hover:text-white transition-colors"
             title="Clear Chat"
@@ -157,7 +280,7 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-5 custom-scrollbar min-h-0">
         <AnimatePresence mode="popLayout">
-          {messages.length === 0 ? (
+          {displayMessages.length === 0 && !isThinking ? (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-50 py-10">
               <Sparkles className="w-8 h-8 text-accent mb-4" />
               <p className="text-white font-display text-lg mb-1">Ask about these machines</p>
@@ -166,13 +289,8 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
               </p>
             </div>
           ) : (
-            messages.map((m: any) => {
-              // Render tool invocation as a subtle status indicator
-              if (m.role === "tool") return null;
-
-              const hasToolCall = m.toolInvocations && m.toolInvocations.length > 0;
-
-              return (
+            <>
+              {displayMessages.map((m) => (
                 <motion.div
                   key={m.id}
                   layout
@@ -192,75 +310,70 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
                   >
                     {m.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
-                  <div className="flex flex-col gap-2 max-w-[85%]">
-                    {/* Tool call status pill */}
-                    {hasToolCall && (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-accent/5 border border-accent/20 rounded-full w-fit">
-                        <Search className="w-3 h-3 text-accent animate-pulse" />
-                        <span className="text-[10px] text-accent tracking-widest uppercase font-bold">
-                          {m.toolInvocations[0].state === "result" ? "Searched showroom" : "Searching showroom..."}
-                        </span>
-                      </div>
+                  <div
+                    className={cn(
+                      "p-4 rounded-2xl text-sm leading-relaxed break-words max-w-[85%]",
+                      m.role === "user"
+                        ? "bg-accent text-black font-medium rounded-tr-none"
+                        : m.isError
+                        ? "bg-red-500/10 text-red-300 rounded-tl-none border border-red-500/20"
+                        : "bg-white/5 text-white/90 rounded-tl-none"
                     )}
-                    
-                    {/* Text content bubble */}
-                    <div
-                      className={cn(
-                        "p-4 rounded-2xl text-sm leading-relaxed break-words",
-                        m.role === "user"
-                          ? "bg-accent text-black font-medium rounded-tr-none"
-                          : "bg-white/5 text-white/90 rounded-tl-none"
-                      )}
-                    >
-                      {(() => {
-                        const messageText = m.content || (m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') ?? '');
-                        
-                        if (!messageText) return null;
-                        
-                        return m.role === "assistant" ? (
-                          <MarkdownRenderer content={messageText} />
-                        ) : (
-                          messageText
-                        );
-                      })()}
+                  >
+                    {m.role === "assistant" && !m.isError ? (
+                      <MarkdownRenderer content={m.content} />
+                    ) : (
+                      m.content
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Live streaming text bubble */}
+              {streamingText && (
+                <motion.div
+                  key="streaming-bubble"
+                  layout
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-3 flex-row"
+                >
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 bg-accent/20 text-accent">
+                    <Bot className="w-4 h-4" />
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white/5 text-white/90 rounded-tl-none text-sm leading-relaxed break-words max-w-[85%]">
+                    <MarkdownRenderer content={streamingText} />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Thinking bubble — shown while waiting for first chunk */}
+              {isThinking && !streamingText && (
+                <motion.div
+                  key="thinking-bubble"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="flex gap-3 flex-row"
+                >
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 bg-accent/20 text-accent">
+                    <Bot className="w-4 h-4" />
+                  </div>
+                  <div className="flex flex-col gap-2 max-w-[85%]">
+                    <div className="p-4 rounded-2xl bg-white/5 rounded-tl-none flex items-center gap-1.5 w-fit">
+                      {[0, 1, 2].map((i) => (
+                        <motion.span
+                          key={i}
+                          className="w-2 h-2 rounded-full bg-white/40 block"
+                          animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
+                        />
+                      ))}
                     </div>
                   </div>
                 </motion.div>
-              );
-            })
-          )}
-
-          {/* Thinking bubble — hide once the assistant has started streaming text */}
-          {isThinking && (() => {
-            if (messages.length === 0) return true;
-            const last = messages[messages.length - 1];
-            if (last.role !== "assistant") return true;
-            const lastText = last.content || (last.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') ?? '');
-            return !lastText; // hide once text is flowing
-          })() && (
-            <motion.div
-              key="thinking-bubble"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="flex gap-3 flex-row"
-            >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 bg-accent/20 text-accent">
-                <Bot className="w-4 h-4" />
-              </div>
-              <div className="flex flex-col gap-2 max-w-[85%]">
-                <div className="p-4 rounded-2xl bg-white/5 rounded-tl-none flex items-center gap-1.5 w-fit">
-                  {[0, 1, 2].map((i) => (
-                    <motion.span
-                      key={i}
-                      className="w-2 h-2 rounded-full bg-white/40 block"
-                      animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.18, ease: "easeInOut" }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              )}
+            </>
           )}
         </AnimatePresence>
       </div>
@@ -271,7 +384,8 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
           <input
             type="text"
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={
               compareItems.length === 2
                 ? `Ask about the ${compareItems[0].name} vs ${compareItems[1].name}...`
@@ -281,7 +395,7 @@ export default function CompareAIChat({ compareItems }: { compareItems: CarEntry
           />
           <button
             type="submit"
-            disabled={isThinking || !input || !input.trim()}
+            disabled={isThinking || !input.trim()}
             className="w-12 h-12 bg-accent text-black rounded-full flex items-center justify-center hover:bg-accent/80 disabled:opacity-40 transition-all shrink-0 hover:scale-105 active:scale-95"
           >
             {isThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

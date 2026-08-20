@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowDown, Globe2, Shield, Gem, Volume2, VolumeX } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import Footer from "@/components/layout/Footer";
 
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -232,6 +233,7 @@ export default function AboutPage() {
           </div>
         </motion.div>
       </section>
+      <Footer />
     </main>
   );
 }
