@@ -1,14 +1,58 @@
 import { apiRequest } from "./apiClient";
 
+export interface Role {
+  _id: string;
+  name: string;
+  description: string;
+  level: number;
+  isSystem: boolean;
+  permissions: { _id: string; name: string; description: string; module: string }[];
+}
+
 export interface AdminUser {
   _id: string;
   email: string;
   name: string | null;
   role: "customer" | "vendor" | "mechanic" | "admin";
+  assignedRole: Role | null;
   status: "active" | "suspended";
   isEmailVerified: boolean;
   verificationLevel: "basic" | "individual" | "business";
   createdAt: string;
+}
+
+export async function adminListRoles() {
+  const res = await apiRequest<{ roles: Role[] }>("/api/v1/admin/roles", { method: "GET" });
+  if (!res.success) throw new Error(res.error.message);
+  return res.data.roles;
+}
+
+export async function adminListAuditLogs(params?: { page?: number; limit?: number; module?: string; action?: string; adminId?: string }) {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", params.page.toString());
+  if (params?.limit) query.set("limit", params.limit.toString());
+  if (params?.module) query.set("module", params.module);
+  if (params?.action) query.set("action", params.action);
+  if (params?.adminId) query.set("adminId", params.adminId);
+
+  const res = await apiRequest<{ logs: any[]; total: number; page: number; limit: number }>(
+    `/api/v1/admin/audit-logs?${query.toString()}`,
+    { method: "GET" }
+  );
+  if (!res.success) throw new Error(res.error.message);
+  return res.data;
+}
+
+export async function adminAssignRole(userId: string, roleId: string | null) {
+  const res = await apiRequest<{ user: AdminUser }>(
+    `/api/v1/admin/users/${userId}/assign-role`,
+    {
+      method: "POST",
+      body: JSON.stringify({ roleId }),
+    }
+  );
+  if (!res.success) throw new Error(res.error.message);
+  return res.data.user;
 }
 
 export async function adminListUsers(params: { page?: number; limit?: number; role?: string }) {

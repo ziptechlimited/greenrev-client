@@ -15,6 +15,7 @@ interface NavItem {
   href: string;
   icon: LucideIcon;
   badge?: number;
+  requiredPermission?: string;
 }
 
 interface DashboardLayoutProps {
@@ -97,7 +98,12 @@ export default function DashboardLayout({ children, navItems, role, title }: Das
         </div>
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {navItems.filter((item) => {
+            if (!item.requiredPermission) return true;
+            if (role !== "admin") return true; // Only filter for admins
+            const perms = (user as any).permissions || [];
+            return perms.includes(item.requiredPermission);
+          }).map((item) => {
             const bestMatch = navItems.reduce((best, nav) => {
               if (pathname === nav.href || pathname.startsWith(nav.href + "/")) {
                 if (!best || nav.href.length > best.href.length) {

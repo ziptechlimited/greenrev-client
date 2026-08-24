@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Shield, UserX, Trash2 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { adminListUsers, adminUpdateUserRole, adminUpdateUserStatus, adminDeleteUser, AdminUser } from "@/lib/apiAdmin";
+import { adminListUsers, adminUpdateUserRole, adminUpdateUserStatus, adminListRoles, adminAssignRole, AdminUser, Role } from "@/lib/apiAdmin";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { ADMIN_NAV } from "@/lib/adminNav";
@@ -12,26 +12,30 @@ import { ADMIN_NAV } from "@/lib/adminNav";
 export default function AdminRolesPage() {
   const { user: currentUser } = useAuth();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAdmins = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminListUsers({ limit: 100 });
-      // Filter only admins for the RBAC page
-      setAdmins(data.users.filter((u) => u.role === "admin"));
+      const [usersData, rolesData] = await Promise.all([
+        adminListUsers({ limit: 100 }),
+        adminListRoles(),
+      ]);
+      setAdmins(usersData.users.filter((u) => u.role === "admin"));
+      setRoles(rolesData);
     } catch (err: any) {
-      setError(err.message || "Failed to load admins");
+      setError(err.message || "Failed to load roles data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAdmins();
+    fetchData();
   }, []);
 
   const handleDemote = async (userId: string) => {
@@ -55,6 +59,18 @@ export default function AdminRolesPage() {
       setAdmins(admins.map(u => u._id === userId ? { ...u, status: newStatus } : u));
     } catch (err: any) {
       alert("Failed to update status: " + err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, roleId: string) => {
+    setActionLoading(userId);
+    try {
+      const updatedUser = await adminAssignRole(userId, roleId || null);
+      setAdmins(admins.map(u => u._id === userId ? updatedUser : u));
+    } catch (err: any) {
+      alert("Failed to assign role: " + err.message);
     } finally {
       setActionLoading(null);
     }
@@ -121,9 +137,17 @@ export default function AdminRolesPage() {
                           </div>
                         </td>
                         <td className="p-4">
-                          <span className="text-white/60 bg-white/5 px-3 py-1 rounded-full text-sm md:text-base font-mono">
-                            Super Admin
-                          </span>
+                          <select
+                            value={u.assignedRole?._id || ""}
+                            onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                            disabled={actionLoading === u._id || currentUser?.id === u._id}
+                            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm md:text-base outline-none focus:border-accent w-48"
+                          >
+                            <option value="">No Role Assigned</option>
+                            {roles.map(r => (
+                              <option key={r._id} value={r._id}>{r.name.replace("_", " ").toUpperCase()}</option>
+                            ))}
+                          </select>
                         </td>
                         <td className="p-4">
                           <span className={cn(

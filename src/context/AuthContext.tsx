@@ -53,6 +53,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   googleAuthUrl: (params?: { role?: Exclude<UserRole, null>; returnTo?: string }) => string;
+  setupMfa: () => Promise<{ secret: string; qrCodeUrl: string }>;
+  verifyMfa: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -170,6 +172,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const setupMfa = async () => {
+    const res = await apiRequest<{ secret: string; qrCodeUrl: string }>("/api/v1/auth/mfa/setup", {
+      method: "POST",
+    });
+    if (!res.success) throw new AuthError(res.error.code, res.error.message);
+    return res.data;
+  };
+
+  const verifyMfa = async (token: string) => {
+    const res = await apiRequest<{ ok: boolean }>("/api/v1/auth/mfa/verify", {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    });
+    if (!res.success) throw new AuthError(res.error.code, res.error.message);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -184,6 +202,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         googleAuthUrl,
+        setupMfa,
+        verifyMfa,
       }}
     >
       {children}
