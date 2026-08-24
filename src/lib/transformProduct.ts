@@ -26,6 +26,7 @@ export function transformProductToCarEntry(product: Product): CarEntry {
       topSpeed: product.specs?.topSpeed || "N/A",
     },
     vendorId: product.vendorId || "",
+    vendorName: product.vendorName,
     vendorPhone: product.vendorPhone ?? null,
   };
 }

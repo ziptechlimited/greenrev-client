@@ -98,7 +98,7 @@ export default function ServicesGrid() {
                 EXPERT CARE
               </h3>
               <p className="text-white/80 text-lg font-light leading-relaxed">
-                Access our elite network of certified mechanics and specialized service centers.
+                Access our elite network of mechanics and specialized service centers.
               </p>
               <div className="pt-2">
                 <Link
