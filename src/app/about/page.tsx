@@ -1,16 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ArrowDown, Globe2, Shield, Gem, Volume2, VolumeX } from "lucide-react";
+import { Car, Wrench, Settings, Truck, MapPin, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/layout/Footer";
 
 export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -34,44 +32,15 @@ export default function AboutPage() {
     >
       {/* 1. HERO SECTION */}
       <section className="relative h-[100vh] w-full overflow-hidden flex items-center justify-center">
-        {/* Parallax Video Container */}
+        {/* Background */}
         <motion.div
           style={{ y: heroVideoY }}
           className="absolute inset-0 w-full h-[120%] -top-[10%] z-0"
         >
-          <video
-            ref={videoRef}
-            autoPlay
-            loop
-            muted={isMuted}
-            playsInline
-            className="w-full h-full object-cover filter brightness-[0.4]"
-          >
-            <source src="/Sarkin Mota Autos.mp4" type="video/mp4" />
-          </video>
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&q=80&w=2000')] bg-cover bg-center filter brightness-[0.3]" />
           {/* Subtle gradient overlay to blend into the next section */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none" />
         </motion.div>
-
-        {/* Audio Toggle Button */}
-        <div className="absolute top-32 right-6 md:top-40 md:right-12 z-50">
-          <button
-            onClick={() => {
-              if (videoRef.current) {
-                videoRef.current.muted = !isMuted;
-                setIsMuted(!isMuted);
-              }
-            }}
-            className="w-12 h-12 bg-black/40 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-all hover:scale-105 shadow-[0_0_20px_rgba(0,0,0,0.5)]"
-            aria-label={isMuted ? "Unmute video" : "Mute video"}
-          >
-            {isMuted ? (
-              <VolumeX className="w-5 h-5" />
-            ) : (
-              <Volume2 className="w-5 h-5" />
-            )}
-          </button>
-        </div>
 
         {/* Hero Content */}
         <motion.div
@@ -84,15 +53,15 @@ export default function AboutPage() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
           >
             <span className="text-accent text-[10px] sm:text-xs tracking-[0.4em] uppercase mb-6 block font-bold drop-shadow-md">
-              The Standard of Excellence
+              One Automotive Ecosystem
             </span>
             <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-display font-bold tracking-tight mb-8 drop-shadow-2xl">
-              GreenRev Motors
+              GreenRev
             </h1>
-            <p className="max-w-xl mx-auto text-lg md:text-xl text-subtle font-light leading-relaxed">
-              Curating the world’s most coveted performance{" "}
-              <br className="hidden md:block" /> and luxury machines for those
-              who move differently.
+            <p className="max-w-2xl mx-auto text-lg md:text-xl text-subtle font-light leading-relaxed">
+              A technology-driven digital automotive marketplace connecting buyers with 
+              independent vehicle dealers, automotive parts vendors, mechanics and other 
+              automotive service providers through one integrated platform.
             </p>
           </motion.div>
         </motion.div>
@@ -117,96 +86,167 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      {/* 2. THE PHILOSOPHY SECTION (Sticky Scroll) */}
-      <section className="relative z-20 bg-background pt-32 h-[300vh]">
-        <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden px-6">
-          <div className="max-w-[1600px] mx-auto w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-              <div className="relative z-10 space-y-8 lg:col-span-5 pl-4 lg:pl-0">
-                <motion.h2
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
-                  className="text-4xl md:text-6xl font-display leading-tight"
-                >
-                  A Legacy of <br />
-                  <span className="text-accent italic">
-                    Uncompromising
-                  </span>{" "}
-                  Standards.
-                </motion.h2>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.2 }}
-                  className="space-y-6 text-subtle text-lg font-light leading-relaxed max-w-lg"
-                >
-                  <p>
-                    GreenRev Motors was not founded simply to move vehicles. It
-                    was established to elevate the entire automotive acquisition
-                    experience. We believe that true luxury is not just found in
-                    the leather or the horsepower, but in the seamless,
-                    transparent, and intensely personal journey of finding your
-                    perfect machine.
-                  </p>
-                  <p>
-                    Every vehicle in our showroom has been subjected to a
-                    rigorous certification process. If a car does not meet our
-                    exact standard of mechanical perfection and aesthetic
-                    brilliance, it does not earn the GreenRev Motors badge.
-                  </p>
-                </motion.div>
-              </div>
-
-              {/* Dynamic Image Swapper Container */}
-              <div className="relative h-[60vh] md:h-[80vh] w-full rounded-[40px] overflow-hidden border border-white/10 lg:col-span-7">
-                <StickyImageSwapper scrollY={smoothProgress} />
-                <div className="absolute inset-0 border border-white/5 rounded-[40px] pointer-events-none z-20" />
-              </div>
+      {/* 2. WHY GREENREV & PLATFORM SECTION */}
+      <section className="relative z-20 bg-background pt-32 pb-24 border-b border-white/5">
+        <div className="max-w-[1600px] mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-8">
+              <span className="text-accent text-[10px] tracking-[0.3em] uppercase block font-bold">
+                Why GreenRev?
+              </span>
+              <motion.h2
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as const }}
+                className="text-4xl md:text-5xl font-display leading-tight"
+              >
+                Bringing fragmentation <br />
+                <span className="text-accent italic">together.</span>
+              </motion.h2>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="space-y-6 text-subtle text-lg font-light leading-relaxed max-w-lg"
+              >
+                <p>
+                  The automotive market can be fragmented. Buyers often have to move between different platforms, 
+                  dealers, vendors and service providers to find a vehicle, source parts, locate a mechanic or access other 
+                  automotive services.
+                </p>
+                <p className="text-white font-medium">
+                  GreenRev exists to bring these experiences together.
+                </p>
+                <p>
+                  Our platform creates a digital connection between consumers and automotive businesses, making it 
+                  easier to discover, compare, and connect with options from one connected platform.
+                </p>
+                <p className="font-bold tracking-widest uppercase text-sm mt-8 text-accent">
+                  Discover. Compare. Connect.
+                </p>
+              </motion.div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <PillarCard
+                icon={<Car />}
+                title="Vehicles"
+                description="Explore vehicle listings from independent dealers and sellers and discover options that suit your needs, preferences and budget."
+                delay={0}
+              />
+              <PillarCard
+                icon={<Settings />}
+                title="Automotive Parts"
+                description="Discover automotive parts and components from vendors through the GreenRev marketplace."
+                delay={0.1}
+              />
+              <PillarCard
+                icon={<Wrench />}
+                title="Mechanics & Experts"
+                description="Find and connect with mechanics and automotive service providers for maintenance, repairs and other vehicle-related needs."
+                delay={0.2}
+              />
+              <PillarCard
+                icon={<Truck />}
+                title="Rentals & Mobility"
+                description="Explore available vehicle rental options and connect with logistics mobility services."
+                delay={0.3}
+                comingSoon
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. CORE PILLARS SECTION */}
+      {/* 3. AUDIENCE & TRUST SECTION */}
       <section className="relative z-20 bg-black py-32 px-6 border-y border-white/5 overflow-hidden">
-        {/* Glow behind the pillars */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-[800px] bg-accent/5 blur-[150px] rounded-full pointer-events-none" />
-
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <div className="text-center mb-24">
-            <span className="text-accent text-[10px] tracking-[0.3em] uppercase mb-4 block font-bold">
-              The GreenRev Motors Difference
-            </span>
-            <h2 className="text-4xl md:text-6xl font-display">Our Pillars</h2>
+        <div className="max-w-[1600px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-16">
+          <div className="space-y-6">
+            <h3 className="text-2xl font-display text-white">For Buyers</h3>
+            <p className="text-subtle font-light leading-relaxed">
+              GreenRev is designed to make automotive discovery easier. Instead of navigating multiple disconnected channels, customers can use one platform to explore vehicles, products and services while accessing information that helps them make more informed decisions.
+            </p>
+            <p className="text-white font-medium">Our goal is simple: Make the automotive journey easier to navigate.</p>
+          </div>
+          
+          <div className="space-y-6">
+            <h3 className="text-2xl font-display text-white">For Automotive Businesses</h3>
+            <p className="text-subtle font-light leading-relaxed">
+              We provide independent dealers, automotive parts vendors, mechanics and other service providers with a digital platform to showcase their businesses, reach potential customers and participate in a growing automotive ecosystem.
+            </p>
+            <p className="text-white font-medium">Connect your business with people looking for what you offer.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <PillarCard
-              icon={<Globe2 />}
-              title="Global Sourcing"
-              description="We possess an extensive global network, allowing us to locate extremely rare and highly sought-after specifications from anywhere in the world."
-              delay={0}
-            />
-            <PillarCard
-              icon={<Shield />}
-              title="Absolute Provenance"
-              description="Transparency is paramount. Every vehicle is delivered with a complete, verified history and a bulletproof mechanical warranty."
-              delay={0.2}
-            />
-            <PillarCard
-              icon={<Gem />}
-              title="White-Glove Service"
-              description="From your first inquiry to the moment the keys are placed in your hand, your dedicated Concierge handles every logistical detail."
-              delay={0.4}
-            />
+          <div className="space-y-6">
+            <h3 className="text-2xl font-display text-white flex items-center gap-3">
+              <ShieldCheck className="text-accent w-6 h-6" /> Built Around Trust
+            </h3>
+            <p className="text-subtle font-light leading-relaxed">
+              Trust is essential in the automotive marketplace. GreenRev is being developed with technology and platform controls designed to support greater accountability across interactions.
+            </p>
+            <ul className="space-y-2 text-sm text-subtle font-light">
+              <li>• Business and provider verification</li>
+              <li>• Structured marketplace listings</li>
+              <li>• Transaction references and tracking</li>
+              <li>• Ratings and reviews</li>
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* 4. FINAL CTA SECTION */}
+      {/* 4. MISSION & VISION */}
+      <section className="relative z-20 bg-background py-32 px-6">
+        <div className="max-w-[1000px] mx-auto space-y-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1 }}
+          >
+            <span className="text-accent text-[10px] tracking-[0.3em] uppercase block font-bold mb-4">Our Mission</span>
+            <h2 className="text-3xl md:text-5xl font-display leading-tight mb-6">
+              To simplify how people discover, compare and access vehicles, automotive products and services through technology.
+            </h2>
+            <p className="text-subtle text-lg font-light">
+              We want to reduce fragmentation within the automotive journey by bringing consumers and automotive businesses together through one connected digital platform.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.2 }}
+          >
+            <span className="text-accent text-[10px] tracking-[0.3em] uppercase block font-bold mb-4">Our Vision</span>
+            <h2 className="text-3xl md:text-5xl font-display leading-tight mb-6">
+              To build Africa's connected digital automotive ecosystem.
+            </h2>
+            <p className="text-subtle text-lg font-light">
+              Beginning in Nigeria, our ambition is to create a platform that connects consumers, automotive businesses, services and technology—and progressively expand the GreenRev ecosystem across Africa and beyond.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 5. COMPANY DETAILS */}
+      <section className="relative z-20 bg-black py-20 px-6 border-t border-white/5">
+        <div className="max-w-[1600px] mx-auto text-center space-y-6">
+          <h3 className="text-xl font-display text-white">An Independent Marketplace</h3>
+          <p className="text-subtle font-light max-w-3xl mx-auto text-sm leading-relaxed">
+            GreenRev operates as a digital automotive marketplace and technology platform. Vehicles, automotive parts and services displayed on GreenRev may be offered by independent dealers, sellers, vendors, mechanics and other third-party service providers. Unless expressly stated otherwise, GreenRev does not own the vehicles or products advertised by independent marketplace participants.
+          </p>
+          <div className="pt-8">
+            <p className="text-xs tracking-widest text-white/40 uppercase">
+              GreenRev is operated by <strong className="text-white/80">GreenCrest Limited</strong>, a company incorporated in Nigeria.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FINAL CTA SECTION */}
       <section className="relative z-20 bg-background py-48 px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -216,19 +256,24 @@ export default function AboutPage() {
           className="max-w-3xl mx-auto space-y-10"
         >
           <h2 className="text-5xl md:text-7xl font-display">
-            Experience <br /> the{" "}
-            <span className="text-accent italic">Difference</span>.
+            Join the <span className="text-accent italic">Ecosystem</span>.
           </h2>
           <p className="text-xl text-subtle font-light">
-            Your next automotive masterpiece awaits in our showroom. Let us
-            assist you in acquiring exactly what you desire.
+            Whether you're looking for your next vehicle, searching for automotive parts, finding a mechanic, 
+            or looking to grow your automotive business, GreenRev is being built to bring those possibilities together.
           </p>
-          <div className="pt-8">
+          <div className="pt-8 flex flex-wrap justify-center gap-4">
             <Link
               href="/shop"
               className="inline-flex items-center justify-center px-10 py-5 bg-accent text-black font-bold uppercase tracking-widest text-[11px] rounded-full transition-transform hover:scale-105 shadow-[0_0_40px_rgba(199,164,61,0.2)] hover:shadow-[0_0_60px_rgba(199,164,61,0.4)]"
             >
-              Enter the Showroom
+              Explore GreenRev
+            </Link>
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center px-10 py-5 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-[11px] rounded-full transition-all hover:bg-white/10 hover:border-white/20"
+            >
+              Join as a Business
             </Link>
           </div>
         </motion.div>
@@ -243,11 +288,13 @@ function PillarCard({
   title,
   description,
   delay,
+  comingSoon = false,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   delay: number;
+  comingSoon?: boolean;
 }) {
   return (
     <motion.div
@@ -255,58 +302,22 @@ function PillarCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.8, delay, ease: [0.16, 1, 0.3, 1] as const }}
-      className="bg-white/[0.02] border border-white/5 p-12 rounded-[40px] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-500 group"
+      className="bg-white/[0.02] border border-white/5 p-8 rounded-2xl hover:bg-white/[0.04] hover:border-white/10 transition-all duration-500 group flex flex-col h-full"
     >
-      <div className="w-16 h-16 rounded-full bg-black/40 border border-white/10 flex items-center justify-center mb-8 text-accent group-hover:scale-110 group-hover:bg-accent/10 transition-all duration-500">
-        {icon}
+      <div className="flex justify-between items-start mb-6">
+        <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 flex items-center justify-center text-accent group-hover:scale-110 group-hover:bg-accent/10 transition-all duration-500">
+          {icon}
+        </div>
+        {comingSoon && (
+          <span className="px-2 py-1 bg-white/5 border border-white/10 text-[9px] uppercase tracking-widest font-bold text-white/60 rounded-md">
+            Coming Soon
+          </span>
+        )}
       </div>
-      <h3 className="text-2xl font-display text-white mb-4 group-hover:text-accent transition-colors">
+      <h3 className="text-xl font-display text-white mb-3 group-hover:text-accent transition-colors">
         {title}
       </h3>
-      <p className="text-subtle leading-relaxed font-light">{description}</p>
+      <p className="text-subtle text-sm leading-relaxed font-light">{description}</p>
     </motion.div>
-  );
-}
-
-// Custom component to handle the crossfading of images based on scroll
-function StickyImageSwapper({ scrollY }: { scrollY: any }) {
-  // We use the global scrollYProgress (0 to 1)
-  // Philosophy section roughly occupies page scroll 0.25 to 0.7
-
-  // Image 1 opacity: 1 -> 0
-  const opacity1 = useTransform(scrollY, [0.3, 0.45], [1, 0]);
-
-  // Image 2 opacity: 0 -> 1 -> 0
-  const opacity2 = useTransform(scrollY, [0.4, 0.45, 0.55, 0.6], [0, 1, 1, 0]);
-
-  // Image 3 opacity: 0 -> 1
-  const opacity3 = useTransform(scrollY, [0.55, 0.6], [0, 1]);
-
-  return (
-    <>
-      {/* Image 1: Engine/Detail */}
-      <motion.img
-        style={{ opacity: opacity1 }}
-        src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=1200"
-        alt="SarkinMota Detail"
-        className="absolute inset-0 w-full h-full object-cover filter grayscale opacity-60 hover:grayscale-0 transition-all duration-[2s] z-10"
-      />
-
-      {/* Image 2: Interior */}
-      <motion.img
-        style={{ opacity: opacity2 }}
-        src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=1200"
-        alt="SarkinMota Interior"
-        className="absolute inset-0 w-full h-full object-cover filter grayscale opacity-60 hover:grayscale-0 transition-all duration-[2s] z-20"
-      />
-
-      {/* Image 3: Exterior High Performance */}
-      <motion.img
-        style={{ opacity: opacity3 }}
-        src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80&w=1200"
-        alt="SarkinMota Exterior"
-        className="absolute inset-0 w-full h-full object-cover filter grayscale opacity-60 hover:grayscale-0 transition-all duration-[2s] z-30"
-      />
-    </>
   );
 }

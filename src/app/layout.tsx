@@ -9,8 +9,43 @@ import { CompareProvider } from "@/context/CompareContext";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "GreenRev Motors | Elevated Automotive Experience",
-  description: "Curated performance machines for those who move differently.",
+  title: "GreenRev | One Automotive Ecosystem",
+  description: "Connecting buyers with independent vehicle dealers, automotive parts vendors, mechanics and other automotive service providers through one integrated platform.",
+  keywords: [
+    "automotive marketplace", 
+    "vehicle dealers", 
+    "automotive parts", 
+    "mechanics", 
+    "Africa automotive",
+    "GreenRev",
+    "car sales",
+    "car parts"
+  ],
+  authors: [{ name: "GreenCrest Limited" }],
+  openGraph: {
+    title: "GreenRev | One Automotive Ecosystem",
+    description: "Connecting buyers with independent vehicle dealers, automotive parts vendors, mechanics and other automotive service providers through one integrated platform.",
+    url: "https://greenrev.com",
+    siteName: "GreenRev",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GreenRev | One Automotive Ecosystem",
+    description: "Connecting buyers with independent vehicle dealers, automotive parts vendors, mechanics and other automotive service providers through one integrated platform.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({

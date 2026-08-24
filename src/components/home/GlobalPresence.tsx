@@ -216,7 +216,7 @@ export default function GlobalPresence() {
                       </div>
                       <h3 className="text-2xl font-display text-white">Inquiry Received</h3>
                       <p className="text-subtle text-sm max-w-sm mx-auto">
-                        Thank you for reaching out to GreenRev Motors. Our concierge team will contact you shortly.
+                        Thank you for reaching out to GreenRev. Our support team will contact you shortly.
                       </p>
                       <button
                         onClick={() => setIsModalOpen(false)}

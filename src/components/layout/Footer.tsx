@@ -82,7 +82,7 @@ export default function Footer() {
           <div className="flex flex-col gap-2">
             <Image 
               src="/logo.png" 
-              alt="GreenRev Motors" 
+              alt="GreenRev" 
               width={160} 
               height={40} 
               className="object-contain"
@@ -90,9 +90,7 @@ export default function Footer() {
             <div className="h-[1px] w-12 bg-accent/50 mt-2" />
           </div>
           <p className="text-subtle max-w-sm text-sm md:text-base leading-relaxed font-light">
-            Curated performance machines for those who move differently. Elevate
-            your automotive experience with our certified expert network and
-            unmatched global network.
+            A technology-driven digital automotive marketplace connecting buyers with independent vehicle dealers, automotive parts vendors, mechanics and other automotive service providers through one integrated platform.
           </p>
 
           {/* App CTA */}
@@ -180,7 +178,7 @@ export default function Footer() {
         >
           <Link href="/about" className="block text-center">
             <h2 className="text-[16vw] md:text-[14vw] leading-[0.85] font-display font-black text-white tracking-tighter hover:text-accent transition-colors duration-700 select-none">
-              GreenRev Motors.
+              GreenRev.
             </h2>
             {/* Interactive underline expansion */}
             <motion.div className="h-[2px] bg-accent w-0 group-hover:w-full transition-all duration-700 ease-out mx-auto mt-6 md:mt-10" />
@@ -198,7 +196,7 @@ export default function Footer() {
         className="absolute inset-x-0 bottom-0 flex items-end justify-center pointer-events-none opacity-[0.02] overflow-hidden leading-none z-0 mix-blend-screen"
       >
         <span className="text-[20vw] font-display font-black whitespace-nowrap translate-y-[28%] select-none">
-          GREENREV MOTORS
+          GREENREV
         </span>
       </motion.div>
 
@@ -208,7 +206,7 @@ export default function Footer() {
         -------------------------------------------
       */}
       <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 mt-32 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-white/40 tracking-[0.25em] uppercase">
-        <p>© {new Date().getFullYear()} GreenRev Motors. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} GreenCrest Limited. All rights reserved.</p>
         <p className="mt-6 md:mt-0 flex items-center gap-2">
           Designed for Excellence{" "}
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />

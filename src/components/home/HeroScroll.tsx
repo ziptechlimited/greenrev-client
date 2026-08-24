@@ -163,11 +163,11 @@ export default function HeroScroll() {
           style={{ opacity: introOpacity, y: introY, scale: introScale }}
         >
           <h1 className="text-4xl md:text-9xl font-display uppercase tracking-[0.3em] text-white">
-            GreenRev <span className="text-accent">Motors</span>
+            GreenRev
           </h1>
           <div className="mt-4 w-24 h-[1px] bg-accent/50" />
           <div className="mt-6 flex items-center justify-center gap-3">
-            {["Find It", "Verify It", "Own It"].map((text, i) => (
+            {["Discover", "Compare", "Connect"].map((text, i) => (
               <div key={text} className="flex items-center gap-3">
                 <span className="text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] text-white/80 bg-white/5 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                   {text}
@@ -180,7 +180,7 @@ export default function HeroScroll() {
             href="/shop"
             className="pointer-events-auto mt-8 inline-flex items-center gap-3 px-8 py-4 bg-accent text-black font-bold uppercase tracking-widest text-[11px] rounded-full hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_0_40px_rgba(199,164,61,0.3)]"
           >
-            Explore the Showroom
+            Explore GreenRev
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>
@@ -199,10 +199,10 @@ export default function HeroScroll() {
           style={{ opacity: textOpacity, y: textY }}
         >
           <h1 className="text-4xl md:text-8xl font-display uppercase tracking-widest text-white mb-6">
-            Command the Road.
+            One Automotive Ecosystem.
           </h1>
-          <p className="text-base md:text-2xl text-subtle max-w-2xl font-light">
-            Curated performance machines for those who move differently.
+          <p className="text-base md:text-xl text-subtle max-w-2xl font-light">
+            Connecting buyers with independent vehicle dealers, automotive parts vendors, mechanics and other automotive service providers.
           </p>
         </motion.div>
       </div>

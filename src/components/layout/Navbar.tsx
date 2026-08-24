@@ -81,7 +81,7 @@ export default function Navbar() {
             >
               <Image
                 src="/logo.png"
-                alt="GreenRev Motors Logo"
+                alt="GreenRev Logo"
                 width={112}
                 height={112}
                 className="w-20 h-20 md:w-28 md:h-28 object-contain"
@@ -574,7 +574,7 @@ function MobileMenu({
             transition={{ delay: 0.4 }}
             className="flex flex-col items-center gap-4 text-white/30 text-xs font-light uppercase tracking-[0.2em] mb-4"
           >
-            <p>GreenRev Motors © {new Date().getFullYear()}</p>
+            <p>GreenRev © {new Date().getFullYear()}</p>
           </motion.div>
         </motion.div>
       )}

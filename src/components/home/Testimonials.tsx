@@ -20,17 +20,17 @@ const wrap = (min: number, max: number, v: number) => {
 // These are placeholder entries — source real quotes from verified customers post-launch.
 const testimonials = [
   {
-    quote: "GreenRev Motors secured the exact G63 AMG specification I've been chasing for months. Flawless execution. Discretion paramount.",
+    quote: "GreenRev made it incredibly easy to find the exact vehicle I was looking for, while also connecting me with a reliable mechanic for the inspection.",
     author: "M. Abubakar",
     location: "Abuja",
   },
   {
-    quote: "The delivery experience is unparalleled. The car arrived at my estate perfectly tuned and in pristine condition.",
+    quote: "The marketplace is seamless. I was able to source rare automotive parts from independent vendors without any hassle.",
     author: "J. Stirling",
     location: "Geneva",
   },
   {
-    quote: "More than a mere transaction. It’s an initiation into an exclusive, global circle of automotive purists.",
+    quote: "Finally, one connected platform for all my automotive needs. Connecting with dealers and service providers has never been this simple.",
     author: "E. Rothschild",
     location: "London",
   }
