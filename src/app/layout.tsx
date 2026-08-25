@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { CartProvider } from "@/context/CartContext";
 import { CompareProvider } from "@/context/CompareContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { SocketProvider } from "@/context/SocketContext";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "GreenRev | One Automotive Ecosystem",
@@ -57,15 +59,18 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={cn("bg-background text-foreground antialiased selection:bg-accent selection:text-black")}>
         <AuthProvider>
-          <CompareProvider>
-            <CartProvider>
-              <SmoothScroll>
-                <Navbar />
-                {children}
-              </SmoothScroll>
-              <CartSidebar />
-            </CartProvider>
-          </CompareProvider>
+          <SocketProvider>
+            <CompareProvider>
+              <CartProvider>
+                <SmoothScroll>
+                  <Navbar />
+                  {children}
+                </SmoothScroll>
+                <CartSidebar />
+                <Toaster position="bottom-right" />
+              </CartProvider>
+            </CompareProvider>
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>

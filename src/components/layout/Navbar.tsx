@@ -15,6 +15,7 @@ import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import NotificationBell from "./NotificationBell";
 
 const tabs = [
   { name: "Home", href: "/" },
@@ -115,6 +116,8 @@ export default function Navbar() {
                 <UserIcon className="w-5 h-5 text-white group-hover:text-accent transition-colors" />
               </Link>
             )}
+
+            {!isLoading && user && <NotificationBell />}
 
             <CartButton />
 
