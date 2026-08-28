@@ -83,9 +83,9 @@ export default function Navbar() {
               <Image
                 src="/logo.png"
                 alt="GreenRev Logo"
-                width={112}
-                height={112}
-                className="w-20 h-20 md:w-28 md:h-28 object-contain"
+                width={168}
+                height={168}
+                className="w-32 h-32 md:w-40 md:h-40 object-contain"
                 // style={{ filter: "brightness(0) saturate(100%) invert(80%) sepia(82%) saturate(836%) hue-rotate(32deg) brightness(101%) contrast(90%)" }}
               />
             </Link>
@@ -456,9 +456,9 @@ function MobileMenu({
               <Image
                 src="/logo.png"
                 alt="Logo"
-                width={112}
-                height={112}
-                className="w-20 h-20 object-contain"
+                width={168}
+                height={168}
+                className="w-32 h-32 object-contain"
                 // style={{ filter: "brightness(0) saturate(100%) invert(80%) sepia(82%) saturate(836%) hue-rotate(32deg) brightness(101%) contrast(90%)" }}
               />
             </Link>

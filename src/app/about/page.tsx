@@ -87,7 +87,7 @@ export default function AboutPage() {
       </section>
 
       {/* 2. WHY GREENREV & PLATFORM SECTION */}
-      <section className="relative z-20 bg-background pt-32 pb-24 border-b border-white/5">
+      <section className="relative z-20 bg-background pt-48 pb-24 border-b border-white/5">
         <div className="max-w-[1600px] mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div className="space-y-8">

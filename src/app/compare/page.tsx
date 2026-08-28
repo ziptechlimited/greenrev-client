@@ -40,7 +40,7 @@ export default function ComparePage() {
   );
 
   return (
-    <main className="min-h-screen bg-background pt-32 pb-20 overflow-x-hidden relative">
+    <main className="min-h-screen bg-background pt-48 pb-20 overflow-x-hidden relative">
       {/* Background Ambience */}
       <div className="absolute inset-0 pointer-events-none z-0 opacity-50">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] mix-blend-screen" />

@@ -768,7 +768,7 @@ export default function AcquisitionsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-background pt-32 pb-20 px-6 md:px-12">
+      <main className="min-h-screen bg-background pt-48 pb-20 px-6 md:px-12">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -200,7 +200,7 @@ function PartDetailsContent() {
   }
 
   return (
-    <main className="min-h-screen bg-background pt-32 pb-20">
+    <main className="min-h-screen bg-background pt-48 pb-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <Link
           href="/parts"

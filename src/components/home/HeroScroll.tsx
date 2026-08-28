@@ -169,7 +169,7 @@ export default function HeroScroll() {
           <div className="mt-6 flex items-center justify-center gap-3">
             {["Discover", "Compare", "Connect"].map((text, i) => (
               <div key={text} className="flex items-center gap-3">
-                <span className="text-[10px] md:text-xs font-medium uppercase tracking-[0.2em] text-white/80 bg-white/5 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                <span className="text-[14px] md:text-base font-medium uppercase tracking-[0.2em] text-white/80 bg-white/5 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
                   {text}
                 </span>
                 {i < 2 && <span className="text-accent/50 text-xs">✦</span>}
