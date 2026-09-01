@@ -22,9 +22,9 @@ const SOCIAL_LINKS = [
 ];
 
 const LEGAL_LINKS = [
-  { name: "Privacy Policy", href: "/about" },
-  { name: "Terms of Service", href: "/about" },
-  { name: "Cookie Policy", href: "/about" },
+  { name: "Privacy Policy", href: "/privacy" },
+  { name: "Terms of Service", href: "/terms" },
+  { name: "Cookie Policy", href: "/privacy#cookies" },
 ];
 
 // Magnetic Link Component for Awwwards-style hover effects

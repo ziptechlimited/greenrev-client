@@ -3,7 +3,7 @@ type ApiFailure = { success: false; error: { code: string; message: string; deta
 export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:5050";
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
 
 let storedCsrfToken: string | undefined;
 
