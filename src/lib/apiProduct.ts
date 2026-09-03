@@ -23,6 +23,24 @@ export async function uploadProductImage(
   return response.data.urls[0];
 }
 
+export async function uploadProductImages(
+  files: File[],
+): Promise<string[]> {
+  const formData = new FormData();
+  files.forEach(file => formData.append("files", file));
+
+  const response = await apiRequest<{ urls: string[] }>("/api/v1/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.success) {
+    throw new Error(response.error.message);
+  }
+
+  return response.data.urls;
+}
+
 export async function createProduct(
   data: CreateProductInput,
 ): Promise<Product> {
