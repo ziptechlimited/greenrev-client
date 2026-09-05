@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { name: "Parts", href: "/parts" },
   { name: "Experts", href: "/experts" },
   { name: "Compare", href: "/compare" },
-  { name: "Acquisitions", href: "/acquisitions" },
+  { name: "Services", href: "/acquisitions" },
   { name: "About", href: "/about" },
 ];
 

@@ -45,7 +45,7 @@ export default function CartSidebar() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
               <h2 className="text-white text-sm font-bold tracking-[0.2em] uppercase">
-                BAG ({cartItems.length})
+                GARAGE ({cartItems.length})
               </h2>
               <button
                 onClick={() => setIsCartOpen(false)}

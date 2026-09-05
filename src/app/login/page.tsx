@@ -10,7 +10,7 @@ import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, googleAuthUrl, resendVerification } = useAuth();
+  const { login, resendVerification } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -222,9 +222,12 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className="hover:text-white transition-colors">
                   Forgot Password
                 </Link>
-                <a href={googleAuthUrl({ returnTo: "/shop" })} className="hover:text-white transition-colors">
+                <span
+                  className="text-white/20 cursor-not-allowed select-none"
+                  title="Google login is temporarily disabled"
+                >
                   Continue with Google
-                </a>
+                </span>
               </div>
             </motion.form>
 
