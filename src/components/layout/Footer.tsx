@@ -150,13 +150,9 @@ export default function Footer() {
             </span>
             <div className="flex flex-col space-y-3">
               {LEGAL_LINKS.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="text-subtle hover:text-white transition-colors text-sm py-1"
-                >
+                <MagneticLink key={link.name} href={link.href}>
                   {link.name}
-                </Link>
+                </MagneticLink>
               ))}
             </div>
           </div>
