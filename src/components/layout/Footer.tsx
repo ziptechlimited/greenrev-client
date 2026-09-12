@@ -16,9 +16,9 @@ const NAV_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { name: "Instagram", href: "https://instagram.com" },
-  { name: "X (Twitter)", href: "https://x.com" },
-  { name: "LinkedIn", href: "https://linkedin.com" },
+  { name: "Facebook", href: "https://www.facebook.com/share/1D3SEVRcA5/?mibextid=wwXIfr" },
+  { name: "X (Twitter)", href: "https://x.com/greenrevng?s=11" },
+  { name: "TikTok", href: "https://www.tiktok.com/@greenrev.ng?_r=1&_t=ZS-99bzeeNrQMH" },
 ];
 
 const LEGAL_LINKS = [
