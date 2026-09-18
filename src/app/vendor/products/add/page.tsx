@@ -53,6 +53,8 @@ export default function VendorAddProductPage() {
     torque: "",
     transmission: "",
     topSpeed: "",
+    origin: "",
+    vin: "",
     acceleration: "",
     colorName: "",
     colorHex: "#000000",
@@ -97,6 +99,8 @@ export default function VendorAddProductPage() {
           torque: product.specs?.torque || "",
           transmission: product.specs?.transmission || "",
           topSpeed: product.specs?.topSpeed || "",
+          origin: product.specs?.origin || "",
+          vin: product.specs?.vin || "",
           acceleration: product.specs?.acceleration
             ? String(product.specs.acceleration)
             : "",
@@ -144,6 +148,8 @@ export default function VendorAddProductPage() {
       if (formData.torque) specs.torque = formData.torque;
       if (formData.transmission) specs.transmission = formData.transmission;
       if (formData.topSpeed) specs.topSpeed = formData.topSpeed;
+      if (formData.origin) specs.origin = formData.origin;
+      if (formData.vin) specs.vin = formData.vin;
       if (formData.acceleration)
         specs.acceleration = Number(formData.acceleration);
 
@@ -195,6 +201,8 @@ export default function VendorAddProductPage() {
         torque: "",
         transmission: "",
         topSpeed: "",
+        origin: "",
+        vin: "",
         acceleration: "",
         colorName: "",
         colorHex: "#000000",
@@ -590,6 +598,35 @@ export default function VendorAddProductPage() {
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-accent transition-colors"
                       />
                     </div>
+                    <div>
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
+                        Origin
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Germany"
+                        value={formData.origin}
+                        onChange={(e) =>
+                          handleInputChange("origin", e.target.value)
+                        }
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-accent transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
+                        VIN
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="17-character VIN"
+                        value={formData.vin}
+                        onChange={(e) =>
+                          handleInputChange("vin", e.target.value)
+                        }
+                        maxLength={17}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/20 focus:outline-none focus:border-accent transition-colors uppercase"
+                      />
+                    </div>
 
                     <div>
                       <label className="block text-subtle text-sm md:text-base font-bold uppercase tracking-widest mb-2">
@@ -708,6 +745,8 @@ export default function VendorAddProductPage() {
                       torque: "",
                       transmission: "",
                       topSpeed: "",
+                      origin: "",
+                      vin: "",
                       acceleration: "",
                       colorName: "",
                       colorHex: "#000000",
