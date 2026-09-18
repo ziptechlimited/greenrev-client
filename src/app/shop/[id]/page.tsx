@@ -208,10 +208,10 @@ function CarDetailsContent() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={handleBack}
-          className="flex items-center gap-2 text-subtle hover:text-white transition-colors mb-12 group relative z-50"
+          className=" cursor-pointer flex items-center gap-2 text-subtle hover:text-white transition-colors mb-12 group relative z-50"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold">
+          <span className=" cursor-pointer text-[10px] uppercase tracking-[0.2em] font-bold">
             Back
           </span>
         </motion.button>
