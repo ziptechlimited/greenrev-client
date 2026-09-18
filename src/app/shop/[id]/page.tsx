@@ -111,11 +111,11 @@ function CarDetailsContent() {
     : false;
 
   const handleBack = () => {
-    if (window.history.length > 2 || (document.referrer && document.referrer.includes(window.location.host))) {
+    // if (window.history.length > 2 || (document.referrer && document.referrer.includes(window.location.host))) {
       router.back();
-    } else {
-      router.push("/shop");
-    }
+    // } else {
+      // router.push("/shop");
+    // }
   };
 
   const handleAcquisitionClick = () => {
